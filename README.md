@@ -10,6 +10,11 @@ HEL is built to interpolate any string, but is in use by HashiCorp primarily
 with [HCL](https://github.com/hashicorp/hcl). HCL is _not required_ in any
 way for use with HEL.
 
+HEL isn't meant to be a general purpose language. It was built for basic
+configuration interpolations. Therefore, you can't currently write functions,
+have conditionals, set intermediary variables, etc. within HEL itself. It is
+possible some of these may be added later but the right use case must exist.
+
 ## Why?
 
 Many of our tools have support for something similar to templates, but
@@ -21,9 +26,11 @@ configuration. Example:
     foo = "hello ${var.world}"
 
 We originally used a full templating language for this, but found it
-was too heavy weight. We then moved to very basic regular expression based
+was too heavy weight. Additionally, many full languages required bindings
+to C (and thus the usage of cgo) which we try to avoid to make cross-compilation
+easier. We then moved to very basic regular expression based
 string replacement, but found the need for basic arithmetic and function
-calls.
+calls resulting in overly complex regular expressions.
 
 Ultimately, we wrote our own mini-language within Terraform itself. As
 we built other projects such as [Nomad](https://nomadproject.io) and
