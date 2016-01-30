@@ -38,6 +38,12 @@ type WalkData struct {
 // Walk will walk an arbitrary Go structure and parse any string as an
 // HEL program and call the callback cb to determine what to replace it
 // with.
+//
+// This function is very useful for arbitrary HEL program interpolation
+// across a complex configuration structure. Due to the heavy use of
+// reflection in this function, it is recommend to write many unit tests
+// with your typical configuration structures to help mitigate the risk
+// of panics.
 func Walk(v interface{}, cb WalkFn) error {
 	walker := &interpolationWalker{F: cb}
 	return reflectwalk.Walk(v, walker)
