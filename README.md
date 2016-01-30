@@ -76,3 +76,17 @@ we're not currently making that promise, either.
 The internal API of this project may very well change as we evolve it
 to work with more of our projects. We recommend using some sort of dependency
 management solution with this package.
+
+## Future Changes
+
+The following changes are already planned to be made at some point:
+
+  * Richer types: lists, maps, etc.
+
+  * Convert to a more standard Go parser structure similar to HCL. This
+    will improve our error messaging as well as allow us to have automatic
+    formatting.
+
+  * Allow interpolations to result in more types than just a string. While
+    within the interpolation basic types are honored, the result is always
+    a string.
