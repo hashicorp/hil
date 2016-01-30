@@ -60,3 +60,12 @@ docs, we'll assume you're within `${}`.
 
   * Boolean values: `true`, `false`
 
+## Language Changes
+
+We've used this mini-language in Terraform for years. For backwards compatibility
+reasons, we're unlikely to make an incompatible change to the language but
+we're not currently making that promise, either.
+
+The internal API of this project may very well change as we evolve it
+to work with more of our projects. We recommend using some sort of dependency
+management solution with this package.
