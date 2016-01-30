@@ -119,7 +119,7 @@ func TestInterpolationWalker_replace(t *testing.T) {
 
 		{
 			Input: map[string]interface{}{
-				"foo": "hello, ${var.foo}",
+				"foo": "hi, ${var.foo}",
 			},
 			Output: map[string]interface{}{
 				"foo": "bar",

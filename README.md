@@ -23,7 +23,7 @@ within the configuration itself. The most prominent requirement was in
 configuration to be able to reference values from elsewhere in the
 configuration. Example:
 
-    foo = "hello ${var.world}"
+    foo = "hi ${var.world}"
 
 We originally used a full templating language for this, but found it
 was too heavy weight. Additionally, many full languages required bindings

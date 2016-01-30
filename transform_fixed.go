@@ -5,8 +5,8 @@ import (
 )
 
 // FixedValueTransform transforms an AST to return a fixed value for
-// all interpolations. i.e. you can make "hello ${anything}" always
-// turn into "hello foo".
+// all interpolations. i.e. you can make "hi ${anything}" always
+// turn into "hi foo".
 //
 // The primary use case for this is for config validations where you can
 // verify that interpolations result in a certain type of string.
