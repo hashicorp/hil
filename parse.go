@@ -1,9 +1,9 @@
-package hel
+package hil
 
 import (
 	"sync"
 
-	"github.com/hashicorp/hel/ast"
+	"github.com/hashicorp/hil/ast"
 )
 
 var parserErrors []error

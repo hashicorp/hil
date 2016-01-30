@@ -1,10 +1,10 @@
-package hel
+package hil
 
 import (
 	"fmt"
 	"sync"
 
-	"github.com/hashicorp/hel/ast"
+	"github.com/hashicorp/hil/ast"
 )
 
 // IdentifierCheck is a SemanticCheck that checks that all identifiers

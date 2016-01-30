@@ -1,10 +1,10 @@
-package hel
+package hil
 
 import (
 	"reflect"
 	"testing"
 
-	"github.com/hashicorp/hel/ast"
+	"github.com/hashicorp/hil/ast"
 )
 
 func TestFixedValueTransform(t *testing.T) {

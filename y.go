@@ -1,11 +1,11 @@
 //line lang.y:6
-package hel
+package hil
 
 import __yyfmt__ "fmt"
 
 //line lang.y:6
 import (
-	"github.com/hashicorp/hel/ast"
+	"github.com/hashicorp/hil/ast"
 )
 
 //line lang.y:14

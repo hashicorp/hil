@@ -1,18 +1,18 @@
-# HEL
+# HIL
 
-[![GoDoc](https://godoc.org/github.com/hashicorp/hel?status.png)](https://godoc.org/github.com/hashicorp/hel) [![Build Status](https://travis-ci.org/hashicorp/hel.svg?branch=master)](https://travis-ci.org/hashicorp/hel)
+[![GoDoc](https://godoc.org/github.com/hashicorp/hil?status.png)](https://godoc.org/github.com/hashicorp/hil) [![Build Status](https://travis-ci.org/hashicorp/hil.svg?branch=master)](https://travis-ci.org/hashicorp/hil)
 
-HEL (HashiCorp Embedded Language) is a lightweight embedded language used
-primarily for configuration interpolation. The goal of HEL is to make a simple
+HIL (HashiCorp Interpolation Language) is a lightweight embedded language used
+primarily for configuration interpolation. The goal of HIL is to make a simple
 language for interpolations in the various configurations of HashiCorp tools.
 
-HEL is built to interpolate any string, but is in use by HashiCorp primarily
+HIL is built to interpolate any string, but is in use by HashiCorp primarily
 with [HCL](https://github.com/hashicorp/hcl). HCL is _not required_ in any
-way for use with HEL.
+way for use with HIL.
 
-HEL isn't meant to be a general purpose language. It was built for basic
+HIL isn't meant to be a general purpose language. It was built for basic
 configuration interpolations. Therefore, you can't currently write functions,
-have conditionals, set intermediary variables, etc. within HEL itself. It is
+have conditionals, set intermediary variables, etc. within HIL itself. It is
 possible some of these may be added later but the right use case must exist.
 
 ## Why?
@@ -37,7 +37,7 @@ we built other projects such as [Nomad](https://nomadproject.io) and
 [Otto](https://ottoproject.io), the need for basic interpolations arose
 again.
 
-Thus HEL was born. It is extracted from Terraform, cleaned up, and
+Thus HIL was born. It is extracted from Terraform, cleaned up, and
 better tested for general purpose use.
 
 ## Syntax
@@ -46,8 +46,8 @@ For a complete grammar, please see the parser itself. A high-level overview
 of the syntax and grammer is listed here.
 
 Code begins within `${` and `}`. Outside of this, text is treated
-literally. For example, `foo` is a valid HEL program that is just the
-string "foo", but `foo ${bar}` is an HEL program that is the string "foo "
+literally. For example, `foo` is a valid HIL program that is just the
+string "foo", but `foo ${bar}` is an HIL program that is the string "foo "
 concatened with the value of `bar`. For the remainder of the syntax
 docs, we'll assume you're within `${}`.
 

@@ -3,10 +3,10 @@
 // package, as the lexer has the go generate pragma within it.
 
 %{
-package hel
+package hil
 
 import (
-    "github.com/hashicorp/hel/ast"
+    "github.com/hashicorp/hil/ast"
 )
 
 %}

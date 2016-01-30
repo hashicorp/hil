@@ -1,11 +1,11 @@
-package hel
+package hil
 
 import (
 	"reflect"
 	"strconv"
 	"testing"
 
-	"github.com/hashicorp/hel/ast"
+	"github.com/hashicorp/hil/ast"
 )
 
 func TestEval(t *testing.T) {

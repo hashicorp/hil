@@ -1,9 +1,9 @@
-package hel
+package hil
 
 import (
 	"strconv"
 
-	"github.com/hashicorp/hel/ast"
+	"github.com/hashicorp/hil/ast"
 )
 
 // NOTE: All builtins are tested in engine_test.go

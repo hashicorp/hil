@@ -1,9 +1,9 @@
-package hel
+package hil
 
 import (
 	"testing"
 
-	"github.com/hashicorp/hel/ast"
+	"github.com/hashicorp/hil/ast"
 )
 
 func TestTypeCheck(t *testing.T) {

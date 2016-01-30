@@ -1,11 +1,11 @@
-package hel
+package hil
 
 import (
 	"bytes"
 	"fmt"
 	"sync"
 
-	"github.com/hashicorp/hel/ast"
+	"github.com/hashicorp/hil/ast"
 )
 
 // EvalConfig is the configuration for evaluating.

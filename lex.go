@@ -1,4 +1,4 @@
-package hel
+package hil
 
 import (
 	"bytes"
@@ -7,7 +7,7 @@ import (
 	"unicode"
 	"unicode/utf8"
 
-	"github.com/hashicorp/hel/ast"
+	"github.com/hashicorp/hil/ast"
 )
 
 //go:generate go tool yacc -p parser lang.y

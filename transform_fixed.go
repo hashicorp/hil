@@ -1,7 +1,7 @@
-package hel
+package hil
 
 import (
-	"github.com/hashicorp/hel/ast"
+	"github.com/hashicorp/hil/ast"
 )
 
 // FixedValueTransform transforms an AST to return a fixed value for

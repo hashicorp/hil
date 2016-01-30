@@ -1,11 +1,11 @@
-package hel
+package hil
 
 import (
 	"fmt"
 	"reflect"
 	"strings"
 
-	"github.com/hashicorp/hel/ast"
+	"github.com/hashicorp/hil/ast"
 	"github.com/mitchellh/reflectwalk"
 )
 
@@ -19,7 +19,7 @@ type WalkFn func(*WalkData) error
 // to be written by the caller as a result. Please see the documentation for
 // each field for more information.
 type WalkData struct {
-	// Root is the parsed root of this HEL program
+	// Root is the parsed root of this HIL program
 	Root ast.Node
 
 	// Location is the location within the structure where this
@@ -36,13 +36,13 @@ type WalkData struct {
 }
 
 // Walk will walk an arbitrary Go structure and parse any string as an
-// HEL program and call the callback cb to determine what to replace it
+// HIL program and call the callback cb to determine what to replace it
 // with.
 //
-// This function is very useful for arbitrary HEL program interpolation
+// This function is very useful for arbitrary HIL program interpolation
 // across a complex configuration structure. Due to the heavy use of
 // reflection in this function, it is recommend to write many unit tests
-// with your typical configuration structures to help mitigate the risk
+// with your typical configuration structures to hilp mitigate the risk
 // of panics.
 func Walk(v interface{}, cb WalkFn) error {
 	walker := &interpolationWalker{F: cb}
