@@ -55,17 +55,27 @@ docs, we'll assume you're within `${}`.
     identifiers: `foo`, `var.foo`, `foo-bar`.
 
   * Strings are double quoted and can contain any UTF-8 characters.
-
-  * Witin strings, further interpolations can be opened with `${}`.
-
-  * Strings are double-quoted and can contain any UTF-8 characters.
     Example: `"Hello, World"`
 
   * Numbers are assumed to be base 10. If you prefix a number with 0x,
     it is treated as a hexadecimal. If it is prefixed with 0, it is
     treated as an octal. Numbers can be in scientific notation: "1e10".
 
+  * Unary `-` can be used for negative numbers. Example: `-10` or `-0.2`
+
   * Boolean values: `true`, `false`
+  
+  * The following arithmetic operations are allowed: +, -, *, /, %. 
+
+  * Function calls are in the form of `name(arg1, arg2, ...)`. Example:
+    `add(1, 5)`. Arguments can be any valid HIL expression, example:
+    `add(1, var.foo)` or even nested function calls:
+    `add(1, get("some value"))`. 
+
+  * Witin strings, further interpolations can be opened with `${}`.
+    Example: `"Hello ${nested}"`. A full example including the 
+    original `${}` (remember this list assumes were inside of one
+    already) could be: `foo ${func("hello ${var.foo}")}`. 
 
 ## Language Changes
 
