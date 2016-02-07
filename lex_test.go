@@ -64,6 +64,13 @@ func TestLex(t *testing.T) {
 		},
 
 		{
+			"${bar(-42)}",
+			[]int{PROGRAM_BRACKET_LEFT,
+				IDENTIFIER, PAREN_LEFT, ARITH_OP, INTEGER, PAREN_RIGHT,
+				PROGRAM_BRACKET_RIGHT, lexEOF},
+		},
+
+		{
 			"${bar(42+1)}",
 			[]int{PROGRAM_BRACKET_LEFT,
 				IDENTIFIER, PAREN_LEFT,

@@ -40,6 +40,14 @@ func TestEval(t *testing.T) {
 		},
 
 		{
+			"foo ${-29}",
+			nil,
+			false,
+			"foo -29",
+			ast.TypeString,
+		},
+
+		{
 			"foo ${42+1}",
 			nil,
 			false,
