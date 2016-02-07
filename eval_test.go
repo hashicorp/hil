@@ -128,6 +128,21 @@ func TestEval(t *testing.T) {
 		},
 
 		{
+			"foo ${-bar}",
+			&ast.BasicScope{
+				VarMap: map[string]ast.Variable{
+					"bar": ast.Variable{
+						Value: 41,
+						Type:  ast.TypeInt,
+					},
+				},
+			},
+			false,
+			"foo -41",
+			ast.TypeString,
+		},
+
+		{
 			"foo ${bar+1}",
 			&ast.BasicScope{
 				VarMap: map[string]ast.Variable{
