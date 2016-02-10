@@ -1,5 +1,10 @@
 package ast
 
+import (
+	"fmt"
+	"reflect"
+)
+
 // Scope is the interface used to look up variables and functions while
 // evaluating. How these functions/variables are defined are up to the caller.
 type Scope interface {
@@ -12,6 +17,20 @@ type Scope interface {
 type Variable struct {
 	Value interface{}
 	Type  Type
+}
+
+// NewVariable creates a new Variable for the given value. This will
+// attempt to infer the correct type. If it can't, an error will be returned.
+func NewVariable(v interface{}) (result Variable, err error) {
+	switch v := reflect.ValueOf(v); v.Kind() {
+	case reflect.String:
+		result.Type = TypeString
+	default:
+		err = fmt.Errorf("Unknown type: %s", v.Kind())
+	}
+
+	result.Value = v
+	return
 }
 
 // Function defines a function that can be executed by the engine.
