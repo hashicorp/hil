@@ -231,6 +231,206 @@ func TestEval(t *testing.T) {
 			ast.TypeString,
 		},
 
+		{
+			"${foo[0]}",
+			&ast.BasicScope{
+				VarMap: map[string]ast.Variable{
+					"foo": ast.Variable{
+						Type: ast.TypeList,
+						Value: []ast.Variable{
+							ast.Variable{
+								Type:  ast.TypeString,
+								Value: "hello",
+							},
+							ast.Variable{
+								Type:  ast.TypeString,
+								Value: "world",
+							},
+						},
+					},
+				},
+			},
+			false,
+			"hello",
+			ast.TypeString,
+		},
+
+		{
+			"${foo[bar]}",
+			&ast.BasicScope{
+				VarMap: map[string]ast.Variable{
+					"foo": ast.Variable{
+						Type: ast.TypeList,
+						Value: []ast.Variable{
+							ast.Variable{
+								Type:  ast.TypeString,
+								Value: "hello",
+							},
+							ast.Variable{
+								Type:  ast.TypeString,
+								Value: "world",
+							},
+						},
+					},
+					"bar": ast.Variable{
+						Type:  ast.TypeInt,
+						Value: 1,
+					},
+				},
+			},
+			false,
+			"world",
+			ast.TypeString,
+		},
+
+		{
+			"${foo[bar[1]]}",
+			&ast.BasicScope{
+				VarMap: map[string]ast.Variable{
+					"foo": ast.Variable{
+						Type: ast.TypeList,
+						Value: []ast.Variable{
+							ast.Variable{
+								Type:  ast.TypeString,
+								Value: "hello",
+							},
+							ast.Variable{
+								Type:  ast.TypeString,
+								Value: "world",
+							},
+						},
+					},
+					"bar": ast.Variable{
+						Type: ast.TypeList,
+						Value: []ast.Variable{
+							ast.Variable{
+								Type:  ast.TypeInt,
+								Value: 1,
+							},
+							ast.Variable{
+								Type:  ast.TypeInt,
+								Value: 0,
+							},
+						},
+					},
+				},
+			},
+			false,
+			"hello",
+			ast.TypeString,
+		},
+
+		{
+			"aaa ${foo} aaa",
+			&ast.BasicScope{
+				VarMap: map[string]ast.Variable{
+					"foo": ast.Variable{
+						Type:  ast.TypeInt,
+						Value: 42,
+					},
+				},
+			},
+			false,
+			"aaa 42 aaa",
+			ast.TypeString,
+		},
+
+		{
+			"aaa ${foo[1]} aaa",
+			&ast.BasicScope{
+				VarMap: map[string]ast.Variable{
+					"foo": ast.Variable{
+						Type: ast.TypeList,
+						Value: []ast.Variable{
+							ast.Variable{
+								Type:  ast.TypeInt,
+								Value: 42,
+							},
+							ast.Variable{
+								Type:  ast.TypeInt,
+								Value: 24,
+							},
+						},
+					},
+				},
+			},
+			false,
+			"aaa 24 aaa",
+			ast.TypeString,
+		},
+
+		{
+			"aaa ${foo[1]} - ${foo[0]}",
+			&ast.BasicScope{
+				VarMap: map[string]ast.Variable{
+					"foo": ast.Variable{
+						Type: ast.TypeList,
+						Value: []ast.Variable{
+							ast.Variable{
+								Type:  ast.TypeInt,
+								Value: 42,
+							},
+							ast.Variable{
+								Type:  ast.TypeInt,
+								Value: 24,
+							},
+						},
+					},
+				},
+			},
+			false,
+			"aaa 24 - 42",
+			ast.TypeString,
+		},
+
+		{
+			"${foo[1-3]}",
+			&ast.BasicScope{
+				VarMap: map[string]ast.Variable{
+					"foo": ast.Variable{
+						Type: ast.TypeList,
+						Value: []ast.Variable{
+							ast.Variable{
+								Type:  ast.TypeInt,
+								Value: 42,
+							},
+							ast.Variable{
+								Type:  ast.TypeInt,
+								Value: 24,
+							},
+						},
+					},
+				},
+			},
+			true,
+			nil,
+			ast.TypeInvalid,
+		},
+
+		{
+			"${foo[2]}",
+			&ast.BasicScope{
+				VarMap: map[string]ast.Variable{
+					"foo": ast.Variable{
+						Type: ast.TypeList,
+						Value: []ast.Variable{
+							ast.Variable{
+								Type:  ast.TypeInt,
+								Value: 42,
+							},
+							ast.Variable{
+								Type:  ast.TypeInt,
+								Value: 24,
+							},
+						},
+					},
+				},
+			},
+			true,
+			nil,
+			ast.TypeInvalid,
+		},
+
 		// Testing implicit type conversions
 
 		{
@@ -286,7 +486,7 @@ func TestEval(t *testing.T) {
 		if err != nil != tc.Error {
 			t.Fatalf("Error: %s\n\nInput: %s", err, tc.Input)
 		}
-		if outType != tc.ResultType {
+		if tc.ResultType != ast.TypeInvalid && outType != tc.ResultType {
 			t.Fatalf("Bad: %s\n\nInput: %s", outType, tc.Input)
 		}
 		if !reflect.DeepEqual(out, tc.Result) {

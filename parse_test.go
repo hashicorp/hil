@@ -333,6 +333,73 @@ func TestParse(t *testing.T) {
 		},
 
 		{
+			"${foo[1]}",
+			false,
+			&ast.Concat{
+				Posx: ast.Pos{Column: 3, Line: 1},
+				Exprs: []ast.Node{
+					&ast.Index{
+						Posx: ast.Pos{Column: 3, Line: 1},
+						Target: &ast.VariableAccess{
+							Name: "foo",
+							Posx: ast.Pos{Column: 3, Line: 1},
+						},
+						Key: &ast.LiteralNode{
+							Value: 1,
+							Typex: ast.TypeInt,
+							Posx:  ast.Pos{Column: 7, Line: 1},
+						},
+					},
+				},
+			},
+		},
+
+		{
+			"${foo[1]} - ${bar[0]}",
+			false,
+			&ast.Concat{
+				Posx: ast.Pos{Column: 3, Line: 1},
+				Exprs: []ast.Node{
+					&ast.Index{
+						Posx: ast.Pos{Column: 3, Line: 1},
+						Target: &ast.VariableAccess{
+							Name: "foo",
+							Posx: ast.Pos{Column: 3, Line: 1},
+						},
+						Key: &ast.LiteralNode{
+							Value: 1,
+							Typex: ast.TypeInt,
+							Posx:  ast.Pos{Column: 7, Line: 1},
+						},
+					},
+					&ast.LiteralNode{
+						Value: " - ",
+						Typex: ast.TypeString,
+						Posx:  ast.Pos{Column: 10, Line: 1},
+					},
+					&ast.Index{
+						Posx: ast.Pos{Column: 15, Line: 1},
+						Target: &ast.VariableAccess{
+							Name: "bar",
+							Posx: ast.Pos{Column: 15, Line: 1},
+						},
+						Key: &ast.LiteralNode{
+							Value: 0,
+							Typex: ast.TypeInt,
+							Posx:  ast.Pos{Column: 19, Line: 1},
+						},
+					},
+				},
+			},
+		},
+
+		{
+			"${foo[1][2]}",
+			true,
+			nil,
+		},
+
+		{
 			`foo ${bar ${baz}}`,
 			true,
 			nil,

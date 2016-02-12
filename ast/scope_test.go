@@ -37,3 +37,18 @@ func TestBasicScopeLookupVar(t *testing.T) {
 		t.Fatal("should find foo")
 	}
 }
+
+func TestVariableStringer(t *testing.T) {
+	expected := "{Variable (TypeInt): 42}"
+	variable := &Variable{
+		Type:  TypeInt,
+		Value: 42,
+	}
+
+	actual := variable.String()
+
+	if actual != expected {
+		t.Fatalf("variable string formatting:\nExpected: %s\n     Got: %s\n",
+			expected, actual)
+	}
+}
