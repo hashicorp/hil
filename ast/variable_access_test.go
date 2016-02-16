@@ -34,3 +34,20 @@ func TestVariableAccessType_invalid(t *testing.T) {
 		t.Fatal("should error")
 	}
 }
+
+func TestVariableAccessType_list(t *testing.T) {
+	c := &VariableAccess{Name: "baz"}
+	scope := &BasicScope{
+		VarMap: map[string]Variable{
+			"baz": Variable{Type: TypeList},
+		},
+	}
+
+	actual, err := c.Type(scope)
+	if err != nil {
+		t.Fatalf("err: %s", err)
+	}
+	if actual != TypeList {
+		t.Fatalf("bad: %s", actual)
+	}
+}

@@ -33,6 +33,12 @@ func NewVariable(v interface{}) (result Variable, err error) {
 	return
 }
 
+// String implements Stringer on Variable, displaying the type and value
+// of the Variable.
+func (v Variable) String() string {
+	return fmt.Sprintf("{Variable (%s): %+v}", v.Type, v.Value)
+}
+
 // Function defines a function that can be executed by the engine.
 // The type checker will validate that the proper types will be called
 // to the callback.
