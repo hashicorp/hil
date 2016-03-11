@@ -474,6 +474,22 @@ func TestEval(t *testing.T) {
 			"foo 43",
 			ast.TypeString,
 		},
+
+		// String vars should be able to implictly convert to floats
+		{
+			"${1.5 * var.foo}",
+			&ast.BasicScope{
+				VarMap: map[string]ast.Variable{
+					"var.foo": ast.Variable{
+						Value: "42",
+						Type:  ast.TypeString,
+					},
+				},
+			},
+			false,
+			"63",
+			ast.TypeString,
+		},
 	}
 
 	for _, tc := range cases {
