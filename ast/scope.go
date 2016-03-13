@@ -2,7 +2,9 @@ package ast
 
 import (
 	"fmt"
+	"os"
 	"reflect"
+	"strings"
 )
 
 // Scope is the interface used to look up variables and functions while
@@ -83,6 +85,18 @@ func (s *BasicScope) LookupFunc(n string) (Function, bool) {
 func (s *BasicScope) LookupVar(n string) (Variable, bool) {
 	if s == nil {
 		return Variable{}, false
+	}
+
+	var v Variable
+
+	if strings.HasPrefix(n, "env.") {
+		name := strings.TrimLeft(n, "env.")
+		v = Variable{
+			Type:  TypeString,
+			Value: os.Getenv(name),
+		}
+
+		return v, true
 	}
 
 	v, ok := s.VarMap[n]
