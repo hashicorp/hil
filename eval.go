@@ -244,6 +244,12 @@ func (v *evalConcat) Eval(s ast.Scope, stack *ast.Stack) (interface{}, ast.Type,
 		nodes = append(nodes, stack.Pop().(*ast.LiteralNode))
 	}
 
+	// Special case the single list
+	if len(nodes) == 1 && nodes[0].Typex == ast.TypeList {
+		return nodes[0].Value, ast.TypeList, nil
+	}
+
+	// Otherwise concatenate the strings
 	var buf bytes.Buffer
 	for i := len(nodes) - 1; i >= 0; i-- {
 		buf.WriteString(nodes[i].Value.(string))

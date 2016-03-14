@@ -40,6 +40,39 @@ func TestEval(t *testing.T) {
 		},
 
 		{
+			"${var.alist}",
+			&ast.BasicScope{
+				VarMap: map[string]ast.Variable{
+					"var.alist": ast.Variable{
+						Type: ast.TypeList,
+						Value: []ast.Variable{
+							ast.Variable{
+								Type:  ast.TypeString,
+								Value: "Hello",
+							},
+							ast.Variable{
+								Type:  ast.TypeString,
+								Value: "World",
+							},
+						},
+					},
+				},
+			},
+			false,
+			[]ast.Variable{
+				ast.Variable{
+					Type:  ast.TypeString,
+					Value: "Hello",
+				},
+				ast.Variable{
+					Type:  ast.TypeString,
+					Value: "World",
+				},
+			},
+			ast.TypeList,
+		},
+
+		{
 			"foo ${-29}",
 			nil,
 			false,
@@ -380,6 +413,78 @@ func TestEval(t *testing.T) {
 			},
 			false,
 			"aaa 24 - 42",
+			ast.TypeString,
+		},
+
+		{
+			"${var.foo} ${var.foo[0]}",
+			&ast.BasicScope{
+				VarMap: map[string]ast.Variable{
+					"var.foo": ast.Variable{
+						Type: ast.TypeList,
+						Value: []ast.Variable{
+							ast.Variable{
+								Type:  ast.TypeString,
+								Value: "hello",
+							},
+							ast.Variable{
+								Type:  ast.TypeString,
+								Value: "world",
+							},
+						},
+					},
+				},
+			},
+			true,
+			nil,
+			ast.TypeInvalid,
+		},
+
+		{
+			"${var.foo[0]} ${var.foo[1]}",
+			&ast.BasicScope{
+				VarMap: map[string]ast.Variable{
+					"var.foo": ast.Variable{
+						Type: ast.TypeList,
+						Value: []ast.Variable{
+							ast.Variable{
+								Type:  ast.TypeString,
+								Value: "hello",
+							},
+							ast.Variable{
+								Type:  ast.TypeString,
+								Value: "world",
+							},
+						},
+					},
+				},
+			},
+			false,
+			"hello world",
+			ast.TypeString,
+		},
+
+		{
+			"${foo[1]} ${foo[0]}",
+			&ast.BasicScope{
+				VarMap: map[string]ast.Variable{
+					"foo": ast.Variable{
+						Type: ast.TypeList,
+						Value: []ast.Variable{
+							ast.Variable{
+								Type:  ast.TypeInt,
+								Value: 42,
+							},
+							ast.Variable{
+								Type:  ast.TypeInt,
+								Value: 24,
+							},
+						},
+					},
+				},
+			},
+			false,
+			"24 42",
 			ast.TypeString,
 		},
 

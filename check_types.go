@@ -241,7 +241,13 @@ func (tc *typeCheckConcat) TypeCheck(v *TypeCheck) (ast.Node, error) {
 		types[len(n.Exprs)-1-i] = v.StackPop()
 	}
 
-	// All concat args must be strings, so validate that
+	// If there is only one argument and it is a list, we evaluate to a list
+	if len(types) == 1 && types[0] == ast.TypeList {
+		v.StackPush(ast.TypeList)
+		return n, nil
+	}
+
+	// Otherwise, all concat args must be strings, so validate that
 	for i, t := range types {
 		if t != ast.TypeString {
 			cn := v.ImplicitConversion(t, ast.TypeString, n.Exprs[i])
@@ -251,7 +257,7 @@ func (tc *typeCheckConcat) TypeCheck(v *TypeCheck) (ast.Node, error) {
 			}
 
 			return nil, fmt.Errorf(
-				"output of an HIL expression must be a string (argument %d is %s)", i+1, t)
+				"output of an HIL expression must be a string, or a single list (argument %d is %s)", i+1, t)
 		}
 	}
 
