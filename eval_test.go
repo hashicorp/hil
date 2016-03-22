@@ -265,6 +265,160 @@ func TestEval(t *testing.T) {
 		},
 
 		{
+			`${foo["bar"]}`,
+			&ast.BasicScope{
+				VarMap: map[string]ast.Variable{
+					"foo": ast.Variable{
+						Type: ast.TypeList,
+						Value: []ast.Variable{
+							ast.Variable{
+								Type:  ast.TypeString,
+								Value: "hello",
+							},
+							ast.Variable{
+								Type:  ast.TypeString,
+								Value: "world",
+							},
+						},
+					},
+				},
+			},
+			true,
+			nil,
+			ast.TypeInvalid,
+		},
+
+		{
+			`${foo["bar"]}`,
+			&ast.BasicScope{
+				VarMap: map[string]ast.Variable{
+					"foo": ast.Variable{
+						Type: ast.TypeMap,
+						Value: map[string]ast.Variable{
+							"foo": ast.Variable{
+								Type:  ast.TypeString,
+								Value: "hello",
+							},
+							"bar": ast.Variable{
+								Type:  ast.TypeString,
+								Value: "world",
+							},
+						},
+					},
+				},
+			},
+			false,
+			"world",
+			ast.TypeString,
+		},
+
+		{
+			`${foo[var.key]}`,
+			&ast.BasicScope{
+				VarMap: map[string]ast.Variable{
+					"foo": ast.Variable{
+						Type: ast.TypeMap,
+						Value: map[string]ast.Variable{
+							"foo": ast.Variable{
+								Type:  ast.TypeString,
+								Value: "hello",
+							},
+							"bar": ast.Variable{
+								Type:  ast.TypeString,
+								Value: "world",
+							},
+						},
+					},
+					"var.key": ast.Variable{
+						Type:  ast.TypeString,
+						Value: "bar",
+					},
+				},
+			},
+			false,
+			"world",
+			ast.TypeString,
+		},
+
+		{
+			`${foo[bar[var.keyint]]}`,
+			&ast.BasicScope{
+				VarMap: map[string]ast.Variable{
+					"foo": ast.Variable{
+						Type: ast.TypeMap,
+						Value: map[string]ast.Variable{
+							"foo": ast.Variable{
+								Type:  ast.TypeString,
+								Value: "hello",
+							},
+							"bar": ast.Variable{
+								Type:  ast.TypeString,
+								Value: "world",
+							},
+						},
+					},
+					"bar": ast.Variable{
+						Type: ast.TypeList,
+						Value: []ast.Variable{
+							ast.Variable{
+								Type:  ast.TypeString,
+								Value: "i dont exist",
+							},
+							ast.Variable{
+								Type:  ast.TypeString,
+								Value: "bar",
+							},
+						},
+					},
+					"var.keyint": ast.Variable{
+						Type:  ast.TypeInt,
+						Value: 1,
+					},
+				},
+			},
+			false,
+			"world",
+			ast.TypeString,
+		},
+
+		{
+			`${foo["bar"]} ${bar[1]}`,
+			&ast.BasicScope{
+				VarMap: map[string]ast.Variable{
+					"foo": ast.Variable{
+						Type: ast.TypeMap,
+						Value: map[string]ast.Variable{
+							"foo": ast.Variable{
+								Type:  ast.TypeString,
+								Value: "hello",
+							},
+							"bar": ast.Variable{
+								Type:  ast.TypeString,
+								Value: "world",
+							},
+						},
+					},
+					"bar": ast.Variable{
+						Type: ast.TypeList,
+						Value: []ast.Variable{
+							ast.Variable{
+								Type:  ast.TypeInt,
+								Value: 10,
+							},
+							ast.Variable{
+								Type:  ast.TypeInt,
+								Value: 20,
+							},
+						},
+					},
+				},
+			},
+			false,
+			"world 20",
+			ast.TypeString,
+		},
+
+		{
 			"${foo[0]}",
 			&ast.BasicScope{
 				VarMap: map[string]ast.Variable{

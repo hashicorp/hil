@@ -299,15 +299,6 @@ type typeCheckIndex struct {
 }
 
 func (tc *typeCheckIndex) TypeCheck(v *TypeCheck) (ast.Node, error) {
-
-	value, err := tc.n.Key.Type(v.Scope)
-	if err != nil {
-		return nil, err
-	}
-	if value != ast.TypeInt {
-		return nil, fmt.Errorf("key of an index must be an int, was %s", value)
-	}
-
 	// Ensure we have a VariableAccess as the target
 	varAccessNode, ok := tc.n.Target.(*ast.VariableAccess)
 	if !ok {
@@ -319,28 +310,40 @@ func (tc *typeCheckIndex) TypeCheck(v *TypeCheck) (ast.Node, error) {
 	if !ok {
 		return nil, fmt.Errorf("unknown variable accessed: %s", varAccessNode.Name)
 	}
-	if variable.Type != ast.TypeList {
+
+	keyType, err := tc.n.Key.Type(v.Scope)
+	if err != nil {
+		return nil, err
+	}
+
+	switch variable.Type {
+	case ast.TypeList:
+		if keyType != ast.TypeInt {
+			return nil, fmt.Errorf("key of an index must be an int, was %s", keyType)
+		}
+
+		valType, err := ast.VariableListElementTypesAreHomogenous(varAccessNode.Name, variable.Value.([]ast.Variable))
+		if err != nil {
+			return tc.n, err
+		}
+
+		v.StackPush(valType)
+		return tc.n, nil
+	case ast.TypeMap:
+		if keyType != ast.TypeString {
+			return nil, fmt.Errorf("key of an index must be a string, was %s", keyType)
+		}
+
+		valType, err := ast.VariableMapValueTypesAreHomogenous(varAccessNode.Name, variable.Value.(map[string]ast.Variable))
+		if err != nil {
+			return tc.n, err
+		}
+
+		v.StackPush(valType)
+		return tc.n, nil
+	default:
 		return nil, fmt.Errorf("invalid index operation into non-indexable type: %s", variable.Type)
 	}
-
-	list := variable.Value.([]ast.Variable)
-
-	// Ensure that the types of the list elements are homogenous
-	listTypes := make(map[ast.Type]struct{})
-	for _, v := range list {
-		if _, ok := listTypes[v.Type]; ok {
-			continue
-		}
-		listTypes[v.Type] = struct{}{}
-	}
-
-	if len(listTypes) != 1 {
-		return nil, fmt.Errorf("list %q does not have homogenous types (%s)", varAccessNode.Name)
-	}
-
-	// This is the type since the list is homogenous in type
-	v.StackPush(list[0].Type)
-	return tc.n, nil
 }
 
 func (v *TypeCheck) ImplicitConversion(
