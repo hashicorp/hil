@@ -14,6 +14,136 @@ func TestEval(t *testing.T) {
 		Scope      *ast.BasicScope
 		Error      bool
 		Result     interface{}
+		ResultType EvalType
+	}{
+		{
+			Input: "Hello World",
+			Scope: nil,
+			Result: "Hello World",
+			ResultType: TypeString,
+		},
+		{
+			"${var.alist}",
+			&ast.BasicScope{
+				VarMap: map[string]ast.Variable{
+					"var.alist": ast.Variable{
+						Type: ast.TypeList,
+						Value: []ast.Variable{
+							ast.Variable{
+								Type:  ast.TypeString,
+								Value: "Hello",
+							},
+							ast.Variable{
+								Type:  ast.TypeString,
+								Value: "World",
+							},
+						},
+					},
+				},
+			},
+			false,
+			[]interface{}{"Hello", "World"},
+			TypeList,
+		},
+		{
+			"${var.alist[1]}",
+			&ast.BasicScope{
+				VarMap: map[string]ast.Variable{
+					"var.alist": ast.Variable{
+						Type: ast.TypeList,
+						Value: []ast.Variable{
+							ast.Variable{
+								Type:  ast.TypeString,
+								Value: "Hello",
+							},
+							ast.Variable{
+								Type:  ast.TypeString,
+								Value: "World",
+							},
+						},
+					},
+				},
+			},
+			false,
+			"World",
+			TypeString,
+		},
+		{
+			`${foo}`,
+			&ast.BasicScope{
+				VarMap: map[string]ast.Variable{
+					"foo": ast.Variable{
+						Type: ast.TypeMap,
+						Value: map[string]ast.Variable{
+							"foo": ast.Variable{
+								Type:  ast.TypeString,
+								Value: "hello",
+							},
+							"bar": ast.Variable{
+								Type:  ast.TypeString,
+								Value: "world",
+							},
+						},
+					},
+				},
+			},
+			false,
+			map[string]interface{}{
+				"foo": "hello",
+				"bar": "world",
+			},
+			TypeMap,
+		},
+		{
+			`${foo["bar"]}`,
+			&ast.BasicScope{
+				VarMap: map[string]ast.Variable{
+					"foo": ast.Variable{
+						Type: ast.TypeMap,
+						Value: map[string]ast.Variable{
+							"foo": ast.Variable{
+								Type:  ast.TypeString,
+								Value: "hello",
+							},
+							"bar": ast.Variable{
+								Type:  ast.TypeString,
+								Value: "world",
+							},
+						},
+					},
+				},
+			},
+			false,
+			"world",
+			TypeString,
+		},
+	}
+
+	for _, tc := range cases {
+		node, err := Parse(tc.Input)
+		if err != nil {
+			t.Fatalf("Error: %s\n\nInput: %s", err, tc.Input)
+		}
+
+		result, err := Eval(node, &EvalConfig{GlobalScope: tc.Scope})
+		if err != nil != tc.Error {
+			t.Fatalf("Error: %s\n\nInput: %s", err, tc.Input)
+		}
+		if tc.ResultType != TypeInvalid && result.Type != tc.ResultType {
+			t.Fatalf("Bad: %s\n\nInput: %s", result.Type, tc.Input)
+		}
+		if !reflect.DeepEqual(result.Value, tc.Result) {
+			t.Fatalf("Bad: %#v\n\nInput: %s", result.Value, tc.Input)
+		}
+	}
+}
+
+func TestEvalInternal(t *testing.T) {
+	cases := []struct {
+		Input      string
+		Scope      *ast.BasicScope
+		Error      bool
+		Result     interface{}
 		ResultType ast.Type
 	}{
 		{
@@ -757,7 +887,7 @@ func TestEval(t *testing.T) {
 			t.Fatalf("Error: %s\n\nInput: %s", err, tc.Input)
 		}
 
-		out, outType, err := Eval(node, &EvalConfig{GlobalScope: tc.Scope})
+		out, outType, err := internalEval(node, &EvalConfig{GlobalScope: tc.Scope})
 		if err != nil != tc.Error {
 			t.Fatalf("Error: %s\n\nInput: %s", err, tc.Input)
 		}
