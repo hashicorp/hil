@@ -6,9 +6,10 @@ import (
 )
 
 // Output represents the root node of all interpolation evaluations. If the
-// output only has one expression which is either a list or a map, the Output
-// evaluates as a string or a map respectively. Otherwise the Output evaluates
-// as a string, and concatenates the evaluation of each expression.
+// output only has one expression which is either a TypeList or TypeMap, the
+// Output can be type-asserted to []interface{} or map[string]interface{}
+// respectively. Otherwise the Output evaluates as a string, and concatenates
+// the evaluation of each expression.
 type Output struct {
 	Exprs []Node
 	Posx  Pos
@@ -40,7 +41,6 @@ func (n *Output) String() string {
 }
 
 func (n *Output) Type(s Scope) (Type, error) {
-
 	// Special case no expressions for backward compatibility
 	if len(n.Exprs) == 0 {
 		return TypeString, nil
@@ -66,7 +66,7 @@ func (n *Output) Type(s Scope) (Type, error) {
 		if err != nil {
 			return TypeInvalid, err
 		}
-		// We only look for things we know we can't coerce with an implicit
+		// We only look for things we know we can't coerce with an implicit conversion func
 		if exprType == TypeList || exprType == TypeMap {
 			return TypeInvalid, fmt.Errorf(
 				"multi-expression HIL outputs may only have string inputs: %d is type %s",

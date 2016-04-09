@@ -247,7 +247,7 @@ func (tc *typeCheckOutput) TypeCheck(v *TypeCheck) (ast.Node, error) {
 		return n, nil
 	}
 
-	// If there is only one argument and it is a list, we evaluate to a map
+	// If there is only one argument and it is a map, we evaluate to a map
 	if len(types) == 1 && types[0] == ast.TypeMap {
 		v.StackPush(ast.TypeMap)
 		return n, nil
