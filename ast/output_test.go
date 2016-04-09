@@ -5,17 +5,17 @@ import (
 )
 
 func TestOutput_type(t *testing.T) {
-	testCases := []struct{
-		Name string
-		Output *Output
-		Scope Scope
-		ReturnType Type
+	testCases := []struct {
+		Name        string
+		Output      *Output
+		Scope       Scope
+		ReturnType  Type
 		ShouldError bool
 	}{
 		{
-			Name: "No expressions, for backward compatibility",
-			Output: &Output{},
-			Scope: nil,
+			Name:       "No expressions, for backward compatibility",
+			Output:     &Output{},
+			Scope:      nil,
 			ReturnType: TypeString,
 		},
 		{
@@ -28,7 +28,7 @@ func TestOutput_type(t *testing.T) {
 					},
 				},
 			},
-			Scope: nil,
+			Scope:      nil,
 			ReturnType: TypeString,
 		},
 		{
@@ -46,11 +46,11 @@ func TestOutput_type(t *testing.T) {
 						Type: TypeList,
 						Value: []Variable{
 							Variable{
-								Type: TypeString,
+								Type:  TypeString,
 								Value: "Hello",
 							},
 							Variable{
-								Type: TypeString,
+								Type:  TypeString,
 								Value: "World",
 							},
 						},
@@ -74,11 +74,11 @@ func TestOutput_type(t *testing.T) {
 						Type: TypeMap,
 						Value: map[string]Variable{
 							"key1": Variable{
-								Type: TypeString,
+								Type:  TypeString,
 								Value: "Hello",
 							},
 							"key2": Variable{
-								Type: TypeString,
+								Type:  TypeString,
 								Value: "World",
 							},
 						},
@@ -105,11 +105,11 @@ func TestOutput_type(t *testing.T) {
 						Type: TypeMap,
 						Value: map[string]Variable{
 							"key1": Variable{
-								Type: TypeString,
+								Type:  TypeString,
 								Value: "Hello",
 							},
 							"key2": Variable{
-								Type: TypeString,
+								Type:  TypeString,
 								Value: "World",
 							},
 						},
@@ -117,7 +117,7 @@ func TestOutput_type(t *testing.T) {
 				},
 			},
 			ShouldError: true,
-			ReturnType: TypeInvalid,
+			ReturnType:  TypeInvalid,
 		},
 		{
 			Name: "Multiple list expressions",
@@ -137,11 +137,11 @@ func TestOutput_type(t *testing.T) {
 						Type: TypeList,
 						Value: []Variable{
 							Variable{
-								Type: TypeString,
+								Type:  TypeString,
 								Value: "Hello",
 							},
 							Variable{
-								Type: TypeString,
+								Type:  TypeString,
 								Value: "World",
 							},
 						},
@@ -149,7 +149,7 @@ func TestOutput_type(t *testing.T) {
 				},
 			},
 			ShouldError: true,
-			ReturnType: TypeInvalid,
+			ReturnType:  TypeInvalid,
 		},
 		{
 			Name: "Multiple string expressions",
@@ -166,7 +166,7 @@ func TestOutput_type(t *testing.T) {
 			Scope: &BasicScope{
 				VarMap: map[string]Variable{
 					"testvar": Variable{
-						Type: TypeString,
+						Type:  TypeString,
 						Value: "Hello",
 					},
 				},
@@ -188,11 +188,11 @@ func TestOutput_type(t *testing.T) {
 			Scope: &BasicScope{
 				VarMap: map[string]Variable{
 					"testvar": Variable{
-						Type: TypeString,
+						Type:  TypeString,
 						Value: "Hello",
 					},
 					"testint": Variable{
-						Type: TypeInt,
+						Type:  TypeInt,
 						Value: 2,
 					},
 				},
@@ -200,7 +200,6 @@ func TestOutput_type(t *testing.T) {
 			ReturnType: TypeString,
 		},
 	}
-
 
 	for _, v := range testCases {
 		actual, err := v.Output.Type(v.Scope)
@@ -212,4 +211,3 @@ func TestOutput_type(t *testing.T) {
 		}
 	}
 }
-

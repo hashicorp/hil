@@ -61,20 +61,20 @@ func Eval(root ast.Node, config *EvalConfig) (EvaluationResult, error) {
 		return InvalidResult, err
 	}
 
-	switch(outputType) {
+	switch outputType {
 	case ast.TypeList:
 		return EvaluationResult{
-			Type: TypeList,
+			Type:  TypeList,
 			Value: hilListToGoSlice(output.([]ast.Variable)),
 		}, nil
 	case ast.TypeMap:
 		return EvaluationResult{
-			Type: TypeMap,
+			Type:  TypeMap,
 			Value: hilMapToGoMap(output.(map[string]ast.Variable)),
 		}, nil
 	case ast.TypeString:
 		return EvaluationResult{
-			Type: TypeString,
+			Type:  TypeString,
 			Value: output,
 		}, nil
 	default:

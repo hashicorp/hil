@@ -17,9 +17,9 @@ func TestEval(t *testing.T) {
 		ResultType EvalType
 	}{
 		{
-			Input: "Hello World",
-			Scope: nil,
-			Result: "Hello World",
+			Input:      "Hello World",
+			Scope:      nil,
+			Result:     "Hello World",
 			ResultType: TypeString,
 		},
 		{
@@ -214,11 +214,11 @@ func TestEval(t *testing.T) {
 			&ast.BasicScope{
 				VarMap: map[string]ast.Variable{
 					"foo": ast.Variable{
-						Type: ast.TypeString,
+						Type:  ast.TypeString,
 						Value: "Hello",
 					},
 					"bar": ast.Variable{
-						Type: ast.TypeString,
+						Type:  ast.TypeString,
 						Value: "World",
 					},
 				},
@@ -232,11 +232,11 @@ func TestEval(t *testing.T) {
 			&ast.BasicScope{
 				VarMap: map[string]ast.Variable{
 					"foo": ast.Variable{
-						Type: ast.TypeString,
+						Type:  ast.TypeString,
 						Value: "Hello",
 					},
 					"bar": ast.Variable{
-						Type: ast.TypeInt,
+						Type:  ast.TypeInt,
 						Value: 4,
 					},
 				},
@@ -244,6 +244,58 @@ func TestEval(t *testing.T) {
 			false,
 			"Hello 4",
 			TypeString,
+		},
+		{
+			`${foo}`,
+			&ast.BasicScope{
+				VarMap: map[string]ast.Variable{
+					"foo": ast.Variable{
+						Type: ast.TypeMap,
+						Value: map[string]ast.Variable{
+							"foo": ast.Variable{
+								Type:  ast.TypeString,
+								Value: "hello",
+							},
+							"bar": ast.Variable{
+								Type:  ast.TypeString,
+								Value: "world",
+							},
+						},
+					},
+				},
+			},
+			false,
+			map[string]interface{}{
+				"foo": "hello",
+				"bar": "world",
+			},
+			TypeMap,
+		},
+		{
+			"${var.alist}",
+			&ast.BasicScope{
+				VarMap: map[string]ast.Variable{
+					"var.alist": ast.Variable{
+						Type: ast.TypeList,
+						Value: []ast.Variable{
+							ast.Variable{
+								Type:  ast.TypeString,
+								Value: "Hello",
+							},
+							ast.Variable{
+								Type:  ast.TypeString,
+								Value: "World",
+							},
+						},
+					},
+				},
+			},
+			false,
+			[]interface{}{
+				"Hello",
+				"World",
+			},
+			TypeList,
 		},
 	}
 
@@ -261,7 +313,7 @@ func TestEval(t *testing.T) {
 			t.Fatalf("Bad: %s\n\nInput: %s", result.Type, tc.Input)
 		}
 		if !reflect.DeepEqual(result.Value, tc.Result) {
-			t.Fatalf("Bad: %#v\n\nInput: %s", result.Value, tc.Input)
+			t.Fatalf("\n     Bad: %#v\nExpected: %#v\n\nInput: %s", result.Value, tc.Result, tc.Input)
 		}
 	}
 }
