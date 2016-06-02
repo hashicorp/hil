@@ -22,6 +22,14 @@ func TestInterfaceToVariable(t *testing.T) {
 			},
 		},
 		{
+			name:  "empty list",
+			input: []interface{}{},
+			expected: ast.Variable{
+				Type:  ast.TypeList,
+				Value: []ast.Variable{},
+			},
+		},
+		{
 			name:  "list of strings",
 			input: []string{"Hello", "World"},
 			expected: ast.Variable{
