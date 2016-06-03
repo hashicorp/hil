@@ -2,14 +2,46 @@ package hil
 
 import (
 	"fmt"
+	"reflect"
 
 	"github.com/hashicorp/hil/ast"
 	"github.com/mitchellh/mapstructure"
 )
 
+var hilMapstructureDecodeHookEmptySlice []interface{}
+var hilMapstructureDecodeHookEmptyMap map[string]interface{}
+
+// hilMapstructureWeakDecode behaves in the same way as mapstructure.WeakDecode
+// but has a DecodeHook which defeats the backward compatibility mode of mapstructure
+// which WeakDecodes []interface{}{} into an empty map[string]interface{}. This
+// allows us to use WeakDecode (desirable), but not fail on empty lists.
+func hilMapstructureWeakDecode(m interface{}, rawVal interface{}) error {
+	config := &mapstructure.DecoderConfig{
+		DecodeHook: func(source reflect.Type, target reflect.Type, val interface{}) (interface{}, error) {
+			sliceType := reflect.TypeOf(hilMapstructureDecodeHookEmptySlice)
+			mapType := reflect.TypeOf(hilMapstructureDecodeHookEmptyMap)
+
+			if source == sliceType && target == mapType {
+				return nil, fmt.Errorf("Cannot convert a []interface{} into a map[string]interface{}")
+			}
+
+			return val, nil
+		},
+		WeaklyTypedInput: true,
+		Result:           rawVal,
+	}
+
+	decoder, err := mapstructure.NewDecoder(config)
+	if err != nil {
+		return err
+	}
+
+	return decoder.Decode(m)
+}
+
 func InterfaceToVariable(input interface{}) (ast.Variable, error) {
 	var stringVal string
-	if err := mapstructure.Decode(input, &stringVal); err == nil {
+	if err := hilMapstructureWeakDecode(input, &stringVal); err == nil {
 		return ast.Variable{
 			Type:  ast.TypeString,
 			Value: stringVal,
@@ -17,7 +49,7 @@ func InterfaceToVariable(input interface{}) (ast.Variable, error) {
 	}
 
 	var mapVal map[string]interface{}
-	if err := mapstructure.Decode(input, &mapVal); err == nil {
+	if err := hilMapstructureWeakDecode(input, &mapVal); err == nil {
 		elements := make(map[string]ast.Variable)
 		for i, element := range mapVal {
 			varElement, err := InterfaceToVariable(element)
@@ -34,7 +66,7 @@ func InterfaceToVariable(input interface{}) (ast.Variable, error) {
 	}
 
 	var sliceVal []interface{}
-	if err := mapstructure.Decode(input, &sliceVal); err == nil {
+	if err := hilMapstructureWeakDecode(input, &sliceVal); err == nil {
 		elements := make([]ast.Variable, len(sliceVal))
 		for i, element := range sliceVal {
 			varElement, err := InterfaceToVariable(element)
