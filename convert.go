@@ -8,8 +8,9 @@ import (
 	"github.com/mitchellh/mapstructure"
 )
 
-var hilMapstructureDecodeHookEmptySlice []interface{}
-var hilMapstructureDecodeHookEmptyMap map[string]interface{}
+var hilMapstructureDecodeHookSlice []interface{}
+var hilMapstructureDecodeHookStringSlice []string
+var hilMapstructureDecodeHookMap map[string]interface{}
 
 // hilMapstructureWeakDecode behaves in the same way as mapstructure.WeakDecode
 // but has a DecodeHook which defeats the backward compatibility mode of mapstructure
@@ -18,11 +19,12 @@ var hilMapstructureDecodeHookEmptyMap map[string]interface{}
 func hilMapstructureWeakDecode(m interface{}, rawVal interface{}) error {
 	config := &mapstructure.DecoderConfig{
 		DecodeHook: func(source reflect.Type, target reflect.Type, val interface{}) (interface{}, error) {
-			sliceType := reflect.TypeOf(hilMapstructureDecodeHookEmptySlice)
-			mapType := reflect.TypeOf(hilMapstructureDecodeHookEmptyMap)
+			sliceType := reflect.TypeOf(hilMapstructureDecodeHookSlice)
+			stringSliceType := reflect.TypeOf(hilMapstructureDecodeHookStringSlice)
+			mapType := reflect.TypeOf(hilMapstructureDecodeHookMap)
 
-			if source == sliceType && target == mapType {
-				return nil, fmt.Errorf("Cannot convert a []interface{} into a map[string]interface{}")
+			if (source == sliceType || source == stringSliceType) && target == mapType {
+				return nil, fmt.Errorf("Cannot convert %s into a %s", source, target)
 			}
 
 			return val, nil
