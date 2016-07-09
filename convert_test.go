@@ -51,11 +51,11 @@ func TestInterfaceToVariable(t *testing.T) {
 			expected: ast.Variable{
 				Type: ast.TypeList,
 				Value: []ast.Variable{
-					ast.Variable{
+					{
 						Type:  ast.TypeString,
 						Value: "Hello",
 					},
-					ast.Variable{
+					{
 						Type:  ast.TypeString,
 						Value: "World",
 					},
@@ -64,31 +64,31 @@ func TestInterfaceToVariable(t *testing.T) {
 		},
 		{
 			name:  "list of lists of strings",
-			input: [][]string{[]string{"Hello", "World"}, []string{"Goodbye", "World"}},
+			input: [][]interface{}{[]interface{}{"Hello", "World"}, []interface{}{"Goodbye", "World"}},
 			expected: ast.Variable{
 				Type: ast.TypeList,
 				Value: []ast.Variable{
-					ast.Variable{
+					{
 						Type: ast.TypeList,
 						Value: []ast.Variable{
-							ast.Variable{
+							{
 								Type:  ast.TypeString,
 								Value: "Hello",
 							},
-							ast.Variable{
+							{
 								Type:  ast.TypeString,
 								Value: "World",
 							},
 						},
 					},
-					ast.Variable{
+					{
 						Type: ast.TypeList,
 						Value: []ast.Variable{
-							ast.Variable{
+							{
 								Type:  ast.TypeString,
 								Value: "Goodbye",
 							},
-							ast.Variable{
+							{
 								Type:  ast.TypeString,
 								Value: "World",
 							},
@@ -103,11 +103,11 @@ func TestInterfaceToVariable(t *testing.T) {
 			expected: ast.Variable{
 				Type: ast.TypeMap,
 				Value: map[string]ast.Variable{
-					"Hello": ast.Variable{
+					"Hello": {
 						Type:  ast.TypeString,
 						Value: "World",
 					},
-					"Foo": ast.Variable{
+					"Foo": {
 						Type:  ast.TypeString,
 						Value: "Bar",
 					},
@@ -123,27 +123,27 @@ func TestInterfaceToVariable(t *testing.T) {
 			expected: ast.Variable{
 				Type: ast.TypeMap,
 				Value: map[string]ast.Variable{
-					"Hello": ast.Variable{
+					"Hello": {
 						Type: ast.TypeList,
 						Value: []ast.Variable{
-							ast.Variable{
+							{
 								Type:  ast.TypeString,
 								Value: "Hello",
 							},
-							ast.Variable{
+							{
 								Type:  ast.TypeString,
 								Value: "World",
 							},
 						},
 					},
-					"Goodbye": ast.Variable{
+					"Goodbye": {
 						Type: ast.TypeList,
 						Value: []ast.Variable{
-							ast.Variable{
+							{
 								Type:  ast.TypeString,
 								Value: "Goodbye",
 							},
-							ast.Variable{
+							{
 								Type:  ast.TypeString,
 								Value: "World",
 							},
@@ -170,15 +170,15 @@ func TestInterfaceToVariable(t *testing.T) {
 			expected: ast.Variable{
 				Type: ast.TypeMap,
 				Value: map[string]ast.Variable{
-					"us-west-1": ast.Variable{
+					"us-west-1": {
 						Type:  ast.TypeString,
 						Value: "ami-123456",
 					},
-					"us-west-2": ast.Variable{
+					"us-west-2": {
 						Type:  ast.TypeString,
 						Value: "ami-456789",
 					},
-					"eu-west-1": ast.Variable{
+					"eu-west-1": {
 						Type:  ast.TypeString,
 						Value: "ami-012345",
 					},
@@ -195,6 +195,191 @@ func TestInterfaceToVariable(t *testing.T) {
 
 		if !reflect.DeepEqual(output, tc.expected) {
 			t.Fatalf("%s:\nExpected: %s\n     Got: %s\n", tc.name, tc.expected, output)
+		}
+	}
+}
+
+func TestVariableToInterface(t *testing.T) {
+	testCases := []struct {
+		name     string
+		expected interface{}
+		input    ast.Variable
+	}{
+		{
+			name:     "string",
+			expected: "Hello world",
+			input: ast.Variable{
+				Type:  ast.TypeString,
+				Value: "Hello world",
+			},
+		},
+		{
+			name:     "empty list",
+			expected: []interface{}{},
+			input: ast.Variable{
+				Type:  ast.TypeList,
+				Value: []ast.Variable{},
+			},
+		},
+		{
+			name:     "int",
+			expected: "1",
+			input: ast.Variable{
+				Type:  ast.TypeString,
+				Value: "1",
+			},
+		},
+		{
+			name:     "list of strings",
+			expected: []interface{}{"Hello", "World"},
+			input: ast.Variable{
+				Type: ast.TypeList,
+				Value: []ast.Variable{
+					{
+						Type:  ast.TypeString,
+						Value: "Hello",
+					},
+					{
+						Type:  ast.TypeString,
+						Value: "World",
+					},
+				},
+			},
+		},
+		{
+			name:     "list of lists of strings",
+			expected: []interface{}{[]interface{}{"Hello", "World"}, []interface{}{"Goodbye", "World"}},
+			input: ast.Variable{
+				Type: ast.TypeList,
+				Value: []ast.Variable{
+					{
+						Type: ast.TypeList,
+						Value: []ast.Variable{
+							{
+								Type:  ast.TypeString,
+								Value: "Hello",
+							},
+							{
+								Type:  ast.TypeString,
+								Value: "World",
+							},
+						},
+					},
+					{
+						Type: ast.TypeList,
+						Value: []ast.Variable{
+							{
+								Type:  ast.TypeString,
+								Value: "Goodbye",
+							},
+							{
+								Type:  ast.TypeString,
+								Value: "World",
+							},
+						},
+					},
+				},
+			},
+		},
+		{
+			name:     "map of string->string",
+			expected: map[string]interface{}{"Hello": "World", "Foo": "Bar"},
+			input: ast.Variable{
+				Type: ast.TypeMap,
+				Value: map[string]ast.Variable{
+					"Hello": {
+						Type:  ast.TypeString,
+						Value: "World",
+					},
+					"Foo": {
+						Type:  ast.TypeString,
+						Value: "Bar",
+					},
+				},
+			},
+		},
+		{
+			name: "map of lists of strings",
+			expected: map[string]interface{}{
+				"Hello":   []interface{}{"Hello", "World"},
+				"Goodbye": []interface{}{"Goodbye", "World"},
+			},
+			input: ast.Variable{
+				Type: ast.TypeMap,
+				Value: map[string]ast.Variable{
+					"Hello": {
+						Type: ast.TypeList,
+						Value: []ast.Variable{
+							{
+								Type:  ast.TypeString,
+								Value: "Hello",
+							},
+							{
+								Type:  ast.TypeString,
+								Value: "World",
+							},
+						},
+					},
+					"Goodbye": {
+						Type: ast.TypeList,
+						Value: []ast.Variable{
+							{
+								Type:  ast.TypeString,
+								Value: "Goodbye",
+							},
+							{
+								Type:  ast.TypeString,
+								Value: "World",
+							},
+						},
+					},
+				},
+			},
+		},
+		{
+			name:     "empty map",
+			expected: map[string]interface{}{},
+			input: ast.Variable{
+				Type:  ast.TypeMap,
+				Value: map[string]ast.Variable{},
+			},
+		},
+		{
+			name: "three-element map",
+			expected: map[string]interface{}{
+				"us-west-1": "ami-123456",
+				"us-west-2": "ami-456789",
+				"eu-west-1": "ami-012345",
+			},
+			input: ast.Variable{
+				Type: ast.TypeMap,
+				Value: map[string]ast.Variable{
+					"us-west-1": {
+						Type:  ast.TypeString,
+						Value: "ami-123456",
+					},
+					"us-west-2": {
+						Type:  ast.TypeString,
+						Value: "ami-456789",
+					},
+					"eu-west-1": {
+						Type:  ast.TypeString,
+						Value: "ami-012345",
+					},
+				},
+			},
+		},
+	}
+
+	for _, tc := range testCases {
+		output, err := VariableToInterface(tc.input)
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		if !reflect.DeepEqual(output, tc.expected) {
+			t.Fatalf("%s:\nExpected: %s\n     Got: %s\n", tc.name,
+				tc.expected, output)
 		}
 	}
 }
