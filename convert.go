@@ -86,3 +86,59 @@ func InterfaceToVariable(input interface{}) (ast.Variable, error) {
 
 	return ast.Variable{}, fmt.Errorf("value for conversion must be a string, interface{} or map[string]interface: got %T", input)
 }
+
+func VariableToInterface(input ast.Variable) (interface{}, error) {
+	if input.Type == ast.TypeString {
+		if inputStr, ok := input.Value.(string); ok {
+			return inputStr, nil
+		} else {
+			return nil, fmt.Errorf("ast.Variable with type string has value which is not a string")
+		}
+	}
+
+	if input.Type == ast.TypeList {
+		inputList, ok := input.Value.([]ast.Variable)
+		if !ok {
+			return nil, fmt.Errorf("ast.Variable with type list has value which is not a []ast.Variable")
+		}
+
+		result := make([]interface{}, 0)
+		if len(inputList) == 0 {
+			return result, nil
+		}
+
+		for _, element := range inputList {
+			if convertedElement, err := VariableToInterface(element); err == nil {
+				result = append(result, convertedElement)
+			} else {
+				return nil, err
+			}
+		}
+
+		return result, nil
+	}
+
+	if input.Type == ast.TypeMap {
+		inputMap, ok := input.Value.(map[string]ast.Variable)
+		if !ok {
+			return nil, fmt.Errorf("ast.Variable with type map has value which is not a map[string]ast.Variable")
+		}
+
+		result := make(map[string]interface{}, 0)
+		if len(inputMap) == 0 {
+			return result, nil
+		}
+
+		for key, value := range inputMap {
+			if convertedValue, err := VariableToInterface(value); err == nil {
+				result[key] = convertedValue
+			} else {
+				return nil, err
+			}
+		}
+
+		return result, nil
+	}
+
+	return nil, fmt.Errorf("Find")
+}
