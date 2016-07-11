@@ -7,6 +7,17 @@ import (
 	"github.com/hashicorp/hil/ast"
 )
 
+func TestInterfaceToVariable_variableInput(t *testing.T) {
+	_, err := InterfaceToVariable(ast.Variable{
+		Type:  ast.TypeString,
+		Value: "Hello world",
+	})
+
+	if err != nil {
+		t.Fatalf("Bad: %s", err)
+	}
+}
+
 func TestInterfaceToVariable(t *testing.T) {
 	testCases := []struct {
 		name     string
