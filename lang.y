@@ -158,15 +158,12 @@ expr:
     {
         $$ = &ast.Call{Func: $1.Value.(string), Args: $3, Posx: $1.Pos}
     }
-|   IDENTIFIER SQUARE_BRACKET_LEFT expr SQUARE_BRACKET_RIGHT
+|   expr SQUARE_BRACKET_LEFT expr SQUARE_BRACKET_RIGHT
     {
         $$ = &ast.Index{
-                Target: &ast.VariableAccess{
-                    Name: $1.Value.(string),
-                    Posx: $1.Pos,
-                },
+                Target: $1,
                 Key: $3,
-                Posx: $1.Pos,
+                Posx: $1.Pos(),
             }
     }
 

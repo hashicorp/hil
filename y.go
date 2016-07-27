@@ -57,7 +57,7 @@ const parserEofCode = 1
 const parserErrCode = 2
 const parserInitialStackSize = 16
 
-//line lang.y:196
+//line lang.y:193
 
 //line yacctab:1
 var parserExca = [...]int{
@@ -72,25 +72,25 @@ const parserPrivate = 57344
 var parserTokenNames []string
 var parserStates []string
 
-const parserLast = 37
+const parserLast = 40
 
 var parserAct = [...]int{
 
-	9, 7, 29, 17, 23, 16, 17, 3, 17, 20,
-	8, 18, 21, 17, 6, 19, 27, 28, 22, 8,
-	1, 25, 26, 7, 11, 2, 24, 10, 4, 30,
-	5, 0, 14, 15, 12, 13, 6,
+	9, 7, 18, 27, 17, 24, 18, 18, 17, 17,
+	18, 19, 28, 29, 6, 20, 7, 21, 22, 23,
+	10, 3, 26, 1, 8, 14, 15, 12, 13, 6,
+	30, 16, 25, 8, 11, 2, 4, 18, 5, 17,
 }
 var parserPact = [...]int{
 
-	-3, -1000, -3, -1000, -1000, -1000, -1000, 19, -1000, 0,
-	19, -3, -1000, -1000, 19, 1, -1000, 19, -5, -1000,
-	19, 19, -1000, -1000, 7, -7, -10, -1000, 19, -1000,
-	-7,
+	-3, -1000, -3, -1000, -1000, -1000, -1000, 12, -1000, 26,
+	12, -3, -1000, -1000, 12, 9, -1000, 12, 12, -4,
+	-1, 12, -1, -9, -1000, 3, -5, -1000, -1000, 12,
+	-5,
 }
 var parserPgo = [...]int{
 
-	0, 0, 30, 28, 24, 7, 26, 20,
+	0, 0, 38, 36, 34, 21, 32, 23,
 }
 var parserR1 = [...]int{
 
@@ -107,15 +107,15 @@ var parserR2 = [...]int{
 var parserChk = [...]int{
 
 	-1000, -7, -4, -5, -3, -2, 17, 4, -5, -1,
-	8, -4, 15, 16, 13, 14, 5, 13, -1, -1,
-	8, 11, -1, 9, -6, -1, -1, 9, 10, 12,
+	8, -4, 15, 16, 13, 14, 5, 13, 11, -1,
+	-1, 8, -1, -1, 9, -6, -1, 12, 9, 10,
 	-1,
 }
 var parserDef = [...]int{
 
 	1, -2, 2, 3, 5, 6, 20, 0, 4, 0,
-	0, 9, 10, 11, 0, 14, 7, 0, 0, 12,
-	17, 0, 13, 8, 0, 19, 0, 15, 0, 16,
+	0, 9, 10, 11, 0, 14, 7, 0, 0, 0,
+	12, 17, 13, 0, 8, 0, 19, 16, 15, 0,
 	18,
 }
 var parserTok1 = [...]int{
@@ -621,35 +621,32 @@ parserdefault:
 		//line lang.y:162
 		{
 			parserVAL.node = &ast.Index{
-				Target: &ast.VariableAccess{
-					Name: parserDollar[1].token.Value.(string),
-					Posx: parserDollar[1].token.Pos,
-				},
-				Key:  parserDollar[3].node,
-				Posx: parserDollar[1].token.Pos,
+				Target: parserDollar[1].node,
+				Key:    parserDollar[3].node,
+				Posx:   parserDollar[1].node.Pos(),
 			}
 		}
 	case 17:
 		parserDollar = parserS[parserpt-0 : parserpt+1]
-		//line lang.y:174
+		//line lang.y:171
 		{
 			parserVAL.nodeList = nil
 		}
 	case 18:
 		parserDollar = parserS[parserpt-3 : parserpt+1]
-		//line lang.y:178
+		//line lang.y:175
 		{
 			parserVAL.nodeList = append(parserDollar[1].nodeList, parserDollar[3].node)
 		}
 	case 19:
 		parserDollar = parserS[parserpt-1 : parserpt+1]
-		//line lang.y:182
+		//line lang.y:179
 		{
 			parserVAL.nodeList = append(parserVAL.nodeList, parserDollar[1].node)
 		}
 	case 20:
 		parserDollar = parserS[parserpt-1 : parserpt+1]
-		//line lang.y:188
+		//line lang.y:185
 		{
 			parserVAL.node = &ast.LiteralNode{
 				Value: parserDollar[1].token.Value.(string),

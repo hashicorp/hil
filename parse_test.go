@@ -353,6 +353,35 @@ func TestParse(t *testing.T) {
 				},
 			},
 		},
+		{
+			"${foo[1][2]}",
+			false,
+			&ast.Output{
+				Posx: ast.Pos{Column: 3, Line: 1},
+				Exprs: []ast.Node{
+					&ast.Index{
+						Posx: ast.Pos{Column: 3, Line: 1},
+						Target: &ast.Index{
+							Posx: ast.Pos{Column: 3, Line: 1},
+							Target: &ast.VariableAccess{
+								Name: "foo",
+								Posx: ast.Pos{Column: 3, Line: 1},
+							},
+							Key: &ast.LiteralNode{
+								Value: 1,
+								Typex: ast.TypeInt,
+								Posx:  ast.Pos{Column: 7, Line: 1},
+							},
+						},
+						Key: &ast.LiteralNode{
+							Value: 2,
+							Typex: ast.TypeInt,
+							Posx:  ast.Pos{Column: 10, Line: 1},
+						},
+					},
+				},
+			},
+		},
 
 		{
 			"${foo[1]} - ${bar[0]}",
@@ -394,12 +423,6 @@ func TestParse(t *testing.T) {
 		},
 
 		{
-			"${foo[1][2]}",
-			true,
-			nil,
-		},
-
-		{
 			`foo ${bar ${baz}}`,
 			true,
 			nil,
@@ -420,7 +443,7 @@ func TestParse(t *testing.T) {
 
 	for _, tc := range cases {
 		actual, err := Parse(tc.Input)
-		if err != nil != tc.Error {
+		if (err != nil) != tc.Error {
 			t.Fatalf("Error: %s\n\nInput: %s", err, tc.Input)
 		}
 		if !reflect.DeepEqual(actual, tc.Result) {

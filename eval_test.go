@@ -115,6 +115,30 @@ func TestEval(t *testing.T) {
 			TypeInvalid,
 		},
 		{
+			"${var.anestedlist[0][0]}",
+			&ast.BasicScope{
+				VarMap: map[string]ast.Variable{
+					"var.anestedlist": ast.Variable{
+						Type: ast.TypeList,
+						Value: []ast.Variable{
+							ast.Variable{
+								Type: ast.TypeList,
+								Value: []ast.Variable{
+									ast.Variable{
+										Type:  ast.TypeString,
+										Value: "Hello",
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+			false,
+			"Hello",
+			TypeString,
+		},
+		{
 			`${foo}`,
 			&ast.BasicScope{
 				VarMap: map[string]ast.Variable{
@@ -548,6 +572,25 @@ func TestEvalInternal(t *testing.T) {
 			},
 			false,
 			"foo 42",
+			ast.TypeString,
+		},
+
+		{
+			"${makealist()[0]}",
+			&ast.BasicScope{
+				FuncMap: map[string]ast.Function{
+					"makealist": ast.Function{
+						ReturnType: ast.TypeList,
+						Callback: func([]interface{}) (interface{}, error) {
+							return []ast.Variable{
+								{Type: ast.TypeString, Value: "foo"},
+							}, nil
+						},
+					},
+				},
+			},
+			false,
+			"foo",
 			ast.TypeString,
 		},
 
@@ -1116,7 +1159,8 @@ func TestEvalInternal(t *testing.T) {
 		},
 	}
 
-	for _, tc := range cases {
+	for i, tc := range cases {
+		t.Logf("#%d: %s", i, tc.Input)
 		node, err := Parse(tc.Input)
 		if err != nil {
 			t.Fatalf("Error: %s\n\nInput: %s", err, tc.Input)
