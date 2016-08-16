@@ -423,11 +423,27 @@ func TestEvalInternal(t *testing.T) {
 		},
 
 		{
+			"foo ${42/0}",
+			nil,
+			true,
+			"foo ",
+			ast.TypeInvalid,
+		},
+
+		{
 			"foo ${42%4}",
 			nil,
 			false,
 			"foo 2",
 			ast.TypeString,
+		},
+
+		{
+			"foo ${42%0}",
+			nil,
+			true,
+			"foo ",
+			ast.TypeInvalid,
 		},
 
 		{
