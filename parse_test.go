@@ -416,6 +416,12 @@ func TestParse(t *testing.T) {
 			true,
 			nil,
 		},
+
+		{
+			"${file(/tmp/somefile)}",
+			true,
+			nil,
+		},
 	}
 
 	for _, tc := range cases {
