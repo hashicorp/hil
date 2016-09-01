@@ -551,6 +551,25 @@ func TestEvalInternal(t *testing.T) {
 		},
 
 		{
+			"foo ${bar+baz}",
+			&ast.BasicScope{
+				VarMap: map[string]ast.Variable{
+					"bar": ast.Variable{
+						Value: 0.001,
+						Type:  ast.TypeFloat,
+					},
+					"baz": ast.Variable{
+						Value: "0.002",
+						Type:  ast.TypeString,
+					},
+				},
+			},
+			false,
+			"foo 0.003",
+			ast.TypeString,
+		},
+
+		{
 			"foo ${rand()}",
 			&ast.BasicScope{
 				FuncMap: map[string]ast.Function{
