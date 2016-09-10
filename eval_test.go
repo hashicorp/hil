@@ -23,6 +23,18 @@ func TestEval(t *testing.T) {
 			ResultType: TypeString,
 		},
 		{
+			Input:      `${"foo\\bar"}`,
+			Scope:      nil,
+			Result:     `foo\bar`,
+			ResultType: TypeString,
+		},
+		{
+			Input:      `${"foo\\\\bar"}`,
+			Scope:      nil,
+			Result:     `foo\\bar`,
+			ResultType: TypeString,
+		},
+		{
 			"${var.alist}",
 			&ast.BasicScope{
 				VarMap: map[string]ast.Variable{
