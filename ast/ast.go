@@ -54,6 +54,7 @@ const (
 	TypeFloat
 	TypeList
 	TypeMap
+	TypeBool
 )
 
 func (t Type) Printable() string {
@@ -72,6 +73,8 @@ func (t Type) Printable() string {
 		return "type list"
 	case TypeMap:
 		return "type map"
+	case TypeBool:
+		return "type bool"
 	default:
 		return "unknown type"
 	}

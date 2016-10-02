@@ -32,6 +32,7 @@ type SemanticChecker func(ast.Node) error
 //     TypeString:  string
 //     TypeList:    []interface{}
 //     TypeMap:     map[string]interface{}
+//     TypBool:     bool
 type EvaluationResult struct {
 	Type  EvalType
 	Value interface{}
@@ -72,6 +73,11 @@ func Eval(root ast.Node, config *EvalConfig) (EvaluationResult, error) {
 			Type:  TypeString,
 			Value: output,
 		}, nil
+	case ast.TypeBool:
+		return EvaluationResult{
+			Type:  TypeBool,
+			Value: output,
+		}, nil
 	default:
 		return InvalidResult, fmt.Errorf("unknown type %s as interpolation output", outputType)
 	}
@@ -97,6 +103,10 @@ func internalEval(root ast.Node, config *EvalConfig) (interface{}, ast.Type, err
 		ast.TypeString: {
 			ast.TypeInt:   "__builtin_StringToInt",
 			ast.TypeFloat: "__builtin_StringToFloat",
+			ast.TypeBool:  "__builtin_StringToBool",
+		},
+		ast.TypeBool: {
+			ast.TypeString: "__builtin_BoolToString",
 		},
 	}
 
