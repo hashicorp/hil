@@ -1,8 +1,10 @@
 package hil
 
 import (
+	"fmt"
 	"reflect"
 	"strconv"
+	"strings"
 	"testing"
 
 	"github.com/hashicorp/hil/ast"
@@ -309,24 +311,58 @@ func TestEval(t *testing.T) {
 			},
 			TypeList,
 		},
+		{
+			`${foo[upper(bar)]}`,
+			&ast.BasicScope{
+				FuncMap: map[string]ast.Function{
+					"upper": ast.Function{
+						ArgTypes:   []ast.Type{ast.TypeString},
+						ReturnType: ast.TypeString,
+						Callback: func(args []interface{}) (interface{}, error) {
+							return strings.ToUpper(args[0].(string)), nil
+						},
+					},
+				},
+				VarMap: map[string]ast.Variable{
+					"foo": ast.Variable{
+						Type: ast.TypeMap,
+						Value: map[string]ast.Variable{
+							"KEY": ast.Variable{
+								Type:  ast.TypeString,
+								Value: "value",
+							},
+						},
+					},
+					"bar": ast.Variable{
+						Value: "key",
+						Type:  ast.TypeString,
+					},
+				},
+			},
+			false,
+			"value",
+			TypeString,
+		},
 	}
 
-	for _, tc := range cases {
-		node, err := Parse(tc.Input)
-		if err != nil {
-			t.Fatalf("Error: %s\n\nInput: %s", err, tc.Input)
-		}
+	for i, tc := range cases {
+		t.Run(fmt.Sprintf("%d-%s", i, tc.Input), func(t *testing.T) {
+			node, err := Parse(tc.Input)
+			if err != nil {
+				t.Fatalf("Error: %s\n\nInput: %s", err, tc.Input)
+			}
 
-		result, err := Eval(node, &EvalConfig{GlobalScope: tc.Scope})
-		if err != nil != tc.Error {
-			t.Fatalf("Error: %s\n\nInput: %s", err, tc.Input)
-		}
-		if tc.ResultType != TypeInvalid && result.Type != tc.ResultType {
-			t.Fatalf("Bad: %s\n\nInput: %s", result.Type, tc.Input)
-		}
-		if !reflect.DeepEqual(result.Value, tc.Result) {
-			t.Fatalf("\n     Bad: %#v\nExpected: %#v\n\nInput: %s", result.Value, tc.Result, tc.Input)
-		}
+			result, err := Eval(node, &EvalConfig{GlobalScope: tc.Scope})
+			if err != nil != tc.Error {
+				t.Fatalf("Error: %s\n\nInput: %s", err, tc.Input)
+			}
+			if tc.ResultType != TypeInvalid && result.Type != tc.ResultType {
+				t.Fatalf("Bad: %s\n\nInput: %s", result.Type, tc.Input)
+			}
+			if !reflect.DeepEqual(result.Value, tc.Result) {
+				t.Fatalf("\n     Bad: %#v\nExpected: %#v\n\nInput: %s", result.Value, tc.Result, tc.Input)
+			}
+		})
 	}
 }
 
@@ -1163,21 +1199,23 @@ func TestEvalInternal(t *testing.T) {
 		},
 	}
 
-	for _, tc := range cases {
-		node, err := Parse(tc.Input)
-		if err != nil {
-			t.Fatalf("Error: %s\n\nInput: %s", err, tc.Input)
-		}
+	for i, tc := range cases {
+		t.Run(fmt.Sprintf("%d-%s", i, tc.Input), func(t *testing.T) {
+			node, err := Parse(tc.Input)
+			if err != nil {
+				t.Fatalf("Error: %s\n\nInput: %s", err, tc.Input)
+			}
 
-		out, outType, err := internalEval(node, &EvalConfig{GlobalScope: tc.Scope})
-		if err != nil != tc.Error {
-			t.Fatalf("Error: %s\n\nInput: %s", err, tc.Input)
-		}
-		if tc.ResultType != ast.TypeInvalid && outType != tc.ResultType {
-			t.Fatalf("Bad: %s\n\nInput: %s", outType, tc.Input)
-		}
-		if !reflect.DeepEqual(out, tc.Result) {
-			t.Fatalf("Bad: %#v\n\nInput: %s", out, tc.Input)
-		}
+			out, outType, err := internalEval(node, &EvalConfig{GlobalScope: tc.Scope})
+			if err != nil != tc.Error {
+				t.Fatalf("Error: %s\n\nInput: %s", err, tc.Input)
+			}
+			if tc.ResultType != ast.TypeInvalid && outType != tc.ResultType {
+				t.Fatalf("Bad: %s\n\nInput: %s", outType, tc.Input)
+			}
+			if !reflect.DeepEqual(out, tc.Result) {
+				t.Fatalf("Bad: %#v\n\nInput: %s", out, tc.Input)
+			}
+		})
 	}
 }
