@@ -3,6 +3,7 @@ package hil
 import (
 	"reflect"
 	"strconv"
+	"strings"
 	"testing"
 
 	"github.com/hashicorp/hil/ast"
@@ -308,6 +309,38 @@ func TestEval(t *testing.T) {
 				"World",
 			},
 			TypeList,
+		},
+		{
+			`${foo[upper(bar)]}`,
+			&ast.BasicScope{
+				FuncMap: map[string]ast.Function{
+					"upper": ast.Function{
+						ArgTypes:   []ast.Type{ast.TypeString},
+						ReturnType: ast.TypeString,
+						Callback: func(args []interface{}) (interface{}, error) {
+							return strings.ToUpper(args[0].(string)), nil
+						},
+					},
+				},
+				VarMap: map[string]ast.Variable{
+					"foo": ast.Variable{
+						Type: ast.TypeMap,
+						Value: map[string]ast.Variable{
+							"KEY": ast.Variable{
+								Type:  ast.TypeString,
+								Value: "value",
+							},
+						},
+					},
+					"bar": ast.Variable{
+						Value: "key",
+						Type:  ast.TypeString,
+					},
+				},
+			},
+			false,
+			"value",
+			TypeString,
 		},
 	}
 
