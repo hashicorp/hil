@@ -1,6 +1,7 @@
 package hil
 
 import (
+	"fmt"
 	"reflect"
 	"strconv"
 	"strings"
@@ -344,22 +345,24 @@ func TestEval(t *testing.T) {
 		},
 	}
 
-	for _, tc := range cases {
-		node, err := Parse(tc.Input)
-		if err != nil {
-			t.Fatalf("Error: %s\n\nInput: %s", err, tc.Input)
-		}
+	for i, tc := range cases {
+		t.Run(fmt.Sprintf("%d-%s", i, tc.Input), func(t *testing.T) {
+			node, err := Parse(tc.Input)
+			if err != nil {
+				t.Fatalf("Error: %s\n\nInput: %s", err, tc.Input)
+			}
 
-		result, err := Eval(node, &EvalConfig{GlobalScope: tc.Scope})
-		if err != nil != tc.Error {
-			t.Fatalf("Error: %s\n\nInput: %s", err, tc.Input)
-		}
-		if tc.ResultType != TypeInvalid && result.Type != tc.ResultType {
-			t.Fatalf("Bad: %s\n\nInput: %s", result.Type, tc.Input)
-		}
-		if !reflect.DeepEqual(result.Value, tc.Result) {
-			t.Fatalf("\n     Bad: %#v\nExpected: %#v\n\nInput: %s", result.Value, tc.Result, tc.Input)
-		}
+			result, err := Eval(node, &EvalConfig{GlobalScope: tc.Scope})
+			if err != nil != tc.Error {
+				t.Fatalf("Error: %s\n\nInput: %s", err, tc.Input)
+			}
+			if tc.ResultType != TypeInvalid && result.Type != tc.ResultType {
+				t.Fatalf("Bad: %s\n\nInput: %s", result.Type, tc.Input)
+			}
+			if !reflect.DeepEqual(result.Value, tc.Result) {
+				t.Fatalf("\n     Bad: %#v\nExpected: %#v\n\nInput: %s", result.Value, tc.Result, tc.Input)
+			}
+		})
 	}
 }
 
@@ -1196,21 +1199,23 @@ func TestEvalInternal(t *testing.T) {
 		},
 	}
 
-	for _, tc := range cases {
-		node, err := Parse(tc.Input)
-		if err != nil {
-			t.Fatalf("Error: %s\n\nInput: %s", err, tc.Input)
-		}
+	for i, tc := range cases {
+		t.Run(fmt.Sprintf("%d-%s", i, tc.Input), func(t *testing.T) {
+			node, err := Parse(tc.Input)
+			if err != nil {
+				t.Fatalf("Error: %s\n\nInput: %s", err, tc.Input)
+			}
 
-		out, outType, err := internalEval(node, &EvalConfig{GlobalScope: tc.Scope})
-		if err != nil != tc.Error {
-			t.Fatalf("Error: %s\n\nInput: %s", err, tc.Input)
-		}
-		if tc.ResultType != ast.TypeInvalid && outType != tc.ResultType {
-			t.Fatalf("Bad: %s\n\nInput: %s", outType, tc.Input)
-		}
-		if !reflect.DeepEqual(out, tc.Result) {
-			t.Fatalf("Bad: %#v\n\nInput: %s", out, tc.Input)
-		}
+			out, outType, err := internalEval(node, &EvalConfig{GlobalScope: tc.Scope})
+			if err != nil != tc.Error {
+				t.Fatalf("Error: %s\n\nInput: %s", err, tc.Input)
+			}
+			if tc.ResultType != ast.TypeInvalid && outType != tc.ResultType {
+				t.Fatalf("Bad: %s\n\nInput: %s", outType, tc.Input)
+			}
+			if !reflect.DeepEqual(out, tc.Result) {
+				t.Fatalf("Bad: %#v\n\nInput: %s", out, tc.Input)
+			}
+		})
 	}
 }
