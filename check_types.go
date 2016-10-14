@@ -325,8 +325,11 @@ func (tc *typeCheckIndex) TypeCheck(v *TypeCheck) (ast.Node, error) {
 	switch targetType {
 	case ast.TypeList:
 		if keyType != ast.TypeInt {
-			return nil, fmt.Errorf(
-				"key of an index must be an int, was %s", keyType)
+			tc.n.Key = v.ImplicitConversion(keyType, ast.TypeInt, tc.n.Key)
+			if tc.n.Key == nil {
+				return nil, fmt.Errorf(
+					"key of an index must be an int, was %s", keyType)
+			}
 		}
 
 		valType, err := ast.VariableListElementTypesAreHomogenous(
@@ -339,8 +342,11 @@ func (tc *typeCheckIndex) TypeCheck(v *TypeCheck) (ast.Node, error) {
 		return tc.n, nil
 	case ast.TypeMap:
 		if keyType != ast.TypeString {
-			return nil, fmt.Errorf(
-				"key of an index must be a string, was %s", keyType)
+			tc.n.Key = v.ImplicitConversion(keyType, ast.TypeString, tc.n.Key)
+			if tc.n.Key == nil {
+				return nil, fmt.Errorf(
+					"key of an index must be a string, was %s", keyType)
+			}
 		}
 
 		valType, err := ast.VariableMapValueTypesAreHomogenous(
