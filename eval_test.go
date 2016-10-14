@@ -106,6 +106,29 @@ func TestEval(t *testing.T) {
 			TypeString,
 		},
 		{
+			"${var.alist[2-1]}",
+			&ast.BasicScope{
+				VarMap: map[string]ast.Variable{
+					"var.alist": ast.Variable{
+						Type: ast.TypeList,
+						Value: []ast.Variable{
+							ast.Variable{
+								Type:  ast.TypeString,
+								Value: "Hello",
+							},
+							ast.Variable{
+								Type:  ast.TypeString,
+								Value: "World",
+							},
+						},
+					},
+				},
+			},
+			false,
+			"World",
+			TypeString,
+		},
+		{
 			"${var.alist} ${var.alist}",
 			&ast.BasicScope{
 				VarMap: map[string]ast.Variable{

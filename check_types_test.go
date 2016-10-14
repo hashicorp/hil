@@ -337,7 +337,7 @@ func TestTypeCheck_implicit(t *testing.T) {
 							},
 						},
 					},
-					"var.key": ast.Variable{
+					"var.keyint": ast.Variable{
 						Type:  ast.TypeInt,
 						Value: 1,
 					},
@@ -348,36 +348,38 @@ func TestTypeCheck_implicit(t *testing.T) {
 	}
 
 	for _, tc := range cases {
-		node, err := Parse(tc.Input)
-		if err != nil {
-			t.Fatalf("Error: %s\n\nInput: %s", err, tc.Input)
-		}
+		t.Run(tc.Input, func(t *testing.T) {
+			node, err := Parse(tc.Input)
+			if err != nil {
+				t.Fatalf("Error: %s\n\nInput: %s", err, tc.Input)
+			}
 
-		// Modify the scope to add our conversion functions.
-		if tc.Scope.FuncMap == nil {
-			tc.Scope.FuncMap = make(map[string]ast.Function)
-		}
-		tc.Scope.FuncMap["intToString"] = ast.Function{
-			ArgTypes:   []ast.Type{ast.TypeInt},
-			ReturnType: ast.TypeString,
-		}
+			// Modify the scope to add our conversion functions.
+			if tc.Scope.FuncMap == nil {
+				tc.Scope.FuncMap = make(map[string]ast.Function)
+			}
+			tc.Scope.FuncMap["intToString"] = ast.Function{
+				ArgTypes:   []ast.Type{ast.TypeInt},
+				ReturnType: ast.TypeString,
+			}
 
-		// Do the first pass...
-		visitor := &TypeCheck{Scope: tc.Scope, Implicit: implicitMap}
-		err = visitor.Visit(node)
-		if err != nil != tc.Error {
-			t.Fatalf("Error: %s\n\nInput: %s", err, tc.Input)
-		}
-		if err != nil {
-			continue
-		}
+			// Do the first pass...
+			visitor := &TypeCheck{Scope: tc.Scope, Implicit: implicitMap}
+			err = visitor.Visit(node)
+			if err != nil != tc.Error {
+				t.Fatalf("Error: %s\n\nInput: %s", err, tc.Input)
+			}
+			if err != nil {
+				return
+			}
 
-		// If we didn't error, then the next type check should not fail
-		// WITHOUT implicits.
-		visitor = &TypeCheck{Scope: tc.Scope}
-		err = visitor.Visit(node)
-		if err != nil {
-			t.Fatalf("Error: %s\n\nInput: %s", err, tc.Input)
-		}
+			// If we didn't error, then the next type check should not fail
+			// WITHOUT implicits.
+			visitor = &TypeCheck{Scope: tc.Scope}
+			err = visitor.Visit(node)
+			if err != nil {
+				t.Fatalf("Error: %s\n\nInput: %s", err, tc.Input)
+			}
+		})
 	}
 }
