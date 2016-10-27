@@ -109,6 +109,22 @@ func TestInterfaceToVariable(t *testing.T) {
 			},
 		},
 		{
+			name:  "list with unknown",
+			input: []string{"Hello", UnknownValue},
+			expected: ast.Variable{
+				Type: ast.TypeList,
+				Value: []ast.Variable{
+					{
+						Type:  ast.TypeString,
+						Value: "Hello",
+					},
+					{
+						Type: ast.TypeUnknown,
+					},
+				},
+			},
+		},
+		{
 			name:  "map of string->string",
 			input: map[string]string{"Hello": "World", "Foo": "Bar"},
 			expected: ast.Variable{
