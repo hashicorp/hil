@@ -308,6 +308,27 @@ func TestTypeCheck_implicit(t *testing.T) {
 		},
 
 		{
+			"${foo[1]}",
+			&ast.BasicScope{
+				VarMap: map[string]ast.Variable{
+					"foo": ast.Variable{
+						Type: ast.TypeList,
+						Value: []ast.Variable{
+							ast.Variable{
+								Type:  ast.TypeInt,
+								Value: 42,
+							},
+							ast.Variable{
+								Type: ast.TypeUnknown,
+							},
+						},
+					},
+				},
+			},
+			false,
+		},
+
+		{
 			`${foo[bar[var.keyint]]}`,
 			&ast.BasicScope{
 				VarMap: map[string]ast.Variable{

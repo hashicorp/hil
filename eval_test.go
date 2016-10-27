@@ -224,6 +224,51 @@ func TestEval(t *testing.T) {
 			TypeString,
 		},
 		{
+			`${foo["bar"]}`,
+			&ast.BasicScope{
+				VarMap: map[string]ast.Variable{
+					"foo": ast.Variable{
+						Type: ast.TypeMap,
+						Value: map[string]ast.Variable{
+							"foo": ast.Variable{
+								Type:  ast.TypeString,
+								Value: "hello",
+							},
+							"bar": ast.Variable{
+								Type: ast.TypeUnknown,
+							},
+						},
+					},
+				},
+			},
+			false,
+			UnknownValue,
+			TypeUnknown,
+		},
+		{
+			`${foo["bar"]} foo`,
+			&ast.BasicScope{
+				VarMap: map[string]ast.Variable{
+					"foo": ast.Variable{
+						Type: ast.TypeMap,
+						Value: map[string]ast.Variable{
+							"foo": ast.Variable{
+								Type:  ast.TypeString,
+								Value: "hello",
+							},
+							"bar": ast.Variable{
+								Type: ast.TypeUnknown,
+							},
+						},
+					},
+				},
+			},
+			false,
+			UnknownValue,
+			TypeUnknown,
+		},
+
+		{
 			`${foo[3]}`,
 			&ast.BasicScope{
 				VarMap: map[string]ast.Variable{
@@ -325,6 +370,23 @@ func TestEval(t *testing.T) {
 			TypeString,
 		},
 		{
+			`${foo} ${bar}`,
+			&ast.BasicScope{
+				VarMap: map[string]ast.Variable{
+					"foo": ast.Variable{
+						Type:  ast.TypeString,
+						Value: "Hello",
+					},
+					"bar": ast.Variable{
+						Type: ast.TypeUnknown,
+					},
+				},
+			},
+			false,
+			UnknownValue,
+			TypeUnknown,
+		},
+		{
 			`${foo}`,
 			&ast.BasicScope{
 				VarMap: map[string]ast.Variable{
@@ -407,6 +469,64 @@ func TestEval(t *testing.T) {
 			false,
 			"value",
 			TypeString,
+		},
+		{
+			`${foo[upper(bar)]}`,
+			&ast.BasicScope{
+				FuncMap: map[string]ast.Function{
+					"upper": ast.Function{
+						ArgTypes:   []ast.Type{ast.TypeString},
+						ReturnType: ast.TypeString,
+						Callback: func(args []interface{}) (interface{}, error) {
+							return strings.ToUpper(args[0].(string)), nil
+						},
+					},
+				},
+				VarMap: map[string]ast.Variable{
+					"foo": ast.Variable{
+						Type: ast.TypeMap,
+						Value: map[string]ast.Variable{
+							"KEY": ast.Variable{
+								Type:  ast.TypeString,
+								Value: "value",
+							},
+						},
+					},
+					"bar": ast.Variable{
+						Type: ast.TypeUnknown,
+					},
+				},
+			},
+			false,
+			UnknownValue,
+			TypeUnknown,
+		},
+		{
+			`${upper(foo)}`,
+			&ast.BasicScope{
+				FuncMap: map[string]ast.Function{
+					"upper": ast.Function{
+						ArgTypes:   []ast.Type{ast.TypeMap},
+						ReturnType: ast.TypeString,
+						Callback: func(args []interface{}) (interface{}, error) {
+							return "foo", nil
+						},
+					},
+				},
+				VarMap: map[string]ast.Variable{
+					"foo": ast.Variable{
+						Type: ast.TypeMap,
+						Value: map[string]ast.Variable{
+							"KEY": ast.Variable{
+								Type: ast.TypeUnknown,
+							},
+						},
+					},
+				},
+			},
+			false,
+			UnknownValue,
+			TypeUnknown,
 		},
 	}
 
