@@ -9,6 +9,7 @@ const (
 	_EvalType_name_1 = "TypeString"
 	_EvalType_name_2 = "TypeList"
 	_EvalType_name_3 = "TypeMap"
+	_EvalType_name_4 = "TypeBool"
 )
 
 var (
@@ -16,6 +17,7 @@ var (
 	_EvalType_index_1 = [...]uint8{0, 10}
 	_EvalType_index_2 = [...]uint8{0, 8}
 	_EvalType_index_3 = [...]uint8{0, 7}
+	_EvalType_index_4 = [...]uint8{0, 8}
 )
 
 func (i EvalType) String() string {
@@ -28,6 +30,8 @@ func (i EvalType) String() string {
 		return _EvalType_name_2
 	case i == 8:
 		return _EvalType_name_3
+	case i == 16:
+		return _EvalType_name_4
 	default:
 		return fmt.Sprintf("EvalType(%d)", i)
 	}

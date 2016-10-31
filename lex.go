@@ -230,6 +230,16 @@ func (x *parserLex) lexId(yylval *parserSymType) int {
 		last = c
 	}
 
+	if b.String() == "true" {
+		yylval.token = &parserToken{Value: true}
+		return BOOL
+	}
+
+	if b.String() == "false" {
+		yylval.token = &parserToken{Value: false}
+		return BOOL
+	}
+
 	yylval.token = &parserToken{Value: b.String()}
 	return IDENTIFIER
 }

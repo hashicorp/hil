@@ -49,6 +49,7 @@ type Type uint32
 const (
 	TypeInvalid Type = 0
 	TypeAny     Type = 1 << iota
+	TypeBool
 	TypeString
 	TypeInt
 	TypeFloat
@@ -69,6 +70,8 @@ func (t Type) Printable() string {
 		return "invalid type"
 	case TypeAny:
 		return "any type"
+	case TypeBool:
+		return "type bool"
 	case TypeString:
 		return "type string"
 	case TypeInt:

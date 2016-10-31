@@ -25,7 +25,7 @@ import (
 %token  <str> PAREN_LEFT PAREN_RIGHT COMMA
 %token  <str> SQUARE_BRACKET_LEFT SQUARE_BRACKET_RIGHT
 
-%token <token> ARITH_OP IDENTIFIER INTEGER FLOAT STRING
+%token <token> ARITH_OP IDENTIFIER INTEGER FLOAT BOOL STRING
 
 %type <node> expr interpolation literal literalModeTop literalModeValue
 %type <nodeList> args
@@ -122,6 +122,14 @@ expr:
         $$ = &ast.LiteralNode{
             Value: $1.Value.(float64),
             Typex:  ast.TypeFloat,
+            Posx:  $1.Pos,
+        }
+    }
+|   BOOL
+    {
+        $$ = &ast.LiteralNode{
+            Value: $1.Value.(bool),
+            Typex:  ast.TypeBool,
             Posx:  $1.Pos,
         }
     }

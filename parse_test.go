@@ -153,6 +153,26 @@ func TestParse(t *testing.T) {
 		},
 
 		{
+			"foo ${true}",
+			false,
+			&ast.Output{
+				Posx: ast.Pos{Column: 1, Line: 1},
+				Exprs: []ast.Node{
+					&ast.LiteralNode{
+						Value: "foo ",
+						Typex: ast.TypeString,
+						Posx:  ast.Pos{Column: 1, Line: 1},
+					},
+					&ast.LiteralNode{
+						Value: true,
+						Typex: ast.TypeBool,
+						Posx:  ast.Pos{Column: 7, Line: 1},
+					},
+				},
+			},
+		},
+
+		{
 			"foo ${42+1}",
 			false,
 			&ast.Output{
@@ -430,7 +450,7 @@ func TestParse(t *testing.T) {
 			t.Fatalf("Error: %s\n\nInput: %s", err, tc.Input)
 		}
 		if !reflect.DeepEqual(actual, tc.Result) {
-			t.Fatalf("Bad: %#v\n\nInput: %s", actual, tc.Input)
+			t.Fatalf("\nBad : %#v\nHave: %#v\n\nInput: %s", tc.Result, actual, tc.Input)
 		}
 	}
 }
