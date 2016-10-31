@@ -32,7 +32,8 @@ const ARITH_OP = 57355
 const IDENTIFIER = 57356
 const INTEGER = 57357
 const FLOAT = 57358
-const STRING = 57359
+const BOOL = 57359
+const STRING = 57360
 
 var parserToknames = [...]string{
 	"$end",
@@ -51,6 +52,7 @@ var parserToknames = [...]string{
 	"IDENTIFIER",
 	"INTEGER",
 	"FLOAT",
+	"BOOL",
 	"STRING",
 }
 var parserStatenames = [...]string{}
@@ -59,7 +61,7 @@ const parserEofCode = 1
 const parserErrCode = 2
 const parserInitialStackSize = 16
 
-//line lang.y:200
+//line lang.y:208
 
 //line yacctab:1
 var parserExca = [...]int{
@@ -68,57 +70,57 @@ var parserExca = [...]int{
 	-2, 0,
 }
 
-const parserNprod = 21
+const parserNprod = 22
 const parserPrivate = 57344
 
 var parserTokenNames []string
 var parserStates []string
 
-const parserLast = 37
+const parserLast = 39
 
 var parserAct = [...]int{
 
-	9, 7, 29, 17, 23, 16, 17, 3, 17, 20,
-	8, 18, 21, 17, 6, 19, 27, 28, 22, 8,
-	1, 25, 26, 7, 11, 2, 24, 10, 4, 30,
-	5, 0, 14, 15, 12, 13, 6,
+	9, 7, 30, 18, 24, 17, 18, 21, 18, 3,
+	22, 19, 8, 18, 1, 6, 20, 28, 29, 23,
+	25, 8, 26, 27, 7, 11, 2, 4, 10, 5,
+	31, 0, 0, 15, 16, 12, 13, 14, 6,
 }
 var parserPact = [...]int{
 
-	-3, -1000, -3, -1000, -1000, -1000, -1000, 19, -1000, 0,
-	19, -3, -1000, -1000, 19, 1, -1000, 19, -5, -1000,
-	19, 19, -1000, -1000, 7, -7, -10, -1000, 19, -1000,
-	-7,
+	-3, -1000, -3, -1000, -1000, -1000, -1000, 20, -1000, 0,
+	20, -3, -1000, -1000, -1000, 20, -1, -1000, 20, -5,
+	-1000, 20, 20, -1000, -1000, 8, -7, -10, -1000, 20,
+	-1000, -7,
 }
 var parserPgo = [...]int{
 
-	0, 0, 30, 28, 24, 7, 26, 20,
+	0, 0, 29, 27, 25, 9, 20, 14,
 }
 var parserR1 = [...]int{
 
 	0, 7, 7, 4, 4, 5, 5, 2, 1, 1,
-	1, 1, 1, 1, 1, 1, 1, 6, 6, 6,
-	3,
+	1, 1, 1, 1, 1, 1, 1, 1, 6, 6,
+	6, 3,
 }
 var parserR2 = [...]int{
 
 	0, 0, 1, 1, 2, 1, 1, 3, 3, 1,
-	1, 1, 2, 3, 1, 4, 4, 0, 3, 1,
-	1,
+	1, 1, 1, 2, 3, 1, 4, 4, 0, 3,
+	1, 1,
 }
 var parserChk = [...]int{
 
-	-1000, -7, -4, -5, -3, -2, 17, 4, -5, -1,
-	8, -4, 15, 16, 13, 14, 5, 13, -1, -1,
-	8, 11, -1, 9, -6, -1, -1, 9, 10, 12,
-	-1,
+	-1000, -7, -4, -5, -3, -2, 18, 4, -5, -1,
+	8, -4, 15, 16, 17, 13, 14, 5, 13, -1,
+	-1, 8, 11, -1, 9, -6, -1, -1, 9, 10,
+	12, -1,
 }
 var parserDef = [...]int{
 
-	1, -2, 2, 3, 5, 6, 20, 0, 4, 0,
-	0, 9, 10, 11, 0, 14, 7, 0, 0, 12,
-	17, 0, 13, 8, 0, 19, 0, 15, 0, 16,
-	18,
+	1, -2, 2, 3, 5, 6, 21, 0, 4, 0,
+	0, 9, 10, 11, 12, 0, 15, 7, 0, 0,
+	13, 18, 0, 14, 8, 0, 20, 0, 16, 0,
+	17, 19,
 }
 var parserTok1 = [...]int{
 
@@ -127,7 +129,7 @@ var parserTok1 = [...]int{
 var parserTok2 = [...]int{
 
 	2, 3, 4, 5, 6, 7, 8, 9, 10, 11,
-	12, 13, 14, 15, 16, 17,
+	12, 13, 14, 15, 16, 17, 18,
 }
 var parserTok3 = [...]int{
 	0,
@@ -576,8 +578,18 @@ parserdefault:
 			}
 		}
 	case 12:
-		parserDollar = parserS[parserpt-2 : parserpt+1]
+		parserDollar = parserS[parserpt-1 : parserpt+1]
 		//line lang.y:129
+		{
+			parserVAL.node = &ast.LiteralNode{
+				Value: parserDollar[1].token.Value.(bool),
+				Typex: ast.TypeBool,
+				Posx:  parserDollar[1].token.Pos,
+			}
+		}
+	case 13:
+		parserDollar = parserS[parserpt-2 : parserpt+1]
+		//line lang.y:137
 		{
 			// This is REALLY jank. We assume that a singular ARITH_OP
 			// means 0 ARITH_OP expr, which... is weird. We don't want to
@@ -598,9 +610,9 @@ parserdefault:
 				Posx: parserDollar[2].node.Pos(),
 			}
 		}
-	case 13:
+	case 14:
 		parserDollar = parserS[parserpt-3 : parserpt+1]
-		//line lang.y:150
+		//line lang.y:158
 		{
 			parserVAL.node = &ast.Arithmetic{
 				Op:    parserDollar[2].token.Value.(ast.ArithmeticOp),
@@ -608,21 +620,21 @@ parserdefault:
 				Posx:  parserDollar[1].node.Pos(),
 			}
 		}
-	case 14:
+	case 15:
 		parserDollar = parserS[parserpt-1 : parserpt+1]
-		//line lang.y:158
+		//line lang.y:166
 		{
 			parserVAL.node = &ast.VariableAccess{Name: parserDollar[1].token.Value.(string), Posx: parserDollar[1].token.Pos}
 		}
-	case 15:
+	case 16:
 		parserDollar = parserS[parserpt-4 : parserpt+1]
-		//line lang.y:162
+		//line lang.y:170
 		{
 			parserVAL.node = &ast.Call{Func: parserDollar[1].token.Value.(string), Args: parserDollar[3].nodeList, Posx: parserDollar[1].token.Pos}
 		}
-	case 16:
+	case 17:
 		parserDollar = parserS[parserpt-4 : parserpt+1]
-		//line lang.y:166
+		//line lang.y:174
 		{
 			parserVAL.node = &ast.Index{
 				Target: &ast.VariableAccess{
@@ -633,27 +645,27 @@ parserdefault:
 				Posx: parserDollar[1].token.Pos,
 			}
 		}
-	case 17:
+	case 18:
 		parserDollar = parserS[parserpt-0 : parserpt+1]
-		//line lang.y:178
+		//line lang.y:186
 		{
 			parserVAL.nodeList = nil
 		}
-	case 18:
+	case 19:
 		parserDollar = parserS[parserpt-3 : parserpt+1]
-		//line lang.y:182
+		//line lang.y:190
 		{
 			parserVAL.nodeList = append(parserDollar[1].nodeList, parserDollar[3].node)
 		}
-	case 19:
+	case 20:
 		parserDollar = parserS[parserpt-1 : parserpt+1]
-		//line lang.y:186
+		//line lang.y:194
 		{
 			parserVAL.nodeList = append(parserVAL.nodeList, parserDollar[1].node)
 		}
-	case 20:
+	case 21:
 		parserDollar = parserS[parserpt-1 : parserpt+1]
-		//line lang.y:192
+		//line lang.y:200
 		{
 			parserVAL.node = &ast.LiteralNode{
 				Value: parserDollar[1].token.Value.(string),

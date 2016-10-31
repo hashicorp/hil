@@ -12,6 +12,7 @@ const (
 	_Type_name_4 = "TypeFloat"
 	_Type_name_5 = "TypeList"
 	_Type_name_6 = "TypeMap"
+	_Type_name_7 = "TypeBool"
 )
 
 var (
@@ -22,6 +23,7 @@ var (
 	_Type_index_4 = [...]uint8{0, 9}
 	_Type_index_5 = [...]uint8{0, 8}
 	_Type_index_6 = [...]uint8{0, 7}
+	_Type_index_7 = [...]uint8{0, 8}
 )
 
 func (i Type) String() string {
@@ -40,6 +42,8 @@ func (i Type) String() string {
 		return _Type_name_5
 	case i == 64:
 		return _Type_name_6
+	case i == 128:
+		return _Type_name_7
 	default:
 		return fmt.Sprintf("Type(%d)", i)
 	}
