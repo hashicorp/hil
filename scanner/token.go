@@ -1,6 +1,8 @@
 package scanner
 
 import (
+	"fmt"
+
 	"github.com/hashicorp/hil/ast"
 )
 
@@ -52,3 +54,28 @@ const (
 	// e.g. due to use of unrecognized punctuation.
 	INVALID TokenType = '�'
 )
+
+func (t *Token) String() string {
+	switch t.Type {
+	case EOF:
+		return "end of string"
+	case INVALID:
+		return fmt.Sprintf("invalid sequence %q", t.Content)
+	case INTEGER:
+		return fmt.Sprintf("integer %s", t.Content)
+	case FLOAT:
+		return fmt.Sprintf("float %s", t.Content)
+	case STRING:
+		return fmt.Sprintf("string %q", t.Content)
+	case LITERAL:
+		return fmt.Sprintf("literal %q", t.Content)
+	case OQUOTE:
+		return fmt.Sprintf("opening quote")
+	case CQUOTE:
+		return fmt.Sprintf("closing quote")
+	default:
+		// The remaining token types have content that
+		// speaks for itself.
+		return fmt.Sprintf("%q", t.Content)
+	}
+}
