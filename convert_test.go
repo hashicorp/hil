@@ -119,7 +119,8 @@ func TestInterfaceToVariable(t *testing.T) {
 						Value: "Hello",
 					},
 					{
-						Type: ast.TypeUnknown,
+						Value: UnknownValue,
+						Type:  ast.TypeUnknown,
 					},
 				},
 			},
