@@ -1,13 +1,14 @@
-package hil
+package parser
 
 import (
 	"reflect"
 	"testing"
 
 	"github.com/hashicorp/hil/ast"
+	"github.com/hashicorp/hil/scanner"
 )
 
-func TestParse(t *testing.T) {
+func TestParser(t *testing.T) {
 	cases := []struct {
 		Input  string
 		Error  bool
@@ -18,6 +19,16 @@ func TestParse(t *testing.T) {
 			false,
 			&ast.LiteralNode{
 				Value: "",
+				Typex: ast.TypeString,
+				Posx:  ast.Pos{Column: 1, Line: 1},
+			},
+		},
+
+		{
+			"$",
+			false,
+			&ast.LiteralNode{
+				Value: "$",
 				Typex: ast.TypeString,
 				Posx:  ast.Pos{Column: 1, Line: 1},
 			},
@@ -87,7 +98,7 @@ func TestParse(t *testing.T) {
 		},
 
 		{
-			"foo ${\"bar\"}",
+			`foo ${"bar"}`,
 			false,
 			&ast.Output{
 				Posx: ast.Pos{Column: 1, Line: 1},
@@ -100,7 +111,27 @@ func TestParse(t *testing.T) {
 					&ast.LiteralNode{
 						Value: "bar",
 						Typex: ast.TypeString,
-						Posx:  ast.Pos{Column: 7, Line: 1},
+						Posx:  ast.Pos{Column: 8, Line: 1},
+					},
+				},
+			},
+		},
+
+		{
+			`foo ${"bar\nbaz"}`,
+			false,
+			&ast.Output{
+				Posx: ast.Pos{Column: 1, Line: 1},
+				Exprs: []ast.Node{
+					&ast.LiteralNode{
+						Value: "foo ",
+						Typex: ast.TypeString,
+						Posx:  ast.Pos{Column: 1, Line: 1},
+					},
+					&ast.LiteralNode{
+						Value: "bar\nbaz",
+						Typex: ast.TypeString,
+						Posx:  ast.Pos{Column: 8, Line: 1},
 					},
 				},
 			},
@@ -153,13 +184,13 @@ func TestParse(t *testing.T) {
 		},
 
 		{
-			"foo ${true}",
+			"föo ${true}",
 			false,
 			&ast.Output{
 				Posx: ast.Pos{Column: 1, Line: 1},
 				Exprs: []ast.Node{
 					&ast.LiteralNode{
-						Value: "foo ",
+						Value: "föo ",
 						Typex: ast.TypeString,
 						Posx:  ast.Pos{Column: 1, Line: 1},
 					},
@@ -204,6 +235,37 @@ func TestParse(t *testing.T) {
 		},
 
 		{
+			"foo ${-1}",
+			false,
+			&ast.Output{
+				Posx: ast.Pos{Column: 1, Line: 1},
+				Exprs: []ast.Node{
+					&ast.LiteralNode{
+						Value: "foo ",
+						Typex: ast.TypeString,
+						Posx:  ast.Pos{Column: 1, Line: 1},
+					},
+					&ast.Arithmetic{
+						Op: ast.ArithmeticOpSub,
+						Exprs: []ast.Node{
+							&ast.LiteralNode{
+								Value: 0,
+								Typex: ast.TypeInt,
+								Posx:  ast.Pos{Column: 7, Line: 1},
+							},
+							&ast.LiteralNode{
+								Value: 1,
+								Typex: ast.TypeInt,
+								Posx:  ast.Pos{Column: 8, Line: 1},
+							},
+						},
+						Posx: ast.Pos{Column: 7, Line: 1},
+					},
+				},
+			},
+		},
+
+		{
 			"foo ${var.bar*1} baz",
 			false,
 			&ast.Output{
@@ -239,13 +301,13 @@ func TestParse(t *testing.T) {
 		},
 
 		{
-			"${foo()}",
+			"${föo()}",
 			false,
 			&ast.Output{
-				Posx: ast.Pos{Column: 3, Line: 1},
+				Posx: ast.Pos{Column: 1, Line: 1},
 				Exprs: []ast.Node{
 					&ast.Call{
-						Func: "foo",
+						Func: "föo",
 						Args: nil,
 						Posx: ast.Pos{Column: 3, Line: 1},
 					},
@@ -257,7 +319,7 @@ func TestParse(t *testing.T) {
 			"${foo(bar)}",
 			false,
 			&ast.Output{
-				Posx: ast.Pos{Column: 3, Line: 1},
+				Posx: ast.Pos{Column: 1, Line: 1},
 				Exprs: []ast.Node{
 					&ast.Call{
 						Func: "foo",
@@ -277,7 +339,7 @@ func TestParse(t *testing.T) {
 			"${foo(bar, baz)}",
 			false,
 			&ast.Output{
-				Posx: ast.Pos{Column: 3, Line: 1},
+				Posx: ast.Pos{Column: 1, Line: 1},
 				Exprs: []ast.Node{
 					&ast.Call{
 						Func: "foo",
@@ -289,7 +351,7 @@ func TestParse(t *testing.T) {
 							},
 							&ast.VariableAccess{
 								Name: "baz",
-								Posx: ast.Pos{Column: 11, Line: 1},
+								Posx: ast.Pos{Column: 12, Line: 1},
 							},
 						},
 					},
@@ -301,7 +363,7 @@ func TestParse(t *testing.T) {
 			"${foo(bar(baz))}",
 			false,
 			&ast.Output{
-				Posx: ast.Pos{Column: 3, Line: 1},
+				Posx: ast.Pos{Column: 1, Line: 1},
 				Exprs: []ast.Node{
 					&ast.Call{
 						Func: "foo",
@@ -340,7 +402,7 @@ func TestParse(t *testing.T) {
 							&ast.LiteralNode{
 								Value: "bar ",
 								Typex: ast.TypeString,
-								Posx:  ast.Pos{Column: 7, Line: 1},
+								Posx:  ast.Pos{Column: 8, Line: 1},
 							},
 							&ast.VariableAccess{
 								Name: "baz",
@@ -356,10 +418,10 @@ func TestParse(t *testing.T) {
 			"${foo[1]}",
 			false,
 			&ast.Output{
-				Posx: ast.Pos{Column: 3, Line: 1},
+				Posx: ast.Pos{Column: 1, Line: 1},
 				Exprs: []ast.Node{
 					&ast.Index{
-						Posx: ast.Pos{Column: 3, Line: 1},
+						Posx: ast.Pos{Column: 6, Line: 1},
 						Target: &ast.VariableAccess{
 							Name: "foo",
 							Posx: ast.Pos{Column: 3, Line: 1},
@@ -378,10 +440,10 @@ func TestParse(t *testing.T) {
 			"${foo[1]} - ${bar[0]}",
 			false,
 			&ast.Output{
-				Posx: ast.Pos{Column: 3, Line: 1},
+				Posx: ast.Pos{Column: 1, Line: 1},
 				Exprs: []ast.Node{
 					&ast.Index{
-						Posx: ast.Pos{Column: 3, Line: 1},
+						Posx: ast.Pos{Column: 6, Line: 1},
 						Target: &ast.VariableAccess{
 							Name: "foo",
 							Posx: ast.Pos{Column: 3, Line: 1},
@@ -398,7 +460,7 @@ func TestParse(t *testing.T) {
 						Posx:  ast.Pos{Column: 10, Line: 1},
 					},
 					&ast.Index{
-						Posx: ast.Pos{Column: 15, Line: 1},
+						Posx: ast.Pos{Column: 18, Line: 1},
 						Target: &ast.VariableAccess{
 							Name: "bar",
 							Posx: ast.Pos{Column: 15, Line: 1},
@@ -407,6 +469,80 @@ func TestParse(t *testing.T) {
 							Value: 0,
 							Typex: ast.TypeInt,
 							Posx:  ast.Pos{Column: 19, Line: 1},
+						},
+					},
+				},
+			},
+		},
+
+		{
+			"${42+2*2}",
+			false,
+			&ast.Output{
+				Posx: ast.Pos{Column: 1, Line: 1},
+				Exprs: []ast.Node{
+					&ast.Arithmetic{
+						Posx: ast.Pos{Column: 3, Line: 1},
+						Op:   ast.ArithmeticOpMul,
+						Exprs: []ast.Node{
+							&ast.Arithmetic{
+								Posx: ast.Pos{Column: 3, Line: 1},
+								Op:   ast.ArithmeticOpAdd,
+								Exprs: []ast.Node{
+									&ast.LiteralNode{
+										Posx:  ast.Pos{Column: 3, Line: 1},
+										Value: 42,
+										Typex: ast.TypeInt,
+									},
+									&ast.LiteralNode{
+										Posx:  ast.Pos{Column: 6, Line: 1},
+										Value: 2,
+										Typex: ast.TypeInt,
+									},
+								},
+							},
+							&ast.LiteralNode{
+								Posx:  ast.Pos{Column: 8, Line: 1},
+								Value: 2,
+								Typex: ast.TypeInt,
+							},
+						},
+					},
+				},
+			},
+		},
+
+		{
+			"${-46+5}",
+			false,
+			&ast.Output{
+				Posx: ast.Pos{Column: 1, Line: 1},
+				Exprs: []ast.Node{
+					&ast.Arithmetic{
+						Posx: ast.Pos{Column: 3, Line: 1},
+						Op:   ast.ArithmeticOpAdd,
+						Exprs: []ast.Node{
+							&ast.Arithmetic{
+								Posx: ast.Pos{Column: 3, Line: 1},
+								Op:   ast.ArithmeticOpSub,
+								Exprs: []ast.Node{
+									&ast.LiteralNode{
+										Posx:  ast.Pos{Column: 3, Line: 1},
+										Value: 0,
+										Typex: ast.TypeInt,
+									},
+									&ast.LiteralNode{
+										Posx:  ast.Pos{Column: 4, Line: 1},
+										Value: 46,
+										Typex: ast.TypeInt,
+									},
+								},
+							},
+							&ast.LiteralNode{
+								Posx:  ast.Pos{Column: 7, Line: 1},
+								Value: 5,
+								Typex: ast.TypeInt,
+							},
 						},
 					},
 				},
@@ -438,6 +574,54 @@ func TestParse(t *testing.T) {
 		},
 
 		{
+			`${"unclosed`,
+			true,
+			nil,
+		},
+
+		{
+			`${"bar\nbaz}`,
+			true,
+			nil,
+		},
+
+		{
+			`${ö(o("")`,
+			true,
+			nil,
+		},
+
+		{
+			`${"${"${"`,
+			true,
+			nil,
+		},
+
+		{
+			`${("$"`,
+			true,
+			nil,
+		},
+
+		{
+			`${("${("${"${"$"`,
+			true,
+			nil,
+		},
+
+		{
+			`${(p["$"`,
+			true,
+			nil,
+		},
+
+		{
+			`${e(e,e,`,
+			true,
+			nil,
+		},
+
+		{
 			"${file(/tmp/somefile)}",
 			true,
 			nil,
@@ -445,12 +629,13 @@ func TestParse(t *testing.T) {
 	}
 
 	for _, tc := range cases {
-		actual, err := Parse(tc.Input)
+		ch := scanner.Scan(tc.Input, ast.Pos{Line: 1, Column: 1})
+		actual, err := Parse(ch)
 		if err != nil != tc.Error {
-			t.Fatalf("Error: %s\n\nInput: %s", err, tc.Input)
+			t.Errorf("\nError: %s\n\nInput: %s\n", err, tc.Input)
 		}
 		if !reflect.DeepEqual(actual, tc.Result) {
-			t.Fatalf("\nBad : %#v\nHave: %#v\n\nInput: %s", tc.Result, actual, tc.Input)
+			t.Errorf("\nGot:  %#v\nWant: %#v\n\nInput: %s\n", actual, tc.Result, tc.Input)
 		}
 	}
 }

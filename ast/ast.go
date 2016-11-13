@@ -19,11 +19,16 @@ type Node interface {
 
 // Pos is the starting position of an AST node
 type Pos struct {
-	Column, Line int // Column/Line number, starting at 1
+	Column, Line int    // Column/Line number, starting at 1
+	Filename     string // Optional source filename, if known
 }
 
 func (p Pos) String() string {
-	return fmt.Sprintf("%d:%d", p.Line, p.Column)
+	if p.Filename == "" {
+		return fmt.Sprintf("%d:%d", p.Line, p.Column)
+	} else {
+		return fmt.Sprintf("%s:%d:%d", p.Filename, p.Line, p.Column)
+	}
 }
 
 // Visitors are just implementations of this function.

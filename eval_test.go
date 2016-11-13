@@ -545,7 +545,7 @@ func TestEval(t *testing.T) {
 				t.Fatalf("Bad: %s\n\nInput: %s", result.Type, tc.Input)
 			}
 			if !reflect.DeepEqual(result.Value, tc.Result) {
-				t.Fatalf("\n     Bad: %#v\nExpected: %#v\n\nInput: %s", result.Value, tc.Result, tc.Input)
+				t.Fatalf("\n     Got: %#v\nExpected: %#v\n\n   Input: %s\n", result.Value, tc.Result, tc.Input)
 			}
 		})
 	}
@@ -1375,7 +1375,7 @@ func TestEvalInternal(t *testing.T) {
 				t.Fatalf("Bad: %s\n\nInput: %s", outType, tc.Input)
 			}
 			if !reflect.DeepEqual(out, tc.Result) {
-				t.Fatalf("Bad: %#v\n\nInput: %s", out, tc.Input)
+				t.Fatalf("\n  Got: %#v\n Want: %#v\n\nInput: %s\n", out, tc.Result, tc.Input)
 			}
 		})
 	}
