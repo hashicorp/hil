@@ -340,6 +340,7 @@ func scanLiteral(s string, startPos ast.Pos, nested bool) (string, *Token) {
 // responsibility to validate the form and range of the number, such as ensuring
 // that a FLOAT actually contains only one period, etc.
 func scanNumber(s string) (string, TokenType) {
+	period := -1
 	byteLen := 0
 	numType := INTEGER
 	for {
@@ -349,10 +350,23 @@ func scanNumber(s string) (string, TokenType) {
 
 		next := s[byteLen]
 		if next != '.' && (next < '0' || next > '9') {
+			// If our last value was a period, then we're not a float,
+			// we're just an integer that ends in a period.
+			if period == byteLen-1 {
+				byteLen--
+				numType = INTEGER
+			}
+
 			break
 		}
 
 		if next == '.' {
+			// If we've already seen a period, break out
+			if period >= 0 {
+				break
+			}
+
+			period = byteLen
 			numType = FLOAT
 		}
 

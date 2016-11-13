@@ -408,10 +408,18 @@ func (p *parser) ParseScopeInteraction() (ast.Node, error) {
 	varParts := []string{first.Content}
 	for p.peeker.Peek().Type == scanner.PERIOD {
 		p.peeker.Read() // eat period
+
+		// Read the next item, since variable access in HIL is composed
+		// of many things. For example: "var.0.bar" is the entire var access.
 		partTok := p.peeker.Read()
-		if partTok.Type != scanner.IDENTIFIER && partTok.Type != scanner.STAR {
+		switch partTok.Type {
+		case scanner.IDENTIFIER:
+		case scanner.STAR:
+		case scanner.INTEGER:
+		default:
 			return nil, ExpectationError("identifier", partTok)
 		}
+
 		varParts = append(varParts, partTok.Content)
 	}
 	varName := strings.Join(varParts, ".")

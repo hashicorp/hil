@@ -98,6 +98,25 @@ func TestParser(t *testing.T) {
 		},
 
 		{
+			"foo ${var.bar.0}",
+			false,
+			&ast.Output{
+				Posx: ast.Pos{Column: 1, Line: 1},
+				Exprs: []ast.Node{
+					&ast.LiteralNode{
+						Value: "foo ",
+						Typex: ast.TypeString,
+						Posx:  ast.Pos{Column: 1, Line: 1},
+					},
+					&ast.VariableAccess{
+						Name: "var.bar.0",
+						Posx: ast.Pos{Column: 7, Line: 1},
+					},
+				},
+			},
+		},
+
+		{
 			`foo ${"bar"}`,
 			false,
 			&ast.Output{

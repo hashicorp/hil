@@ -38,8 +38,33 @@ func TestScanner(t *testing.T) {
 		},
 
 		{
+			"foo ${0}",
+			[]TokenType{LITERAL, BEGIN, INTEGER, END, EOF},
+		},
+
+		{
+			"foo ${0.}",
+			[]TokenType{LITERAL, BEGIN, INTEGER, PERIOD, END, EOF},
+		},
+
+		{
+			"foo ${0.0}",
+			[]TokenType{LITERAL, BEGIN, FLOAT, END, EOF},
+		},
+
+		{
+			"foo ${0.0.0}",
+			[]TokenType{LITERAL, BEGIN, FLOAT, PERIOD, INTEGER, END, EOF},
+		},
+
+		{
 			"föo ${bar}",
 			[]TokenType{LITERAL, BEGIN, IDENTIFIER, END, EOF},
+		},
+
+		{
+			"foo ${bar.0.baz}",
+			[]TokenType{LITERAL, BEGIN, IDENTIFIER, PERIOD, INTEGER, PERIOD, IDENTIFIER, END, EOF},
 		},
 
 		{
