@@ -193,7 +193,7 @@ func TestScanner(t *testing.T) {
 	}
 
 	for _, tc := range cases {
-		ch := Scan(tc.Input, ast.Pos{Line: 1, Column: 1})
+		ch := Scan(tc.Input, ast.InitPos)
 		var actual []TokenType
 		for token := range ch {
 			actual = append(actual, token.Type)

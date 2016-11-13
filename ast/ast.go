@@ -31,6 +31,10 @@ func (p Pos) String() string {
 	}
 }
 
+// InitPos is an initiaial position value. This should be used as
+// the starting position (presets the column and line to 1).
+var InitPos = Pos{Column: 1, Line: 1}
+
 // Visitors are just implementations of this function.
 //
 // The function must return the Node to replace this node with. "nil" is

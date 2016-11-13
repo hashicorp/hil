@@ -17,7 +17,7 @@ import (
 //
 // Strings in the returned tokens are slices from the original string.
 //
-// startRow and startCol should both be set to 1 unless the caller knows that
+// startPos should be set to ast.InitPos unless the caller knows that
 // this interpolation string is part of a larger file and knows the position
 // of the first character in that larger file.
 func Scan(s string, startPos ast.Pos) <-chan *Token {
@@ -27,7 +27,6 @@ func Scan(s string, startPos ast.Pos) <-chan *Token {
 }
 
 func scan(s string, ch chan<- *Token, pos ast.Pos) {
-
 	// 'remain' starts off as the whole string but we gradually
 	// slice of the front of it as we work our way through.
 	remain := s
@@ -43,7 +42,6 @@ func scan(s string, ch chan<- *Token, pos ast.Pos) {
 	// some INVALID token.
 All:
 	for {
-
 		startPos := pos
 		// Literal string processing first, since the beginning of
 		// a string is always outside of an interpolation sequence.
