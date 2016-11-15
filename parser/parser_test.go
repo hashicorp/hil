@@ -475,6 +475,65 @@ func TestParser(t *testing.T) {
 		},
 
 		{
+			"${foo[1][2]}",
+			false,
+			&ast.Output{
+				Posx: ast.Pos{Column: 1, Line: 1},
+				Exprs: []ast.Node{
+					&ast.Index{
+						Posx: ast.Pos{Column: 9, Line: 1},
+						Target: &ast.Index{
+							Posx: ast.Pos{Column: 6, Line: 1},
+							Target: &ast.VariableAccess{
+								Name: "foo",
+								Posx: ast.Pos{Column: 3, Line: 1},
+							},
+							Key: &ast.LiteralNode{
+								Value: 1,
+								Typex: ast.TypeInt,
+								Posx:  ast.Pos{Column: 7, Line: 1},
+							},
+						},
+						Key: &ast.LiteralNode{
+							Value: 2,
+							Typex: ast.TypeInt,
+							Posx:  ast.Pos{Column: 10, Line: 1},
+						},
+					},
+				},
+			},
+		},
+
+		{
+			"${foo(1)[2]}",
+			false,
+			&ast.Output{
+				Posx: ast.Pos{Column: 1, Line: 1},
+				Exprs: []ast.Node{
+					&ast.Index{
+						Posx: ast.Pos{Column: 9, Line: 1},
+						Target: &ast.Call{
+							Posx: ast.Pos{Column: 3, Line: 1},
+							Func: "foo",
+							Args: []ast.Node{
+								&ast.LiteralNode{
+									Value: 1,
+									Typex: ast.TypeInt,
+									Posx:  ast.Pos{Column: 7, Line: 1},
+								},
+							},
+						},
+						Key: &ast.LiteralNode{
+							Value: 2,
+							Typex: ast.TypeInt,
+							Posx:  ast.Pos{Column: 10, Line: 1},
+						},
+					},
+				},
+			},
+		},
+
+		{
 			"${foo[1]} - ${bar[0]}",
 			false,
 			&ast.Output{
@@ -711,12 +770,6 @@ func TestParser(t *testing.T) {
 					},
 				},
 			},
-		},
-
-		{
-			"${foo[1][2]}",
-			true,
-			nil,
 		},
 
 		{
