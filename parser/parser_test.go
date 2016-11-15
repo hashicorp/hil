@@ -514,6 +514,7 @@ func TestParser(t *testing.T) {
 		},
 
 		{
+			// * has higher precedence than +
 			"${42+2*2}",
 			false,
 			&ast.Output{
@@ -521,7 +522,83 @@ func TestParser(t *testing.T) {
 				Exprs: []ast.Node{
 					&ast.Arithmetic{
 						Posx: ast.Pos{Column: 3, Line: 1},
+						Op:   ast.ArithmeticOpAdd,
+						Exprs: []ast.Node{
+							&ast.LiteralNode{
+								Posx:  ast.Pos{Column: 3, Line: 1},
+								Value: 42,
+								Typex: ast.TypeInt,
+							},
+							&ast.Arithmetic{
+								Posx: ast.Pos{Column: 6, Line: 1},
+								Op:   ast.ArithmeticOpMul,
+								Exprs: []ast.Node{
+									&ast.LiteralNode{
+										Posx:  ast.Pos{Column: 6, Line: 1},
+										Value: 2,
+										Typex: ast.TypeInt,
+									},
+									&ast.LiteralNode{
+										Posx:  ast.Pos{Column: 8, Line: 1},
+										Value: 2,
+										Typex: ast.TypeInt,
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+
+		{
+			// parentheses override precedence rules
+			"${(42+2)*2}",
+			false,
+			&ast.Output{
+				Posx: ast.Pos{Column: 1, Line: 1},
+				Exprs: []ast.Node{
+					&ast.Arithmetic{
+						Posx: ast.Pos{Column: 3, Line: 1},
 						Op:   ast.ArithmeticOpMul,
+						Exprs: []ast.Node{
+							&ast.Arithmetic{
+								Posx: ast.Pos{Column: 4, Line: 1},
+								Op:   ast.ArithmeticOpAdd,
+								Exprs: []ast.Node{
+									&ast.LiteralNode{
+										Posx:  ast.Pos{Column: 4, Line: 1},
+										Value: 42,
+										Typex: ast.TypeInt,
+									},
+									&ast.LiteralNode{
+										Posx:  ast.Pos{Column: 7, Line: 1},
+										Value: 2,
+										Typex: ast.TypeInt,
+									},
+								},
+							},
+							&ast.LiteralNode{
+								Posx:  ast.Pos{Column: 10, Line: 1},
+								Value: 2,
+								Typex: ast.TypeInt,
+							},
+						},
+					},
+				},
+			},
+		},
+
+		{
+			// Left-associative parsing of operators with equal precedence
+			"${42+2+2}",
+			false,
+			&ast.Output{
+				Posx: ast.Pos{Column: 1, Line: 1},
+				Exprs: []ast.Node{
+					&ast.Arithmetic{
+						Posx: ast.Pos{Column: 3, Line: 1},
+						Op:   ast.ArithmeticOpAdd,
 						Exprs: []ast.Node{
 							&ast.Arithmetic{
 								Posx: ast.Pos{Column: 3, Line: 1},
@@ -541,6 +618,55 @@ func TestParser(t *testing.T) {
 							},
 							&ast.LiteralNode{
 								Posx:  ast.Pos{Column: 8, Line: 1},
+								Value: 2,
+								Typex: ast.TypeInt,
+							},
+						},
+					},
+				},
+			},
+		},
+
+		{
+			// Unary - has higher precedence than addition
+			"${42+-2+2}",
+			false,
+			&ast.Output{
+				Posx: ast.Pos{Column: 1, Line: 1},
+				Exprs: []ast.Node{
+					&ast.Arithmetic{
+						Posx: ast.Pos{Column: 3, Line: 1},
+						Op:   ast.ArithmeticOpAdd,
+						Exprs: []ast.Node{
+							&ast.Arithmetic{
+								Posx: ast.Pos{Column: 3, Line: 1},
+								Op:   ast.ArithmeticOpAdd,
+								Exprs: []ast.Node{
+									&ast.LiteralNode{
+										Posx:  ast.Pos{Column: 3, Line: 1},
+										Value: 42,
+										Typex: ast.TypeInt,
+									},
+									&ast.Arithmetic{
+										Posx: ast.Pos{Column: 6, Line: 1},
+										Op:   ast.ArithmeticOpSub,
+										Exprs: []ast.Node{
+											&ast.LiteralNode{
+												Posx:  ast.Pos{Column: 6, Line: 1},
+												Value: 0,
+												Typex: ast.TypeInt,
+											},
+											&ast.LiteralNode{
+												Posx:  ast.Pos{Column: 7, Line: 1},
+												Value: 2,
+												Typex: ast.TypeInt,
+											},
+										},
+									},
+								},
+							},
+							&ast.LiteralNode{
+								Posx:  ast.Pos{Column: 9, Line: 1},
 								Value: 2,
 								Typex: ast.TypeInt,
 							},

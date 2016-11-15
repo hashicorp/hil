@@ -707,7 +707,7 @@ func TestEvalInternal(t *testing.T) {
 			"foo ${42+2*2}",
 			nil,
 			false,
-			"foo 88",
+			"foo 46",
 			ast.TypeString,
 		},
 
