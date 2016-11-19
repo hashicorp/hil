@@ -176,6 +176,26 @@ func TestParser(t *testing.T) {
 		},
 
 		{
+			`foo ${"bar \"baz\""}`,
+			false,
+			&ast.Output{
+				Posx: ast.Pos{Column: 1, Line: 1},
+				Exprs: []ast.Node{
+					&ast.LiteralNode{
+						Value: "foo ",
+						Typex: ast.TypeString,
+						Posx:  ast.Pos{Column: 1, Line: 1},
+					},
+					&ast.LiteralNode{
+						Value: `bar "baz"`,
+						Typex: ast.TypeString,
+						Posx:  ast.Pos{Column: 8, Line: 1},
+					},
+				},
+			},
+		},
+
+		{
 			`foo ${func('baz')}`,
 			true,
 			nil,
