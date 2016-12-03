@@ -116,6 +116,8 @@ func (tc *typeCheckArithmetic) TypeCheck(v *TypeCheck) (ast.Node, error) {
 	switch tc.n.Op {
 	case ast.ArithmeticOpLogicalAnd, ast.ArithmeticOpLogicalOr:
 		return tc.checkLogical(v, exprs)
+	case ast.ArithmeticOpEqual, ast.ArithmeticOpNotEqual, ast.ArithmeticOpLessThan, ast.ArithmeticOpGreaterThan, ast.ArithmeticOpGreaterThanOrEqual, ast.ArithmeticOpLessThanOrEqual:
+		return tc.checkComparison(v, exprs)
 	default:
 		return tc.checkNumeric(v, exprs)
 	}
@@ -182,6 +184,84 @@ func (tc *typeCheckArithmetic) checkNumeric(v *TypeCheck, exprs []ast.Type) (ast
 	copy(args[1:], tc.n.Exprs)
 	return &ast.Call{
 		Func: mathFunc,
+		Args: args,
+		Posx: tc.n.Pos(),
+	}, nil
+}
+
+func (tc *typeCheckArithmetic) checkComparison(v *TypeCheck, exprs []ast.Type) (ast.Node, error) {
+
+	if len(exprs) != 2 {
+		// This should never happen, because the parser never produces
+		// nodes that violate this.
+		return nil, fmt.Errorf(
+			"comparison operators must have exactly two operands",
+		)
+	}
+
+	// The first operand always dictates the type for a comparison.
+	compareFunc := ""
+	compareType := exprs[0]
+	switch compareType {
+	case ast.TypeBool:
+		compareFunc = "__builtin_BoolCompare"
+	case ast.TypeFloat:
+		compareFunc = "__builtin_FloatCompare"
+	case ast.TypeInt:
+		compareFunc = "__builtin_IntCompare"
+	case ast.TypeString:
+		compareFunc = "__builtin_StringCompare"
+	default:
+		return nil, fmt.Errorf(
+			"comparison operators apply only to bool, float, int, and string",
+		)
+	}
+
+	// Verify (and possibly, convert) the args
+	for i, arg := range exprs {
+		if arg != compareType {
+			cn := v.ImplicitConversion(exprs[i], compareType, tc.n.Exprs[i])
+			if cn != nil {
+				tc.n.Exprs[i] = cn
+				continue
+			}
+
+			return nil, fmt.Errorf(
+				"operand %d should be %s, got %s",
+				i+1, compareType, arg,
+			)
+		}
+	}
+
+	// Only ints and floats can have the <, >, <= and >= operators applied
+	switch tc.n.Op {
+	case ast.ArithmeticOpEqual, ast.ArithmeticOpNotEqual:
+		// anything goes
+	default:
+		switch compareType {
+		case ast.TypeFloat, ast.TypeInt:
+			// fine
+		default:
+			return nil, fmt.Errorf(
+				"<, >, <= and >= may apply only to int and float values",
+			)
+		}
+	}
+
+	// Comparison operators always return bool
+	v.StackPush(ast.TypeBool)
+
+	// Replace our node with a call to the proper function. This isn't
+	// type checked but we already verified types.
+	args := make([]ast.Node, len(tc.n.Exprs)+1)
+	args[0] = &ast.LiteralNode{
+		Value: tc.n.Op,
+		Typex: ast.TypeInt,
+		Posx:  tc.n.Pos(),
+	}
+	copy(args[1:], tc.n.Exprs)
+	return &ast.Call{
+		Func: compareFunc,
 		Args: args,
 		Posx: tc.n.Pos(),
 	}, nil

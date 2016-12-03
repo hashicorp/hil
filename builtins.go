@@ -30,6 +30,10 @@ func registerBuiltins(scope *ast.BasicScope) *ast.BasicScope {
 	// Math operations
 	scope.FuncMap["__builtin_IntMath"] = builtinIntMath()
 	scope.FuncMap["__builtin_FloatMath"] = builtinFloatMath()
+	scope.FuncMap["__builtin_BoolCompare"] = builtinBoolCompare()
+	scope.FuncMap["__builtin_FloatCompare"] = builtinFloatCompare()
+	scope.FuncMap["__builtin_IntCompare"] = builtinIntCompare()
+	scope.FuncMap["__builtin_StringCompare"] = builtinStringCompare()
 	scope.FuncMap["__builtin_Logical"] = builtinLogical()
 	return scope
 }
@@ -96,6 +100,110 @@ func builtinIntMath() ast.Function {
 			}
 
 			return result, nil
+		},
+	}
+}
+
+func builtinBoolCompare() ast.Function {
+	return ast.Function{
+		ArgTypes:   []ast.Type{ast.TypeInt, ast.TypeBool, ast.TypeBool},
+		Variadic:   false,
+		ReturnType: ast.TypeBool,
+		Callback: func(args []interface{}) (interface{}, error) {
+			op := args[0].(ast.ArithmeticOp)
+			lhs := args[1].(bool)
+			rhs := args[2].(bool)
+
+			switch op {
+			case ast.ArithmeticOpEqual:
+				return lhs == rhs, nil
+			case ast.ArithmeticOpNotEqual:
+				return lhs != rhs, nil
+			default:
+				return nil, errors.New("invalid comparison operation")
+			}
+		},
+	}
+}
+
+func builtinFloatCompare() ast.Function {
+	return ast.Function{
+		ArgTypes:   []ast.Type{ast.TypeInt, ast.TypeFloat, ast.TypeFloat},
+		Variadic:   false,
+		ReturnType: ast.TypeBool,
+		Callback: func(args []interface{}) (interface{}, error) {
+			op := args[0].(ast.ArithmeticOp)
+			lhs := args[1].(float64)
+			rhs := args[2].(float64)
+
+			switch op {
+			case ast.ArithmeticOpEqual:
+				return lhs == rhs, nil
+			case ast.ArithmeticOpNotEqual:
+				return lhs != rhs, nil
+			case ast.ArithmeticOpLessThan:
+				return lhs < rhs, nil
+			case ast.ArithmeticOpLessThanOrEqual:
+				return lhs <= rhs, nil
+			case ast.ArithmeticOpGreaterThan:
+				return lhs > rhs, nil
+			case ast.ArithmeticOpGreaterThanOrEqual:
+				return lhs >= rhs, nil
+			default:
+				return nil, errors.New("invalid comparison operation")
+			}
+		},
+	}
+}
+
+func builtinIntCompare() ast.Function {
+	return ast.Function{
+		ArgTypes:   []ast.Type{ast.TypeInt, ast.TypeInt, ast.TypeInt},
+		Variadic:   false,
+		ReturnType: ast.TypeBool,
+		Callback: func(args []interface{}) (interface{}, error) {
+			op := args[0].(ast.ArithmeticOp)
+			lhs := args[1].(int)
+			rhs := args[2].(int)
+
+			switch op {
+			case ast.ArithmeticOpEqual:
+				return lhs == rhs, nil
+			case ast.ArithmeticOpNotEqual:
+				return lhs != rhs, nil
+			case ast.ArithmeticOpLessThan:
+				return lhs < rhs, nil
+			case ast.ArithmeticOpLessThanOrEqual:
+				return lhs <= rhs, nil
+			case ast.ArithmeticOpGreaterThan:
+				return lhs > rhs, nil
+			case ast.ArithmeticOpGreaterThanOrEqual:
+				return lhs >= rhs, nil
+			default:
+				return nil, errors.New("invalid comparison operation")
+			}
+		},
+	}
+}
+
+func builtinStringCompare() ast.Function {
+	return ast.Function{
+		ArgTypes:   []ast.Type{ast.TypeInt, ast.TypeString, ast.TypeString},
+		Variadic:   false,
+		ReturnType: ast.TypeBool,
+		Callback: func(args []interface{}) (interface{}, error) {
+			op := args[0].(ast.ArithmeticOp)
+			lhs := args[1].(string)
+			rhs := args[2].(string)
+
+			switch op {
+			case ast.ArithmeticOpEqual:
+				return lhs == rhs, nil
+			case ast.ArithmeticOpNotEqual:
+				return lhs != rhs, nil
+			default:
+				return nil, errors.New("invalid comparison operation")
+			}
 		},
 	}
 }
