@@ -720,6 +720,234 @@ func TestEvalInternal(t *testing.T) {
 		},
 
 		{
+			"foo ${true && false}",
+			nil,
+			false,
+			"foo false",
+			ast.TypeString,
+		},
+
+		{
+			"foo ${false || true}",
+			nil,
+			false,
+			"foo true",
+			ast.TypeString,
+		},
+
+		{
+			`foo ${"true" || true}`,
+			nil,
+			false,
+			"foo true",
+			ast.TypeString,
+		},
+
+		{
+			`foo ${true || "true"}`,
+			nil,
+			false,
+			"foo true",
+			ast.TypeString,
+		},
+
+		{
+			`foo ${"true" || "true"}`,
+			nil,
+			false,
+			"foo true",
+			ast.TypeString,
+		},
+
+		{
+			"foo ${1 == 2}",
+			nil,
+			false,
+			"foo false",
+			ast.TypeString,
+		},
+
+		{
+			"foo ${1 == 1}",
+			nil,
+			false,
+			"foo true",
+			ast.TypeString,
+		},
+
+		{
+			"foo ${1 > 2}",
+			nil,
+			false,
+			"foo false",
+			ast.TypeString,
+		},
+
+		{
+			"foo ${2 > 1}",
+			nil,
+			false,
+			"foo true",
+			ast.TypeString,
+		},
+
+		{
+			`foo ${"hello" == "hello"}`,
+			nil,
+			false,
+			"foo true",
+			ast.TypeString,
+		},
+
+		{
+			`foo ${"hello" == "goodbye"}`,
+			nil,
+			false,
+			"foo false",
+			ast.TypeString,
+		},
+
+		{
+			`foo ${1 == "2"}`,
+			nil,
+			false,
+			"foo false",
+			ast.TypeString,
+		},
+
+		{
+			`foo ${1 == "1"}`,
+			nil,
+			false,
+			"foo true",
+			ast.TypeString,
+		},
+
+		{
+			`foo ${"1" == 1}`,
+			nil,
+			false,
+			"foo true",
+			ast.TypeString,
+		},
+
+		{
+			`foo ${1.2 == 1}`,
+			nil,
+			false,
+			"foo false",
+			ast.TypeString,
+		},
+
+		{
+			// implicit conversion of float to int makes this equal
+			`foo ${1 == 1.2}`,
+			nil,
+			false,
+			"foo true",
+			ast.TypeString,
+		},
+
+		{
+			`foo ${true == false}`,
+			nil,
+			false,
+			"foo false",
+			ast.TypeString,
+		},
+
+		{
+			`foo ${false == false}`,
+			nil,
+			false,
+			"foo true",
+			ast.TypeString,
+		},
+
+		{
+			`foo ${"true" == true}`,
+			nil,
+			false,
+			"foo true",
+			ast.TypeString,
+		},
+
+		{
+			`foo ${true == "true"}`,
+			nil,
+			false,
+			"foo true",
+			ast.TypeString,
+		},
+
+		{
+			`foo ${! true}`,
+			nil,
+			false,
+			"foo false",
+			ast.TypeString,
+		},
+
+		{
+			`foo ${! false}`,
+			nil,
+			false,
+			"foo true",
+			ast.TypeString,
+		},
+
+		{
+			"foo ${true ? 5 : 7}",
+			nil,
+			false,
+			"foo 5",
+			ast.TypeString,
+		},
+
+		{
+			"foo ${false ? 5 : 7}",
+			nil,
+			false,
+			"foo 7",
+			ast.TypeString,
+		},
+
+		{
+			`foo ${"true" ? 5 : 7}`,
+			nil,
+			false,
+			"foo 5",
+			ast.TypeString,
+		},
+
+		{
+			// false expression is type-converted to match true expression
+			`foo ${false ? 5 : 6.5}`,
+			nil,
+			false,
+			"foo 6",
+			ast.TypeString,
+		},
+
+		{
+			// true expression is type-converted to match false expression
+			// if the true expression is string
+			`foo ${false ? "12" : 16}`,
+			nil,
+			false,
+			"foo 16",
+			ast.TypeString,
+		},
+
+		{
+			"foo ${3 > 2 ? 5 : 7}",
+			nil,
+			false,
+			"foo 5",
+			ast.TypeString,
+		},
+
+		{
 			"foo ${-bar}",
 			&ast.BasicScope{
 				VarMap: map[string]ast.Variable{

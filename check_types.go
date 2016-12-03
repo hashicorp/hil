@@ -113,6 +113,16 @@ func (tc *typeCheckArithmetic) TypeCheck(v *TypeCheck) (ast.Node, error) {
 		exprs[len(tc.n.Exprs)-1-i] = v.StackPop()
 	}
 
+	switch tc.n.Op {
+	case ast.ArithmeticOpLogicalAnd, ast.ArithmeticOpLogicalOr:
+		return tc.checkLogical(v, exprs)
+	default:
+		return tc.checkNumeric(v, exprs)
+	}
+
+}
+
+func (tc *typeCheckArithmetic) checkNumeric(v *TypeCheck, exprs []ast.Type) (ast.Node, error) {
 	// Determine the resulting type we want. We do this by going over
 	// every expression until we find one with a type we recognize.
 	// We do this because the first expr might be a string ("var.foo")
@@ -172,6 +182,38 @@ func (tc *typeCheckArithmetic) TypeCheck(v *TypeCheck) (ast.Node, error) {
 	copy(args[1:], tc.n.Exprs)
 	return &ast.Call{
 		Func: mathFunc,
+		Args: args,
+		Posx: tc.n.Pos(),
+	}, nil
+}
+
+func (tc *typeCheckArithmetic) checkLogical(v *TypeCheck, exprs []ast.Type) (ast.Node, error) {
+	for i, t := range exprs {
+		if t != ast.TypeBool {
+			cn := v.ImplicitConversion(t, ast.TypeBool, tc.n.Exprs[i])
+			if cn == nil {
+				return nil, fmt.Errorf(
+					"logical operators require boolean operands, not %s",
+					t,
+				)
+			}
+			tc.n.Exprs[i] = cn
+		}
+	}
+
+	// Return type is always boolean
+	v.StackPush(ast.TypeBool)
+
+	// Arithmetic nodes are replaced with a call to a built-in function
+	args := make([]ast.Node, len(tc.n.Exprs)+1)
+	args[0] = &ast.LiteralNode{
+		Value: tc.n.Op,
+		Typex: ast.TypeInt,
+		Posx:  tc.n.Pos(),
+	}
+	copy(args[1:], tc.n.Exprs)
+	return &ast.Call{
+		Func: "__builtin_Logical",
 		Args: args,
 		Posx: tc.n.Pos(),
 	}, nil

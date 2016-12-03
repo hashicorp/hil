@@ -30,6 +30,7 @@ func registerBuiltins(scope *ast.BasicScope) *ast.BasicScope {
 	// Math operations
 	scope.FuncMap["__builtin_IntMath"] = builtinIntMath()
 	scope.FuncMap["__builtin_FloatMath"] = builtinFloatMath()
+	scope.FuncMap["__builtin_Logical"] = builtinLogical()
 	return scope
 }
 
@@ -91,6 +92,32 @@ func builtinIntMath() ast.Function {
 					}
 
 					result = result % arg
+				}
+			}
+
+			return result, nil
+		},
+	}
+}
+
+func builtinLogical() ast.Function {
+	return ast.Function{
+		ArgTypes:     []ast.Type{ast.TypeInt},
+		Variadic:     true,
+		VariadicType: ast.TypeBool,
+		ReturnType:   ast.TypeBool,
+		Callback: func(args []interface{}) (interface{}, error) {
+			op := args[0].(ast.ArithmeticOp)
+			result := args[1].(bool)
+			for _, raw := range args[2:] {
+				arg := raw.(bool)
+				switch op {
+				case ast.ArithmeticOpLogicalOr:
+					result = result || arg
+				case ast.ArithmeticOpLogicalAnd:
+					result = result && arg
+				default:
+					return nil, errors.New("invalid logical operator")
 				}
 			}
 
