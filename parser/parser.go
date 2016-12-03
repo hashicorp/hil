@@ -348,6 +348,30 @@ func (p *parser) ParseExpressionTerm() (ast.Node, error) {
 			Posx: opTok.Pos,
 		}, nil
 
+	case scanner.BANG:
+		opTok := p.peeker.Read()
+		// important to use ParseExpressionTerm rather than ParseExpression
+		// here, otherwise we can capture a following binary expression into
+		// our negation.
+		operand, err := p.ParseExpressionTerm()
+		if err != nil {
+			return nil, err
+		}
+		// The AST currently represents binary negation as an equality
+		// test with "false".
+		return &ast.Arithmetic{
+			Op: ast.ArithmeticOpEqual,
+			Exprs: []ast.Node{
+				&ast.LiteralNode{
+					Value: false,
+					Typex: ast.TypeBool,
+					Posx:  opTok.Pos,
+				},
+				operand,
+			},
+			Posx: opTok.Pos,
+		}, nil
+
 	case scanner.IDENTIFIER:
 		return p.ParseScopeInteraction()
 
