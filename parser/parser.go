@@ -199,8 +199,9 @@ func (p *parser) ParseExpression() (ast.Node, error) {
 // for each operand.
 func (p *parser) parseBinaryOps(ops []map[scanner.TokenType]ast.ArithmeticOp) (ast.Node, error) {
 	if len(ops) == 0 {
-		// We've run out of operators, so now we'll just try to parse a term.
-		return p.ParseExpressionTerm()
+		// We've run out of operators, so now we'll just try to parse
+		// terms and postfix operators.
+		return p.parseTermAndPostfixOps()
 	}
 
 	thisLevel := ops[0]
@@ -264,6 +265,33 @@ func (p *parser) parseBinaryOps(ops []map[scanner.TokenType]ast.ArithmeticOp) (a
 	} else {
 		return lhs, nil
 	}
+}
+
+func (p *parser) parseTermAndPostfixOps() (ast.Node, error) {
+	expr, err := p.ParseExpressionTerm()
+	if err != nil {
+		return nil, err
+	}
+
+	for p.peeker.Peek().Type == scanner.OBRACKET {
+		// index operator
+		startPos := p.peeker.Read().Pos // eat bracket
+		indexExpr, err := p.ParseExpression()
+		if err != nil {
+			return nil, err
+		}
+		err = p.requireTokenType(scanner.CBRACKET, `"]"`)
+		if err != nil {
+			return nil, err
+		}
+		expr = &ast.Index{
+			Target: expr,
+			Key:    indexExpr,
+			Posx:   startPos,
+		}
+	}
+
+	return expr, nil
 }
 
 func (p *parser) ParseExpressionTerm() (ast.Node, error) {
@@ -431,24 +459,6 @@ func (p *parser) ParseScopeInteraction() (ast.Node, error) {
 	varNode := &ast.VariableAccess{
 		Name: varName,
 		Posx: startPos,
-	}
-
-	if p.peeker.Peek().Type == scanner.OBRACKET {
-		// index operator
-		startPos := p.peeker.Read().Pos // eat bracket
-		indexExpr, err := p.ParseExpression()
-		if err != nil {
-			return nil, err
-		}
-		err = p.requireTokenType(scanner.CBRACKET, `"]"`)
-		if err != nil {
-			return nil, err
-		}
-		return &ast.Index{
-			Target: varNode,
-			Key:    indexExpr,
-			Posx:   startPos,
-		}, nil
 	}
 
 	return varNode, nil

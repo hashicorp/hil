@@ -327,8 +327,7 @@ func (tc *typeCheckIndex) TypeCheck(v *TypeCheck) (ast.Node, error) {
 	// Ensure we have a VariableAccess as the target
 	varAccessNode, ok := tc.n.Target.(*ast.VariableAccess)
 	if !ok {
-		return nil, fmt.Errorf(
-			"target of an index must be a VariableAccess node, was %T", tc.n.Target)
+		return nil, fmt.Errorf("indexing with the [] operator is currently allowed only for variables")
 	}
 
 	// Get the variable
