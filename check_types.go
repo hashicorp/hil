@@ -67,6 +67,9 @@ func (v *TypeCheck) visit(raw ast.Node) ast.Node {
 	case *ast.Call:
 		tc := &typeCheckCall{n}
 		result, err = tc.TypeCheck(v)
+	case *ast.Conditional:
+		tc := &typeCheckConditional{n}
+		result, err = tc.TypeCheck(v)
 	case *ast.Index:
 		tc := &typeCheckIndex{n}
 		result, err = tc.TypeCheck(v)
@@ -358,6 +361,79 @@ func (tc *typeCheckCall) TypeCheck(v *TypeCheck) (ast.Node, error) {
 
 	// Return type
 	v.StackPush(function.ReturnType)
+
+	return tc.n, nil
+}
+
+type typeCheckConditional struct {
+	n *ast.Conditional
+}
+
+func (tc *typeCheckConditional) TypeCheck(v *TypeCheck) (ast.Node, error) {
+	// On the stack we have the types of the condition, true and false
+	// expressions, but they are in reverse order.
+	falseType := v.StackPop()
+	trueType := v.StackPop()
+	condType := v.StackPop()
+
+	if condType != ast.TypeBool {
+		cn := v.ImplicitConversion(condType, ast.TypeBool, tc.n.CondExpr)
+		if cn == nil {
+			return nil, fmt.Errorf(
+				"condition must be type bool, not %s", condType.Printable(),
+			)
+		}
+		tc.n.CondExpr = cn
+	}
+
+	// The types of the true and false expression must match
+	if trueType != falseType {
+
+		// Since passing around stringified versions of other types is
+		// common, we pragmatically allow the false expression to dictate
+		// the result type when the true expression is a string.
+		if trueType == ast.TypeString {
+			cn := v.ImplicitConversion(trueType, falseType, tc.n.TrueExpr)
+			if cn == nil {
+				return nil, fmt.Errorf(
+					"true and false expression types must match; have %s and %s",
+					trueType.Printable(), falseType.Printable(),
+				)
+			}
+			tc.n.TrueExpr = cn
+			trueType = falseType
+		} else {
+			cn := v.ImplicitConversion(falseType, trueType, tc.n.FalseExpr)
+			if cn == nil {
+				return nil, fmt.Errorf(
+					"true and false expression types must match; have %s and %s",
+					trueType.Printable(), falseType.Printable(),
+				)
+			}
+			tc.n.FalseExpr = cn
+			falseType = trueType
+		}
+	}
+
+	// Currently list and map types cannot be used, because we cannot
+	// generally assert that their element types are consistent.
+	// Such support might be added later, either by improving the type
+	// system or restricting usage to only variable and literal expressions,
+	// but for now this is simply prohibited because it doesn't seem to
+	// be a common enough case to be worth the complexity.
+	switch trueType {
+	case ast.TypeList:
+		return nil, fmt.Errorf(
+			"conditional operator cannot be used with list values",
+		)
+	case ast.TypeMap:
+		return nil, fmt.Errorf(
+			"conditional operator cannot be used with map values",
+		)
+	}
+
+	// Result type (guaranteed to also match falseType due to the above)
+	v.StackPush(trueType)
 
 	return tc.n, nil
 }

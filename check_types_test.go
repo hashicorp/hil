@@ -216,6 +216,82 @@ func TestTypeCheck(t *testing.T) {
 			},
 			true,
 		},
+
+		{
+			`foo ${true ? "foo" : "bar"}`,
+			&ast.BasicScope{},
+			false,
+		},
+
+		{
+			// can't use different types for true and false expressions
+			`foo ${true ? 1 : "baz"}`,
+			&ast.BasicScope{},
+			true,
+		},
+
+		{
+			// condition must be boolean
+			`foo ${"foo" ? 1 : 5}`,
+			&ast.BasicScope{},
+			true,
+		},
+
+		{
+			// currently lists are not allowed at all
+			`foo ${true ? arr1 : arr2}`,
+			&ast.BasicScope{
+				VarMap: map[string]ast.Variable{
+					"arr1": ast.Variable{
+						Type: ast.TypeList,
+						Value: []ast.Variable{
+							ast.Variable{
+								Type:  ast.TypeInt,
+								Value: 3,
+							},
+						},
+					},
+					"arr2": ast.Variable{
+						Type: ast.TypeList,
+						Value: []ast.Variable{
+							ast.Variable{
+								Type:  ast.TypeInt,
+								Value: 4,
+							},
+						},
+					},
+				},
+			},
+			true,
+		},
+
+		{
+			// mismatching element types are invalid
+			`foo ${true ? arr1 : arr2}`,
+			&ast.BasicScope{
+				VarMap: map[string]ast.Variable{
+					"arr1": ast.Variable{
+						Type: ast.TypeList,
+						Value: []ast.Variable{
+							ast.Variable{
+								Type:  ast.TypeInt,
+								Value: 3,
+							},
+						},
+					},
+					"arr2": ast.Variable{
+						Type: ast.TypeList,
+						Value: []ast.Variable{
+							ast.Variable{
+								Type:  ast.TypeString,
+								Value: "foo",
+							},
+						},
+					},
+				},
+			},
+			true,
+		},
 	}
 
 	for _, tc := range cases {
