@@ -138,6 +138,87 @@ func TestScanner(t *testing.T) {
 		},
 
 		{
+			"${true && false}",
+			[]TokenType{
+				BEGIN,
+				BOOL, AND, BOOL,
+				END, EOF,
+			},
+		},
+
+		{
+			"${true || false}",
+			[]TokenType{
+				BEGIN,
+				BOOL, OR, BOOL,
+				END, EOF,
+			},
+		},
+
+		{
+			"${1 == 5}",
+			[]TokenType{
+				BEGIN,
+				INTEGER, EQUAL, INTEGER,
+				END, EOF,
+			},
+		},
+
+		{
+			"${1 != 5}",
+			[]TokenType{
+				BEGIN,
+				INTEGER, NOTEQUAL, INTEGER,
+				END, EOF,
+			},
+		},
+
+		{
+			"${1 > 5}",
+			[]TokenType{
+				BEGIN,
+				INTEGER, GT, INTEGER,
+				END, EOF,
+			},
+		},
+
+		{
+			"${1 < 5}",
+			[]TokenType{
+				BEGIN,
+				INTEGER, LT, INTEGER,
+				END, EOF,
+			},
+		},
+
+		{
+			"${1 <= 5}",
+			[]TokenType{
+				BEGIN,
+				INTEGER, LTE, INTEGER,
+				END, EOF,
+			},
+		},
+
+		{
+			"${1 >= 5}",
+			[]TokenType{
+				BEGIN,
+				INTEGER, GTE, INTEGER,
+				END, EOF,
+			},
+		},
+
+		{
+			"${true ? 1 : 5}",
+			[]TokenType{
+				BEGIN,
+				BOOL, QUESTION, INTEGER, COLON, INTEGER,
+				END, EOF,
+			},
+		},
+
+		{
 			"${bar(3.14159)}",
 			[]TokenType{
 				BEGIN,
@@ -208,6 +289,36 @@ func TestScanner(t *testing.T) {
 				END,
 				CQUOTE,
 				END,
+				EOF,
+			},
+		},
+
+		{
+			"${1 = 5}",
+			[]TokenType{
+				BEGIN,
+				INTEGER,
+				INVALID,
+				EOF,
+			},
+		},
+
+		{
+			"${1 & 5}",
+			[]TokenType{
+				BEGIN,
+				INTEGER,
+				INVALID,
+				EOF,
+			},
+		},
+
+		{
+			"${1 | 5}",
+			[]TokenType{
+				BEGIN,
+				INTEGER,
+				INVALID,
 				EOF,
 			},
 		},

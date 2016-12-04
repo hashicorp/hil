@@ -359,6 +359,350 @@ func TestParser(t *testing.T) {
 		},
 
 		{
+			"${!a}",
+			false,
+			&ast.Output{
+				Posx: ast.Pos{Column: 1, Line: 1},
+				Exprs: []ast.Node{
+					// !a parses as (false == a)
+					&ast.Arithmetic{
+						Op: ast.ArithmeticOpEqual,
+						Exprs: []ast.Node{
+							&ast.LiteralNode{
+								Value: false,
+								Typex: ast.TypeBool,
+								Posx:  ast.Pos{Column: 3, Line: 1},
+							},
+							&ast.VariableAccess{
+								Name: "a",
+								Posx: ast.Pos{Column: 4, Line: 1},
+							},
+						},
+						Posx: ast.Pos{Column: 3, Line: 1},
+					},
+				},
+			},
+		},
+
+		{
+			"${a==b}",
+			false,
+			&ast.Output{
+				Posx: ast.Pos{Column: 1, Line: 1},
+				Exprs: []ast.Node{
+					&ast.Arithmetic{
+						Op: ast.ArithmeticOpEqual,
+						Exprs: []ast.Node{
+							&ast.VariableAccess{
+								Name: "a",
+								Posx: ast.Pos{Column: 3, Line: 1},
+							},
+							&ast.VariableAccess{
+								Name: "b",
+								Posx: ast.Pos{Column: 6, Line: 1},
+							},
+						},
+						Posx: ast.Pos{Column: 3, Line: 1},
+					},
+				},
+			},
+		},
+
+		{
+			"${a!=b}",
+			false,
+			&ast.Output{
+				Posx: ast.Pos{Column: 1, Line: 1},
+				Exprs: []ast.Node{
+					&ast.Arithmetic{
+						Op: ast.ArithmeticOpNotEqual,
+						Exprs: []ast.Node{
+							&ast.VariableAccess{
+								Name: "a",
+								Posx: ast.Pos{Column: 3, Line: 1},
+							},
+							&ast.VariableAccess{
+								Name: "b",
+								Posx: ast.Pos{Column: 6, Line: 1},
+							},
+						},
+						Posx: ast.Pos{Column: 3, Line: 1},
+					},
+				},
+			},
+		},
+
+		{
+			"${a < 5 ? a + 5 : a + 10}",
+			false,
+			&ast.Output{
+				Posx: ast.Pos{Column: 1, Line: 1},
+				Exprs: []ast.Node{
+					&ast.Conditional{
+						CondExpr: &ast.Arithmetic{
+							Op: ast.ArithmeticOpLessThan,
+							Exprs: []ast.Node{
+								&ast.VariableAccess{
+									Name: "a",
+									Posx: ast.Pos{Column: 3, Line: 1},
+								},
+								&ast.LiteralNode{
+									Value: 5,
+									Typex: ast.TypeInt,
+									Posx:  ast.Pos{Column: 7, Line: 1},
+								},
+							},
+							Posx: ast.Pos{Column: 3, Line: 1},
+						},
+						TrueExpr: &ast.Arithmetic{
+							Op: ast.ArithmeticOpAdd,
+							Exprs: []ast.Node{
+								&ast.VariableAccess{
+									Name: "a",
+									Posx: ast.Pos{Column: 11, Line: 1},
+								},
+								&ast.LiteralNode{
+									Value: 5,
+									Typex: ast.TypeInt,
+									Posx:  ast.Pos{Column: 15, Line: 1},
+								},
+							},
+							Posx: ast.Pos{Column: 11, Line: 1},
+						},
+						FalseExpr: &ast.Arithmetic{
+							Op: ast.ArithmeticOpAdd,
+							Exprs: []ast.Node{
+								&ast.VariableAccess{
+									Name: "a",
+									Posx: ast.Pos{Column: 19, Line: 1},
+								},
+								&ast.LiteralNode{
+									Value: 10,
+									Typex: ast.TypeInt,
+									Posx:  ast.Pos{Column: 23, Line: 1},
+								},
+							},
+							Posx: ast.Pos{Column: 19, Line: 1},
+						},
+						Posx: ast.Pos{Column: 3, Line: 1},
+					},
+				},
+			},
+		},
+
+		{
+			"${true&&false}",
+			false,
+			&ast.Output{
+				Posx: ast.Pos{Column: 1, Line: 1},
+				Exprs: []ast.Node{
+					&ast.Arithmetic{
+						Op: ast.ArithmeticOpLogicalAnd,
+						Exprs: []ast.Node{
+							&ast.LiteralNode{
+								Value: true,
+								Typex: ast.TypeBool,
+								Posx:  ast.Pos{Column: 3, Line: 1},
+							},
+							&ast.LiteralNode{
+								Value: false,
+								Typex: ast.TypeBool,
+								Posx:  ast.Pos{Column: 9, Line: 1},
+							},
+						},
+						Posx: ast.Pos{Column: 3, Line: 1},
+					},
+				},
+			},
+		},
+
+		{
+			"${true||false}",
+			false,
+			&ast.Output{
+				Posx: ast.Pos{Column: 1, Line: 1},
+				Exprs: []ast.Node{
+					&ast.Arithmetic{
+						Op: ast.ArithmeticOpLogicalOr,
+						Exprs: []ast.Node{
+							&ast.LiteralNode{
+								Value: true,
+								Typex: ast.TypeBool,
+								Posx:  ast.Pos{Column: 3, Line: 1},
+							},
+							&ast.LiteralNode{
+								Value: false,
+								Typex: ast.TypeBool,
+								Posx:  ast.Pos{Column: 9, Line: 1},
+							},
+						},
+						Posx: ast.Pos{Column: 3, Line: 1},
+					},
+				},
+			},
+		},
+
+		{
+			"${a||b&&c}",
+			false,
+			&ast.Output{
+				Posx: ast.Pos{Column: 1, Line: 1},
+				Exprs: []ast.Node{
+					&ast.Arithmetic{
+						Op: ast.ArithmeticOpLogicalOr,
+						Exprs: []ast.Node{
+							&ast.VariableAccess{
+								Name: "a",
+								Posx: ast.Pos{Column: 3, Line: 1},
+							},
+							&ast.Arithmetic{
+								Op: ast.ArithmeticOpLogicalAnd,
+								Exprs: []ast.Node{
+									&ast.VariableAccess{
+										Name: "b",
+										Posx: ast.Pos{Column: 6, Line: 1},
+									},
+									&ast.VariableAccess{
+										Name: "c",
+										Posx: ast.Pos{Column: 9, Line: 1},
+									},
+								},
+								Posx: ast.Pos{Column: 6, Line: 1},
+							},
+						},
+						Posx: ast.Pos{Column: 3, Line: 1},
+					},
+				},
+			},
+		},
+
+		{
+			"${a&&b||c}",
+			false,
+			&ast.Output{
+				Posx: ast.Pos{Column: 1, Line: 1},
+				Exprs: []ast.Node{
+					&ast.Arithmetic{
+						Op: ast.ArithmeticOpLogicalOr,
+						Exprs: []ast.Node{
+							&ast.Arithmetic{
+								Op: ast.ArithmeticOpLogicalAnd,
+								Exprs: []ast.Node{
+									&ast.VariableAccess{
+										Name: "a",
+										Posx: ast.Pos{Column: 3, Line: 1},
+									},
+									&ast.VariableAccess{
+										Name: "b",
+										Posx: ast.Pos{Column: 6, Line: 1},
+									},
+								},
+								Posx: ast.Pos{Column: 3, Line: 1},
+							},
+							&ast.VariableAccess{
+								Name: "c",
+								Posx: ast.Pos{Column: 9, Line: 1},
+							},
+						},
+						Posx: ast.Pos{Column: 3, Line: 1},
+					},
+				},
+			},
+		},
+
+		{
+			"${a<5||b>2}",
+			false,
+			&ast.Output{
+				Posx: ast.Pos{Column: 1, Line: 1},
+				Exprs: []ast.Node{
+					&ast.Arithmetic{
+						Op: ast.ArithmeticOpLogicalOr,
+						Exprs: []ast.Node{
+							&ast.Arithmetic{
+								Op: ast.ArithmeticOpLessThan,
+								Exprs: []ast.Node{
+									&ast.VariableAccess{
+										Name: "a",
+										Posx: ast.Pos{Column: 3, Line: 1},
+									},
+									&ast.LiteralNode{
+										Value: 5,
+										Typex: ast.TypeInt,
+										Posx:  ast.Pos{Column: 5, Line: 1},
+									},
+								},
+								Posx: ast.Pos{Column: 3, Line: 1},
+							},
+							&ast.Arithmetic{
+								Op: ast.ArithmeticOpGreaterThan,
+								Exprs: []ast.Node{
+									&ast.VariableAccess{
+										Name: "b",
+										Posx: ast.Pos{Column: 8, Line: 1},
+									},
+									&ast.LiteralNode{
+										Value: 2,
+										Typex: ast.TypeInt,
+										Posx:  ast.Pos{Column: 10, Line: 1},
+									},
+								},
+								Posx: ast.Pos{Column: 8, Line: 1},
+							},
+						},
+						Posx: ast.Pos{Column: 3, Line: 1},
+					},
+				},
+			},
+		},
+
+		{
+			"${a<5&&b>2}",
+			false,
+			&ast.Output{
+				Posx: ast.Pos{Column: 1, Line: 1},
+				Exprs: []ast.Node{
+					&ast.Arithmetic{
+						Op: ast.ArithmeticOpLogicalAnd,
+						Exprs: []ast.Node{
+							&ast.Arithmetic{
+								Op: ast.ArithmeticOpLessThan,
+								Exprs: []ast.Node{
+									&ast.VariableAccess{
+										Name: "a",
+										Posx: ast.Pos{Column: 3, Line: 1},
+									},
+									&ast.LiteralNode{
+										Value: 5,
+										Typex: ast.TypeInt,
+										Posx:  ast.Pos{Column: 5, Line: 1},
+									},
+								},
+								Posx: ast.Pos{Column: 3, Line: 1},
+							},
+							&ast.Arithmetic{
+								Op: ast.ArithmeticOpGreaterThan,
+								Exprs: []ast.Node{
+									&ast.VariableAccess{
+										Name: "b",
+										Posx: ast.Pos{Column: 8, Line: 1},
+									},
+									&ast.LiteralNode{
+										Value: 2,
+										Typex: ast.TypeInt,
+										Posx:  ast.Pos{Column: 10, Line: 1},
+									},
+								},
+								Posx: ast.Pos{Column: 8, Line: 1},
+							},
+						},
+						Posx: ast.Pos{Column: 3, Line: 1},
+					},
+				},
+			},
+		},
+
+		{
 			"${föo()}",
 			false,
 			&ast.Output{
@@ -731,6 +1075,24 @@ func TestParser(t *testing.T) {
 					},
 				},
 			},
+		},
+
+		{
+			"${foo=baz}",
+			true,
+			nil,
+		},
+
+		{
+			"${foo&baz}",
+			true,
+			nil,
+		},
+
+		{
+			"${foo|baz}",
+			true,
+			nil,
 		},
 
 		{
