@@ -191,7 +191,56 @@ func (p *parser) ParseInterpolation() (ast.Node, error) {
 }
 
 func (p *parser) ParseExpression() (ast.Node, error) {
-	return p.parseBinaryOps(binaryOps)
+	return p.parseTernaryCond()
+}
+
+func (p *parser) parseTernaryCond() (ast.Node, error) {
+	// The ternary condition operator (.. ? .. : ..) behaves somewhat
+	// like a binary operator except that the "operator" is itself
+	// an expression enclosed in two punctuation characters.
+	// The middle expression is parsed as if the ? and : symbols
+	// were parentheses. The "rhs" (the "false expression") is then
+	// treated right-associatively so it behaves similarly to the
+	// middle in terms of precedence.
+
+	startPos := p.peeker.Peek().Pos
+
+	var cond, trueExpr, falseExpr ast.Node
+	var err error
+
+	cond, err = p.parseBinaryOps(binaryOps)
+	if err != nil {
+		return nil, err
+	}
+
+	next := p.peeker.Peek()
+	if next.Type != scanner.QUESTION {
+		return cond, nil
+	}
+
+	p.peeker.Read() // eat question mark
+
+	trueExpr, err = p.ParseExpression()
+	if err != nil {
+		return nil, err
+	}
+
+	colon := p.peeker.Read()
+	if colon.Type != scanner.COLON {
+		return nil, ExpectationError(":", colon)
+	}
+
+	falseExpr, err = p.ParseExpression()
+	if err != nil {
+		return nil, err
+	}
+
+	return &ast.Conditional{
+		CondExpr:  cond,
+		TrueExpr:  trueExpr,
+		FalseExpr: falseExpr,
+		Posx:      startPos,
+	}, nil
 }
 
 // parseBinaryOps calls itself recursively to work through all of the

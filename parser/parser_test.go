@@ -433,6 +433,64 @@ func TestParser(t *testing.T) {
 		},
 
 		{
+			"${a < 5 ? a + 5 : a + 10}",
+			false,
+			&ast.Output{
+				Posx: ast.Pos{Column: 1, Line: 1},
+				Exprs: []ast.Node{
+					&ast.Conditional{
+						CondExpr: &ast.Arithmetic{
+							Op: ast.ArithmeticOpLessThan,
+							Exprs: []ast.Node{
+								&ast.VariableAccess{
+									Name: "a",
+									Posx: ast.Pos{Column: 3, Line: 1},
+								},
+								&ast.LiteralNode{
+									Value: 5,
+									Typex: ast.TypeInt,
+									Posx:  ast.Pos{Column: 7, Line: 1},
+								},
+							},
+							Posx: ast.Pos{Column: 3, Line: 1},
+						},
+						TrueExpr: &ast.Arithmetic{
+							Op: ast.ArithmeticOpAdd,
+							Exprs: []ast.Node{
+								&ast.VariableAccess{
+									Name: "a",
+									Posx: ast.Pos{Column: 11, Line: 1},
+								},
+								&ast.LiteralNode{
+									Value: 5,
+									Typex: ast.TypeInt,
+									Posx:  ast.Pos{Column: 15, Line: 1},
+								},
+							},
+							Posx: ast.Pos{Column: 11, Line: 1},
+						},
+						FalseExpr: &ast.Arithmetic{
+							Op: ast.ArithmeticOpAdd,
+							Exprs: []ast.Node{
+								&ast.VariableAccess{
+									Name: "a",
+									Posx: ast.Pos{Column: 19, Line: 1},
+								},
+								&ast.LiteralNode{
+									Value: 10,
+									Typex: ast.TypeInt,
+									Posx:  ast.Pos{Column: 23, Line: 1},
+								},
+							},
+							Posx: ast.Pos{Column: 19, Line: 1},
+						},
+						Posx: ast.Pos{Column: 3, Line: 1},
+					},
+				},
+			},
+		},
+
+		{
 			"${true&&false}",
 			false,
 			&ast.Output{
