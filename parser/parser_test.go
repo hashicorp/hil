@@ -54,6 +54,20 @@ func TestParser(t *testing.T) {
 			},
 		},
 
+		// Identifier starting with a number
+		{
+			`foo ${123abcd}`,
+			true,
+			nil,
+		},
+
+		// Identifier starting with a *
+		{
+			`foo ${*abcd}`,
+			true,
+			nil,
+		},
+
 		{
 			"foo ${var.bar}",
 			false,
@@ -67,6 +81,25 @@ func TestParser(t *testing.T) {
 					},
 					&ast.VariableAccess{
 						Name: "var.bar",
+						Posx: ast.Pos{Column: 7, Line: 1},
+					},
+				},
+			},
+		},
+
+		{
+			"foo ${var.bar.*.baz}",
+			false,
+			&ast.Output{
+				Posx: ast.Pos{Column: 1, Line: 1},
+				Exprs: []ast.Node{
+					&ast.LiteralNode{
+						Value: "foo ",
+						Typex: ast.TypeString,
+						Posx:  ast.Pos{Column: 1, Line: 1},
+					},
+					&ast.VariableAccess{
+						Name: "var.bar.*.baz",
 						Posx: ast.Pos{Column: 7, Line: 1},
 					},
 				},
