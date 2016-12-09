@@ -64,13 +64,12 @@ func TestScanner(t *testing.T) {
 
 		{
 			"foo ${bar.0.baz}",
-			[]TokenType{LITERAL, BEGIN, IDENTIFIER, PERIOD, INTEGER, PERIOD, IDENTIFIER, END, EOF},
+			[]TokenType{LITERAL, BEGIN, IDENTIFIER, END, EOF},
 		},
 
 		{
 			"foo ${bar.foo-bar.baz}",
-			[]TokenType{LITERAL, BEGIN, IDENTIFIER, PERIOD, IDENTIFIER,
-				PERIOD, IDENTIFIER, END, EOF},
+			[]TokenType{LITERAL, BEGIN, IDENTIFIER, END, EOF},
 		},
 
 		{
@@ -253,7 +252,7 @@ func TestScanner(t *testing.T) {
 			[]TokenType{
 				LITERAL,
 				BEGIN,
-				IDENTIFIER, PERIOD, IDENTIFIER, PERIOD, IDENTIFIER,
+				IDENTIFIER,
 				END, EOF,
 			},
 		},
@@ -263,7 +262,37 @@ func TestScanner(t *testing.T) {
 			[]TokenType{
 				LITERAL,
 				BEGIN,
-				IDENTIFIER, PERIOD, IDENTIFIER, PERIOD, STAR, PERIOD, IDENTIFIER,
+				IDENTIFIER,
+				END, EOF,
+			},
+		},
+
+		{
+			"foo ${foo.bar.*}",
+			[]TokenType{
+				LITERAL,
+				BEGIN,
+				IDENTIFIER,
+				END, EOF,
+			},
+		},
+
+		{
+			"foo ${foo.bar.*baz}",
+			[]TokenType{
+				LITERAL,
+				BEGIN,
+				IDENTIFIER, PERIOD, STAR, IDENTIFIER,
+				END, EOF,
+			},
+		},
+
+		{
+			"foo ${foo*}",
+			[]TokenType{
+				LITERAL,
+				BEGIN,
+				IDENTIFIER, STAR,
 				END, EOF,
 			},
 		},
@@ -285,7 +314,7 @@ func TestScanner(t *testing.T) {
 				BEGIN,
 				OQUOTE,
 				BEGIN,
-				IDENTIFIER, PERIOD, IDENTIFIER,
+				IDENTIFIER,
 				END,
 				CQUOTE,
 				END,
