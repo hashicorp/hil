@@ -528,21 +528,7 @@ func (tc *typeCheckIndex) TypeCheck(v *TypeCheck) (ast.Node, error) {
 	keyType := v.StackPop()
 	targetType := v.StackPop()
 
-	// Ensure we have a VariableAccess as the target
-	varAccessNode, ok := tc.n.Target.(*ast.VariableAccess)
-	if !ok {
-		return nil, fmt.Errorf(
-			"target of an index must be a VariableAccess node, was %T", tc.n.Target)
-	}
-
-	// Get the variable
-	variable, ok := v.Scope.LookupVar(varAccessNode.Name)
-	if !ok {
-		return nil, fmt.Errorf(
-			"unknown variable accessed: %s", varAccessNode.Name)
-	}
-
-	switch targetType.(type) {
+	switch t := targetType.(type) {
 	case ast.TypeList:
 		if keyType != ast.TypeInt {
 			tc.n.Key = v.ImplicitConversion(keyType, ast.TypeInt, tc.n.Key)
@@ -552,13 +538,7 @@ func (tc *typeCheckIndex) TypeCheck(v *TypeCheck) (ast.Node, error) {
 			}
 		}
 
-		valType, err := ast.VariableListElementTypesAreHomogenous(
-			varAccessNode.Name, variable.Value.([]ast.Variable))
-		if err != nil {
-			return tc.n, err
-		}
-
-		v.StackPush(valType)
+		v.StackPush(t.ElementType)
 		return tc.n, nil
 	case ast.TypeMap:
 		if keyType != ast.TypeString {
@@ -569,16 +549,10 @@ func (tc *typeCheckIndex) TypeCheck(v *TypeCheck) (ast.Node, error) {
 			}
 		}
 
-		valType, err := ast.VariableMapValueTypesAreHomogenous(
-			varAccessNode.Name, variable.Value.(map[string]ast.Variable))
-		if err != nil {
-			return tc.n, err
-		}
-
-		v.StackPush(valType)
+		v.StackPush(t.ElementType)
 		return tc.n, nil
 	default:
-		return nil, fmt.Errorf("invalid index operation into non-indexable type: %s", variable.Type)
+		return nil, fmt.Errorf("index operator not supported for %s", targetType)
 	}
 }
 
