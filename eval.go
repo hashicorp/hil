@@ -302,21 +302,20 @@ func (v *evalIndex) Eval(scope ast.Scope, stack *ast.Stack) (interface{}, ast.Ty
 	key := stack.Pop().(*ast.LiteralNode)
 	target := stack.Pop().(*ast.LiteralNode)
 
-	variableName := v.Index.Target.(*ast.VariableAccess).Name
-
 	switch target.Typex.(type) {
 	case ast.TypeList:
-		return v.evalListIndex(variableName, target.Value, key.Value)
+		return v.evalListIndex(target.Value, key.Value)
 	case ast.TypeMap:
-		return v.evalMapIndex(variableName, target.Value, key.Value)
+		return v.evalMapIndex(target.Value, key.Value)
 	default:
 		return nil, ast.TypeInvalid, fmt.Errorf(
-			"target %q for indexing must be ast.TypeList or ast.TypeMap, is %s",
-			variableName, target.Typex)
+			"target for indexing must be ast.TypeList or ast.TypeMap, is %s",
+			target.Typex,
+		)
 	}
 }
 
-func (v *evalIndex) evalListIndex(variableName string, target interface{}, key interface{}) (interface{}, ast.Type, error) {
+func (v *evalIndex) evalListIndex(target interface{}, key interface{}) (interface{}, ast.Type, error) {
 	// We assume type checking was already done and we can assume that target
 	// is a list and key is an int
 	list, ok := target.([]ast.Variable)
@@ -337,8 +336,9 @@ func (v *evalIndex) evalListIndex(variableName string, target interface{}, key i
 
 	if keyInt < 0 || len(list) < keyInt+1 {
 		return nil, ast.TypeInvalid, fmt.Errorf(
-			"index %d out of range for list %s (max %d)",
-			keyInt, variableName, len(list))
+			"index %d out of range for list (max %d)",
+			keyInt, len(list)-1,
+		)
 	}
 
 	returnVal := list[keyInt].Value
@@ -346,7 +346,7 @@ func (v *evalIndex) evalListIndex(variableName string, target interface{}, key i
 	return returnVal, returnType, nil
 }
 
-func (v *evalIndex) evalMapIndex(variableName string, target interface{}, key interface{}) (interface{}, ast.Type, error) {
+func (v *evalIndex) evalMapIndex(target interface{}, key interface{}) (interface{}, ast.Type, error) {
 	// We assume type checking was already done and we can assume that target
 	// is a map and key is a string
 	vmap, ok := target.(map[string]ast.Variable)
@@ -368,7 +368,8 @@ func (v *evalIndex) evalMapIndex(variableName string, target interface{}, key in
 	value, ok := vmap[keyString]
 	if !ok {
 		return nil, ast.TypeInvalid, fmt.Errorf(
-			"key %q does not exist in map %s", keyString, variableName)
+			"key %q does not exist in map", keyString,
+		)
 	}
 
 	return value.Value, value.Type, nil
