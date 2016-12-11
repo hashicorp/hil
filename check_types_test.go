@@ -442,6 +442,32 @@ func TestTypeCheck_implicit(t *testing.T) {
 			},
 			false,
 		},
+
+		{
+			"foo ${foo(42)[1]}",
+			&ast.BasicScope{
+				FuncMap: map[string]ast.Function{
+					"foo": ast.Function{
+						ArgTypes:   []ast.Type{ast.TypeString},
+						ReturnType: ast.TypeList{ast.TypeString},
+					},
+				},
+			},
+			false,
+		},
+
+		{
+			`foo ${foo(42)["foo"]}`,
+			&ast.BasicScope{
+				FuncMap: map[string]ast.Function{
+					"foo": ast.Function{
+						ArgTypes:   []ast.Type{ast.TypeString},
+						ReturnType: ast.TypeMap{ast.TypeString},
+					},
+				},
+			},
+			false,
+		},
 	}
 
 	for _, tc := range cases {
