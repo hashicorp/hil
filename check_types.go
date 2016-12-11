@@ -429,7 +429,7 @@ func (tc *typeCheckConditional) TypeCheck(v *TypeCheck) (ast.Node, error) {
 	// system or restricting usage to only variable and literal expressions,
 	// but for now this is simply prohibited because it doesn't seem to
 	// be a common enough case to be worth the complexity.
-	switch trueType {
+	switch trueType.(type) {
 	case ast.TypeList:
 		return nil, fmt.Errorf(
 			"conditional operator cannot be used with list values",
@@ -459,10 +459,8 @@ func (tc *typeCheckOutput) TypeCheck(v *TypeCheck) (ast.Node, error) {
 
 	// If there is only one argument and it is a list, we evaluate to a list
 	if len(types) == 1 {
-		switch t := types[0]; t {
-		case ast.TypeList:
-			fallthrough
-		case ast.TypeMap:
+		switch t := types[0]; t.(type) {
+		case ast.TypeList, ast.TypeMap:
 			v.StackPush(t)
 			return n, nil
 		}
@@ -544,7 +542,7 @@ func (tc *typeCheckIndex) TypeCheck(v *TypeCheck) (ast.Node, error) {
 			"unknown variable accessed: %s", varAccessNode.Name)
 	}
 
-	switch targetType {
+	switch targetType.(type) {
 	case ast.TypeList:
 		if keyType != ast.TypeInt {
 			tc.n.Key = v.ImplicitConversion(keyType, ast.TypeInt, tc.n.Key)

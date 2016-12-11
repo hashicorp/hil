@@ -137,7 +137,7 @@ func TestTypeCheck(t *testing.T) {
 			&ast.BasicScope{
 				VarMap: map[string]ast.Variable{
 					"foo": ast.Variable{
-						Type: ast.TypeList,
+						Type: ast.TypeList{ast.TypeString},
 						Value: []ast.Variable{
 							ast.Variable{
 								Type:  ast.TypeString,
@@ -159,7 +159,7 @@ func TestTypeCheck(t *testing.T) {
 			&ast.BasicScope{
 				VarMap: map[string]ast.Variable{
 					"foo": ast.Variable{
-						Type: ast.TypeList,
+						Type: ast.TypeList{ast.TypeInt},
 						Value: []ast.Variable{
 							ast.Variable{
 								Type:  ast.TypeInt,
@@ -243,7 +243,7 @@ func TestTypeCheck(t *testing.T) {
 			&ast.BasicScope{
 				VarMap: map[string]ast.Variable{
 					"arr1": ast.Variable{
-						Type: ast.TypeList,
+						Type: ast.TypeList{ast.TypeInt},
 						Value: []ast.Variable{
 							ast.Variable{
 								Type:  ast.TypeInt,
@@ -252,7 +252,7 @@ func TestTypeCheck(t *testing.T) {
 						},
 					},
 					"arr2": ast.Variable{
-						Type: ast.TypeList,
+						Type: ast.TypeList{ast.TypeInt},
 						Value: []ast.Variable{
 							ast.Variable{
 								Type:  ast.TypeInt,
@@ -271,7 +271,7 @@ func TestTypeCheck(t *testing.T) {
 			&ast.BasicScope{
 				VarMap: map[string]ast.Variable{
 					"arr1": ast.Variable{
-						Type: ast.TypeList,
+						Type: ast.TypeList{ast.TypeInt},
 						Value: []ast.Variable{
 							ast.Variable{
 								Type:  ast.TypeInt,
@@ -280,7 +280,7 @@ func TestTypeCheck(t *testing.T) {
 						},
 					},
 					"arr2": ast.Variable{
-						Type: ast.TypeList,
+						Type: ast.TypeList{ast.TypeString},
 						Value: []ast.Variable{
 							ast.Variable{
 								Type:  ast.TypeString,
@@ -366,7 +366,7 @@ func TestTypeCheck_implicit(t *testing.T) {
 			&ast.BasicScope{
 				VarMap: map[string]ast.Variable{
 					"foo": ast.Variable{
-						Type: ast.TypeList,
+						Type: ast.TypeList{ast.TypeInt},
 						Value: []ast.Variable{
 							ast.Variable{
 								Type:  ast.TypeInt,
@@ -388,7 +388,7 @@ func TestTypeCheck_implicit(t *testing.T) {
 			&ast.BasicScope{
 				VarMap: map[string]ast.Variable{
 					"foo": ast.Variable{
-						Type: ast.TypeList,
+						Type: ast.TypeList{ast.TypeInt},
 						Value: []ast.Variable{
 							ast.Variable{
 								Type:  ast.TypeInt,
@@ -409,7 +409,7 @@ func TestTypeCheck_implicit(t *testing.T) {
 			&ast.BasicScope{
 				VarMap: map[string]ast.Variable{
 					"foo": ast.Variable{
-						Type: ast.TypeMap,
+						Type: ast.TypeMap{ast.TypeString},
 						Value: map[string]ast.Variable{
 							"foo": ast.Variable{
 								Type:  ast.TypeString,
@@ -422,7 +422,7 @@ func TestTypeCheck_implicit(t *testing.T) {
 						},
 					},
 					"bar": ast.Variable{
-						Type: ast.TypeList,
+						Type: ast.TypeList{ast.TypeString},
 						Value: []ast.Variable{
 							ast.Variable{
 								Type:  ast.TypeString,

@@ -77,7 +77,7 @@ func InterfaceToVariable(input interface{}) (ast.Variable, error) {
 		}
 
 		return ast.Variable{
-			Type:  ast.TypeMap,
+			Type:  ast.TypeMap{ast.TypeAny},
 			Value: elements,
 		}, nil
 	}
@@ -94,7 +94,7 @@ func InterfaceToVariable(input interface{}) (ast.Variable, error) {
 		}
 
 		return ast.Variable{
-			Type:  ast.TypeList,
+			Type:  ast.TypeList{ast.TypeAny},
 			Value: elements,
 		}, nil
 	}
@@ -111,7 +111,7 @@ func VariableToInterface(input ast.Variable) (interface{}, error) {
 		}
 	}
 
-	if input.Type == ast.TypeList {
+	if ast.TypeIsList(input.Type) {
 		inputList, ok := input.Value.([]ast.Variable)
 		if !ok {
 			return nil, fmt.Errorf("ast.Variable with type list has value which is not a []ast.Variable")
@@ -133,7 +133,7 @@ func VariableToInterface(input ast.Variable) (interface{}, error) {
 		return result, nil
 	}
 
-	if input.Type == ast.TypeMap {
+	if ast.TypeIsMap(input.Type) {
 		inputMap, ok := input.Value.(map[string]ast.Variable)
 		if !ok {
 			return nil, fmt.Errorf("ast.Variable with type map has value which is not a map[string]ast.Variable")

@@ -17,7 +17,7 @@ func TestIndexTypeMap_empty(t *testing.T) {
 	scope := &BasicScope{
 		VarMap: map[string]Variable{
 			"foo": Variable{
-				Type:  TypeMap,
+				Type:  TypeMap{TypeString},
 				Value: map[string]Variable{},
 			},
 		},
@@ -44,7 +44,7 @@ func TestIndexTypeMap_string(t *testing.T) {
 	scope := &BasicScope{
 		VarMap: map[string]Variable{
 			"foo": Variable{
-				Type: TypeMap,
+				Type: TypeMap{TypeString},
 				Value: map[string]Variable{
 					"baz": Variable{
 						Type:  TypeString,
@@ -80,7 +80,7 @@ func TestIndexTypeMap_int(t *testing.T) {
 	scope := &BasicScope{
 		VarMap: map[string]Variable{
 			"foo": Variable{
-				Type: TypeMap,
+				Type: TypeMap{TypeInt},
 				Value: map[string]Variable{
 					"baz": Variable{
 						Type:  TypeInt,
@@ -116,7 +116,7 @@ func TestIndexTypeMap_nonHomogenous(t *testing.T) {
 	scope := &BasicScope{
 		VarMap: map[string]Variable{
 			"foo": Variable{
-				Type: TypeMap,
+				Type: TypeMap{TypeAny},
 				Value: map[string]Variable{
 					"bar": Variable{
 						Type:  TypeString,
@@ -149,7 +149,7 @@ func TestIndexTypeList_empty(t *testing.T) {
 	scope := &BasicScope{
 		VarMap: map[string]Variable{
 			"foo": Variable{
-				Type:  TypeList,
+				Type:  TypeList{TypeString},
 				Value: []Variable{},
 			},
 		},
@@ -176,7 +176,7 @@ func TestIndexTypeList_string(t *testing.T) {
 	scope := &BasicScope{
 		VarMap: map[string]Variable{
 			"foo": Variable{
-				Type: TypeList,
+				Type: TypeList{TypeString},
 				Value: []Variable{
 					Variable{
 						Type:  TypeString,
@@ -212,7 +212,7 @@ func TestIndexTypeList_int(t *testing.T) {
 	scope := &BasicScope{
 		VarMap: map[string]Variable{
 			"foo": Variable{
-				Type: TypeList,
+				Type: TypeList{TypeInt},
 				Value: []Variable{
 					Variable{
 						Type:  TypeInt,
@@ -248,7 +248,7 @@ func TestIndexTypeList_nonHomogenous(t *testing.T) {
 	scope := &BasicScope{
 		VarMap: map[string]Variable{
 			"foo": Variable{
-				Type: TypeList,
+				Type: TypeList{TypeAny},
 				Value: []Variable{
 					Variable{
 						Type:  TypeString,

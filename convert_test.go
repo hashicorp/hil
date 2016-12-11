@@ -36,7 +36,7 @@ func TestInterfaceToVariable(t *testing.T) {
 			name:  "empty list",
 			input: []interface{}{},
 			expected: ast.Variable{
-				Type:  ast.TypeList,
+				Type:  ast.TypeList{ast.TypeAny},
 				Value: []ast.Variable{},
 			},
 		},
@@ -44,7 +44,7 @@ func TestInterfaceToVariable(t *testing.T) {
 			name:  "empty list of strings",
 			input: []string{},
 			expected: ast.Variable{
-				Type:  ast.TypeList,
+				Type:  ast.TypeList{ast.TypeAny},
 				Value: []ast.Variable{},
 			},
 		},
@@ -60,7 +60,7 @@ func TestInterfaceToVariable(t *testing.T) {
 			name:  "list of strings",
 			input: []string{"Hello", "World"},
 			expected: ast.Variable{
-				Type: ast.TypeList,
+				Type: ast.TypeList{ast.TypeAny},
 				Value: []ast.Variable{
 					{
 						Type:  ast.TypeString,
@@ -77,10 +77,10 @@ func TestInterfaceToVariable(t *testing.T) {
 			name:  "list of lists of strings",
 			input: [][]interface{}{[]interface{}{"Hello", "World"}, []interface{}{"Goodbye", "World"}},
 			expected: ast.Variable{
-				Type: ast.TypeList,
+				Type: ast.TypeList{ast.TypeAny},
 				Value: []ast.Variable{
 					{
-						Type: ast.TypeList,
+						Type: ast.TypeList{ast.TypeAny},
 						Value: []ast.Variable{
 							{
 								Type:  ast.TypeString,
@@ -93,7 +93,7 @@ func TestInterfaceToVariable(t *testing.T) {
 						},
 					},
 					{
-						Type: ast.TypeList,
+						Type: ast.TypeList{ast.TypeAny},
 						Value: []ast.Variable{
 							{
 								Type:  ast.TypeString,
@@ -112,7 +112,7 @@ func TestInterfaceToVariable(t *testing.T) {
 			name:  "list with unknown",
 			input: []string{"Hello", UnknownValue},
 			expected: ast.Variable{
-				Type: ast.TypeList,
+				Type: ast.TypeList{ast.TypeAny},
 				Value: []ast.Variable{
 					{
 						Type:  ast.TypeString,
@@ -129,7 +129,7 @@ func TestInterfaceToVariable(t *testing.T) {
 			name:  "map of string->string",
 			input: map[string]string{"Hello": "World", "Foo": "Bar"},
 			expected: ast.Variable{
-				Type: ast.TypeMap,
+				Type: ast.TypeMap{ast.TypeAny},
 				Value: map[string]ast.Variable{
 					"Hello": {
 						Type:  ast.TypeString,
@@ -149,10 +149,10 @@ func TestInterfaceToVariable(t *testing.T) {
 				"Goodbye": []string{"Goodbye", "World"},
 			},
 			expected: ast.Variable{
-				Type: ast.TypeMap,
+				Type: ast.TypeMap{ast.TypeAny},
 				Value: map[string]ast.Variable{
 					"Hello": {
-						Type: ast.TypeList,
+						Type: ast.TypeList{ast.TypeAny},
 						Value: []ast.Variable{
 							{
 								Type:  ast.TypeString,
@@ -165,7 +165,7 @@ func TestInterfaceToVariable(t *testing.T) {
 						},
 					},
 					"Goodbye": {
-						Type: ast.TypeList,
+						Type: ast.TypeList{ast.TypeAny},
 						Value: []ast.Variable{
 							{
 								Type:  ast.TypeString,
@@ -184,7 +184,7 @@ func TestInterfaceToVariable(t *testing.T) {
 			name:  "empty map",
 			input: map[string]string{},
 			expected: ast.Variable{
-				Type:  ast.TypeMap,
+				Type:  ast.TypeMap{ast.TypeAny},
 				Value: map[string]ast.Variable{},
 			},
 		},
@@ -196,7 +196,7 @@ func TestInterfaceToVariable(t *testing.T) {
 				"eu-west-1": "ami-012345",
 			},
 			expected: ast.Variable{
-				Type: ast.TypeMap,
+				Type: ast.TypeMap{ast.TypeAny},
 				Value: map[string]ast.Variable{
 					"us-west-1": {
 						Type:  ast.TypeString,
@@ -245,7 +245,7 @@ func TestVariableToInterface(t *testing.T) {
 			name:     "empty list",
 			expected: []interface{}{},
 			input: ast.Variable{
-				Type:  ast.TypeList,
+				Type:  ast.TypeList{ast.TypeAny},
 				Value: []ast.Variable{},
 			},
 		},
@@ -261,7 +261,7 @@ func TestVariableToInterface(t *testing.T) {
 			name:     "list of strings",
 			expected: []interface{}{"Hello", "World"},
 			input: ast.Variable{
-				Type: ast.TypeList,
+				Type: ast.TypeList{ast.TypeAny},
 				Value: []ast.Variable{
 					{
 						Type:  ast.TypeString,
@@ -278,10 +278,10 @@ func TestVariableToInterface(t *testing.T) {
 			name:     "list of lists of strings",
 			expected: []interface{}{[]interface{}{"Hello", "World"}, []interface{}{"Goodbye", "World"}},
 			input: ast.Variable{
-				Type: ast.TypeList,
+				Type: ast.TypeList{ast.TypeList{ast.TypeString}},
 				Value: []ast.Variable{
 					{
-						Type: ast.TypeList,
+						Type: ast.TypeList{ast.TypeString},
 						Value: []ast.Variable{
 							{
 								Type:  ast.TypeString,
@@ -294,7 +294,7 @@ func TestVariableToInterface(t *testing.T) {
 						},
 					},
 					{
-						Type: ast.TypeList,
+						Type: ast.TypeList{ast.TypeString},
 						Value: []ast.Variable{
 							{
 								Type:  ast.TypeString,
@@ -313,7 +313,7 @@ func TestVariableToInterface(t *testing.T) {
 			name:     "map of string->string",
 			expected: map[string]interface{}{"Hello": "World", "Foo": "Bar"},
 			input: ast.Variable{
-				Type: ast.TypeMap,
+				Type: ast.TypeMap{ast.TypeAny},
 				Value: map[string]ast.Variable{
 					"Hello": {
 						Type:  ast.TypeString,
@@ -333,10 +333,10 @@ func TestVariableToInterface(t *testing.T) {
 				"Goodbye": []interface{}{"Goodbye", "World"},
 			},
 			input: ast.Variable{
-				Type: ast.TypeMap,
+				Type: ast.TypeMap{ast.TypeList{ast.TypeString}},
 				Value: map[string]ast.Variable{
 					"Hello": {
-						Type: ast.TypeList,
+						Type: ast.TypeList{ast.TypeString},
 						Value: []ast.Variable{
 							{
 								Type:  ast.TypeString,
@@ -349,7 +349,7 @@ func TestVariableToInterface(t *testing.T) {
 						},
 					},
 					"Goodbye": {
-						Type: ast.TypeList,
+						Type: ast.TypeList{ast.TypeString},
 						Value: []ast.Variable{
 							{
 								Type:  ast.TypeString,
@@ -368,7 +368,7 @@ func TestVariableToInterface(t *testing.T) {
 			name:     "empty map",
 			expected: map[string]interface{}{},
 			input: ast.Variable{
-				Type:  ast.TypeMap,
+				Type:  ast.TypeMap{ast.TypeAny},
 				Value: map[string]ast.Variable{},
 			},
 		},
@@ -380,7 +380,7 @@ func TestVariableToInterface(t *testing.T) {
 				"eu-west-1": "ami-012345",
 			},
 			input: ast.Variable{
-				Type: ast.TypeMap,
+				Type: ast.TypeMap{ast.TypeString},
 				Value: map[string]ast.Variable{
 					"us-west-1": {
 						Type:  ast.TypeString,

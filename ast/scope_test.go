@@ -39,7 +39,7 @@ func TestBasicScopeLookupVar(t *testing.T) {
 }
 
 func TestVariableStringer(t *testing.T) {
-	expected := "{Variable (TypeInt): 42}"
+	expected := "{Variable (type int): 42}"
 	variable := &Variable{
 		Type:  TypeInt,
 		Value: 42,

@@ -54,10 +54,10 @@ func Eval(root ast.Node, config *EvalConfig) (EvaluationResult, error) {
 		return InvalidResult, err
 	}
 
-	switch outputType {
+	switch outputType.(type) {
 	case ast.TypeList:
 		val, err := VariableToInterface(ast.Variable{
-			Type:  ast.TypeList,
+			Type:  outputType,
 			Value: output,
 		})
 		return EvaluationResult{
@@ -66,13 +66,16 @@ func Eval(root ast.Node, config *EvalConfig) (EvaluationResult, error) {
 		}, err
 	case ast.TypeMap:
 		val, err := VariableToInterface(ast.Variable{
-			Type:  ast.TypeMap,
+			Type:  outputType,
 			Value: output,
 		})
 		return EvaluationResult{
 			Type:  TypeMap,
 			Value: val,
 		}, err
+	}
+
+	switch outputType {
 	case ast.TypeString:
 		return EvaluationResult{
 			Type:  TypeString,
@@ -301,7 +304,7 @@ func (v *evalIndex) Eval(scope ast.Scope, stack *ast.Stack) (interface{}, ast.Ty
 
 	variableName := v.Index.Target.(*ast.VariableAccess).Name
 
-	switch target.Typex {
+	switch target.Typex.(type) {
 	case ast.TypeList:
 		return v.evalListIndex(variableName, target.Value, key.Value)
 	case ast.TypeMap:
@@ -383,12 +386,13 @@ func (v *evalOutput) Eval(s ast.Scope, stack *ast.Stack) (interface{}, ast.Type,
 
 	// Special case the single list and map
 	if len(nodes) == 1 {
-		switch t := nodes[0].Typex; t {
-		case ast.TypeList:
+		t := nodes[0].Typex
+		switch {
+		case ast.TypeIsList(t):
 			fallthrough
-		case ast.TypeMap:
+		case ast.TypeIsMap(t):
 			fallthrough
-		case ast.TypeUnknown:
+		case t == ast.TypeUnknown:
 			return nodes[0].Value, t, nil
 		}
 	}
