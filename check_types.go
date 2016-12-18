@@ -329,48 +329,94 @@ func (tc *typeCheckCall) TypeCheck(v *TypeCheck) (ast.Node, error) {
 
 	// Verify the args
 	for i, expected := range function.ArgTypes {
-		if expected == ast.TypeAny {
-			continue
+		cn, err := tc.compatibleArg(v, tc.n.Func, i+1, tc.n.Args[i], expected, args[i])
+		if err != nil {
+			return nil, err
 		}
-
-		if args[i] != expected {
-			cn := v.ImplicitConversion(args[i], expected, tc.n.Args[i])
-			if cn != nil {
-				tc.n.Args[i] = cn
-				continue
-			}
-
-			return nil, fmt.Errorf(
-				"%s: argument %d should be %s, got %s",
-				tc.n.Func, i+1, expected.Printable(), args[i].Printable())
-		}
+		tc.n.Args[i] = cn
 	}
 
 	// If we're variadic, then verify the types there
-	if function.Variadic && function.VariadicType != ast.TypeAny {
+	if function.Variadic {
 		args = args[len(function.ArgTypes):]
 		for i, t := range args {
-			if t != function.VariadicType {
-				realI := i + len(function.ArgTypes)
-				cn := v.ImplicitConversion(
-					t, function.VariadicType, tc.n.Args[realI])
-				if cn != nil {
-					tc.n.Args[realI] = cn
-					continue
-				}
-
-				return nil, fmt.Errorf(
-					"%s: argument %d should be %s, got %s",
-					tc.n.Func, realI,
-					function.VariadicType.Printable(), t.Printable())
+			realI := i + len(function.ArgTypes)
+			cn, err := tc.compatibleArg(v, tc.n.Func, realI+1, tc.n.Args[realI], function.VariadicType, t)
+			if err != nil {
+				return nil, err
 			}
+			tc.n.Args[realI] = cn
 		}
 	}
 
 	// Return type
-	v.StackPush(function.ReturnType)
+	if function.ReturnTypeFunc != nil {
+		rt, err := function.ReturnTypeFunc(args)
+		if err != nil {
+			return nil, err
+		}
+		v.StackPush(rt)
+	} else {
+		v.StackPush(function.ReturnType)
+	}
 
 	return tc.n, nil
+}
+
+// compatibleTypes implements the type matching and conversion rules for
+// function arguments, where TypeAny can be used as a "wildcard" type.
+//
+// If the given type matches or can be converted to the expected type,
+// returns an ast.Node representing the value in the expected type,
+// which might either just be the given node verbatim or may be it
+// wrapped in a conversion operation.
+//
+// If the given type does not match, returns a user-oriented error
+// describing the problem, using the given funcName and idx (1-based)
+// to refer to the index of the argument in the call.
+func (tc *typeCheckCall) compatibleArg(
+	v *TypeCheck, funcName string, idx int, node ast.Node, expected ast.Type, given ast.Type,
+) (ast.Node, error) {
+	if expected == ast.TypeAny {
+		return node, nil
+	}
+
+	// TypeList{TypeAny} and TypeMap{TypeAny} may be used to express
+	// that the function operates generically over a particular
+	// collection type.
+	if lt, ok := expected.(ast.TypeList); ok && lt.ElementType == ast.TypeAny {
+		if !ast.TypeIsList(given) {
+			return nil, fmt.Errorf(
+				"%s: argument %d should be list, but got %s",
+				funcName, idx, given.Printable(),
+			)
+		}
+		return node, nil
+	}
+	if mt, ok := expected.(ast.TypeMap); ok && mt.ElementType == ast.TypeAny {
+		if !ast.TypeIsMap(given) {
+			return nil, fmt.Errorf(
+				"%s: argument %d should be map, but got %s",
+				funcName, idx, given.Printable(),
+			)
+		}
+		return node, nil
+	}
+
+	if given != expected {
+		cn := v.ImplicitConversion(given, expected, node)
+		if cn == nil {
+			return nil, fmt.Errorf(
+				"%s: argument %d should be %s, but got %s",
+				funcName, idx, expected.Printable(), given.Printable(),
+			)
+		}
+		return cn, nil
+	}
+
+	// If we fall out here then the given type exactly matches the expected,
+	// so no conversion is necessary.
+	return node, nil
 }
 
 type typeCheckConditional struct {

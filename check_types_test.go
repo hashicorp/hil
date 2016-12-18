@@ -133,6 +133,98 @@ func TestTypeCheck(t *testing.T) {
 		},
 
 		{
+			`foo ${nothing("42")}`,
+			&ast.BasicScope{
+				FuncMap: map[string]ast.Function{
+					"nothing": ast.Function{
+						ArgTypes: []ast.Type{ast.TypeAny},
+						ReturnTypeFunc: func(argTypes []ast.Type) (ast.Type, error) {
+							return argTypes[0], nil
+						},
+						Callback: func(args []interface{}) (interface{}, error) {
+							return args[0], nil
+						},
+					},
+				},
+			},
+			false,
+		},
+
+		{
+			`foo ${firstelem(somelist)}`,
+			&ast.BasicScope{
+				FuncMap: map[string]ast.Function{
+					"firstelem": ast.Function{
+						ArgTypes: []ast.Type{ast.TypeList{ast.TypeAny}},
+						ReturnTypeFunc: func(argTypes []ast.Type) (ast.Type, error) {
+							return argTypes[0].(ast.TypeList).ElementType, nil
+						},
+						Callback: func(args []interface{}) (interface{}, error) {
+							return nil, nil
+						},
+					},
+				},
+				VarMap: map[string]ast.Variable{
+					"somelist": {
+						Type:  ast.TypeList{ast.TypeString},
+						Value: []ast.Variable{},
+					},
+				},
+			},
+			false,
+		},
+
+		{
+			`foo ${anyelem(somemap)}`,
+			&ast.BasicScope{
+				FuncMap: map[string]ast.Function{
+					"anyelem": ast.Function{
+						ArgTypes: []ast.Type{ast.TypeMap{ast.TypeAny}},
+						ReturnTypeFunc: func(argTypes []ast.Type) (ast.Type, error) {
+							return argTypes[0].(ast.TypeMap).ElementType, nil
+						},
+						Callback: func(args []interface{}) (interface{}, error) {
+							return nil, nil
+						},
+					},
+				},
+				VarMap: map[string]ast.Variable{
+					"somemap": {
+						Type:  ast.TypeMap{ast.TypeString},
+						Value: map[string]ast.Variable{},
+					},
+				},
+			},
+			false,
+		},
+
+		{
+			`foo ${concat(somelist, somelist)}`,
+			&ast.BasicScope{
+				FuncMap: map[string]ast.Function{
+					"concat": ast.Function{
+						ArgTypes:     nil,
+						Variadic:     true,
+						VariadicType: ast.TypeList{ast.TypeAny},
+						ReturnTypeFunc: func(argTypes []ast.Type) (ast.Type, error) {
+							return argTypes[0].(ast.TypeList).ElementType, nil
+						},
+						Callback: func(args []interface{}) (interface{}, error) {
+							return nil, nil
+						},
+					},
+				},
+				VarMap: map[string]ast.Variable{
+					"somelist": {
+						Type:  ast.TypeList{ast.TypeString},
+						Value: []ast.Variable{},
+					},
+				},
+			},
+			false,
+		},
+
+		{
 			"${foo[0]}",
 			&ast.BasicScope{
 				VarMap: map[string]ast.Variable{
@@ -211,6 +303,80 @@ func TestTypeCheck(t *testing.T) {
 						Callback: func([]interface{}) (interface{}, error) {
 							return 42, nil
 						},
+					},
+				},
+			},
+			true,
+		},
+
+		{
+			`foo ${firstelem(somemap)}`,
+			&ast.BasicScope{
+				FuncMap: map[string]ast.Function{
+					"firstelem": ast.Function{
+						ArgTypes: []ast.Type{ast.TypeList{ast.TypeAny}},
+						ReturnTypeFunc: func(argTypes []ast.Type) (ast.Type, error) {
+							return argTypes[0].(ast.TypeList).ElementType, nil
+						},
+						Callback: func(args []interface{}) (interface{}, error) {
+							return nil, nil
+						},
+					},
+				},
+				VarMap: map[string]ast.Variable{
+					"somemap": {
+						Type:  ast.TypeMap{ast.TypeString},
+						Value: map[string]ast.Variable{},
+					},
+				},
+			},
+			true,
+		},
+
+		{
+			`foo ${anyelem(somelist)}`,
+			&ast.BasicScope{
+				FuncMap: map[string]ast.Function{
+					"anyelem": ast.Function{
+						ArgTypes: []ast.Type{ast.TypeMap{ast.TypeAny}},
+						ReturnTypeFunc: func(argTypes []ast.Type) (ast.Type, error) {
+							return argTypes[0].(ast.TypeMap).ElementType, nil
+						},
+						Callback: func(args []interface{}) (interface{}, error) {
+							return nil, nil
+						},
+					},
+				},
+				VarMap: map[string]ast.Variable{
+					"somelist": {
+						Type:  ast.TypeList{ast.TypeString},
+						Value: []ast.Variable{},
+					},
+				},
+			},
+			true,
+		},
+
+		{
+			`foo ${concat(5, 4, 3)}`,
+			&ast.BasicScope{
+				FuncMap: map[string]ast.Function{
+					"concat": ast.Function{
+						ArgTypes:     nil,
+						Variadic:     true,
+						VariadicType: ast.TypeList{ast.TypeAny},
+						ReturnTypeFunc: func(argTypes []ast.Type) (ast.Type, error) {
+							return argTypes[0].(ast.TypeList).ElementType, nil
+						},
+						Callback: func(args []interface{}) (interface{}, error) {
+							return nil, nil
+						},
+					},
+				},
+				VarMap: map[string]ast.Variable{
+					"somelist": {
+						Type:  ast.TypeList{ast.TypeString},
+						Value: []ast.Variable{},
 					},
 				},
 			},
