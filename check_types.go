@@ -135,20 +135,11 @@ func (tc *typeCheckArithmetic) checkNumeric(v *TypeCheck, exprs []ast.Type) (ast
 	mathFunc := "__builtin_IntMath"
 	mathType := ast.TypeInt
 	for _, v := range exprs {
-		exit := true
-		switch v {
-		case ast.TypeInt:
-			mathFunc = "__builtin_IntMath"
-			mathType = v
-		case ast.TypeFloat:
+		// We assume int math but if we find ANY float, the entire
+		// expression turns into floating point math.
+		if v == ast.TypeFloat {
 			mathFunc = "__builtin_FloatMath"
 			mathType = v
-		default:
-			exit = false
-		}
-
-		// We found the type, so leave
-		if exit {
 			break
 		}
 	}

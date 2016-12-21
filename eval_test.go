@@ -704,6 +704,22 @@ func TestEvalInternal(t *testing.T) {
 		},
 
 		{
+			"foo ${0.5 * 75}",
+			nil,
+			false,
+			"foo 37.5",
+			ast.TypeString,
+		},
+
+		{
+			"foo ${75 * 0.5}",
+			nil,
+			false,
+			"foo 37.5",
+			ast.TypeString,
+		},
+
+		{
 			"foo ${42+2*2}",
 			nil,
 			false,
