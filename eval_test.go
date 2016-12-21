@@ -1602,6 +1602,51 @@ func TestEvalInternal(t *testing.T) {
 			"foo -36",
 			ast.TypeString,
 		},
+
+		{
+			"${var.foo > 1 ? 5 : 0}",
+			&ast.BasicScope{
+				VarMap: map[string]ast.Variable{
+					"var.foo": ast.Variable{
+						Type:  ast.TypeString,
+						Value: "3",
+					},
+				},
+			},
+			false,
+			"5",
+			ast.TypeString,
+		},
+
+		{
+			"${var.foo > 1.5 ? 5 : 0}",
+			&ast.BasicScope{
+				VarMap: map[string]ast.Variable{
+					"var.foo": ast.Variable{
+						Type:  ast.TypeString,
+						Value: "3",
+					},
+				},
+			},
+			false,
+			"5",
+			ast.TypeString,
+		},
+
+		{
+			"${var.foo > 1.5 ? 5 : 0}",
+			&ast.BasicScope{
+				VarMap: map[string]ast.Variable{
+					"var.foo": ast.Variable{
+						Type:  ast.TypeString,
+						Value: "1.2",
+					},
+				},
+			},
+			false,
+			"0",
+			ast.TypeString,
+		},
 	}
 
 	for i, tc := range cases {
