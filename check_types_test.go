@@ -667,7 +667,7 @@ func TestTypeCheck_implicit(t *testing.T) {
 			visitor = &TypeCheck{Scope: tc.Scope}
 			err = visitor.Visit(node)
 			if err != nil {
-				t.Fatalf("Error: %s\n\nInput: %s", err, tc.Input)
+				t.Fatalf("Error on second pass: %s\n\nInput: %s", err, tc.Input)
 			}
 		})
 	}

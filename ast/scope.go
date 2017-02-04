@@ -59,11 +59,23 @@ type Function struct {
 	Variadic     bool
 	VariadicType Type
 
-	// Callback is the function called for a function. The argument
-	// types are guaranteed to match the spec above by the type checker.
+	// Either Callback or CallbackTyped are called as the implementation of
+	// the function. Both recieve a slice interface values of an appropriate
+	// dynamic type for the call arguments, while CallbackTyped additionally
+	// recieves the required result type, for easier implementation of
+	// type-generic functions without duplicating the logic in ReturnTypeFunc.
+	//
+	// The argument types are guaranteed by the type checker to match what is
+	// described by ArgTypes, ReturnTypeFunc and VariadicType.
 	// The length of the args is strictly == len(ArgTypes) unless Varidiac
 	// is true, in which case its >= len(ArgTypes).
-	Callback func([]interface{}) (interface{}, error)
+	//
+	// The value returned MUST confirm to the function's return type, whether
+	// determined by ReturnType or ReturnTypeFunc.
+	//
+	// Setting both Callback and CallbackTyped is invalid usage.
+	Callback      func([]interface{}) (interface{}, error)
+	CallbackTyped func(args []interface{}, returnType Type) (interface{}, error)
 }
 
 // ReturnTypeFunc is a function type used to decide the return type of a

@@ -67,6 +67,12 @@ func (v *TypeCheck) visit(raw ast.Node) ast.Node {
 	case *ast.Call:
 		tc := &typeCheckCall{n}
 		result, err = tc.TypeCheck(v)
+	case *ast.CallTyped:
+		// We only enter this branch if the result of type checking is
+		// passed into a second pass of type checking. In that case
+		// we just re-check the original Call embedded inside.
+		tc := &typeCheckCall{&n.Call}
+		result, err = tc.TypeCheck(v)
 	case *ast.Conditional:
 		tc := &typeCheckConditional{n}
 		result, err = tc.TypeCheck(v)
@@ -178,10 +184,13 @@ func (tc *typeCheckArithmetic) checkNumeric(v *TypeCheck, exprs []ast.Type) (ast
 		Posx:  tc.n.Pos(),
 	}
 	copy(args[1:], tc.n.Exprs)
-	return &ast.Call{
-		Func: mathFunc,
-		Args: args,
-		Posx: tc.n.Pos(),
+	return &ast.CallTyped{
+		Call: ast.Call{
+			Func: mathFunc,
+			Args: args,
+			Posx: tc.n.Pos(),
+		},
+		ReturnType: mathType,
 	}, nil
 }
 
@@ -271,10 +280,13 @@ func (tc *typeCheckArithmetic) checkComparison(v *TypeCheck, exprs []ast.Type) (
 		Posx:  tc.n.Pos(),
 	}
 	copy(args[1:], tc.n.Exprs)
-	return &ast.Call{
-		Func: compareFunc,
-		Args: args,
-		Posx: tc.n.Pos(),
+	return &ast.CallTyped{
+		Call: ast.Call{
+			Func: compareFunc,
+			Args: args,
+			Posx: tc.n.Pos(),
+		},
+		ReturnType: ast.TypeBool,
 	}, nil
 }
 
@@ -303,10 +315,13 @@ func (tc *typeCheckArithmetic) checkLogical(v *TypeCheck, exprs []ast.Type) (ast
 		Posx:  tc.n.Pos(),
 	}
 	copy(args[1:], tc.n.Exprs)
-	return &ast.Call{
-		Func: "__builtin_Logical",
-		Args: args,
-		Posx: tc.n.Pos(),
+	return &ast.CallTyped{
+		Call: ast.Call{
+			Func: "__builtin_Logical",
+			Args: args,
+			Posx: tc.n.Pos(),
+		},
+		ReturnType: ast.TypeBool,
 	}, nil
 }
 
@@ -338,8 +353,8 @@ func (tc *typeCheckCall) TypeCheck(v *TypeCheck) (ast.Node, error) {
 
 	// If we're variadic, then verify the types there
 	if function.Variadic {
-		args = args[len(function.ArgTypes):]
-		for i, t := range args {
+		varArgs := args[len(function.ArgTypes):]
+		for i, t := range varArgs {
 			realI := i + len(function.ArgTypes)
 			cn, err := tc.compatibleArg(v, tc.n.Func, realI+1, tc.n.Args[realI], function.VariadicType, t)
 			if err != nil {
@@ -350,17 +365,22 @@ func (tc *typeCheckCall) TypeCheck(v *TypeCheck) (ast.Node, error) {
 	}
 
 	// Return type
+	var returnType ast.Type
 	if function.ReturnTypeFunc != nil {
 		rt, err := function.ReturnTypeFunc(args)
 		if err != nil {
 			return nil, err
 		}
-		v.StackPush(rt)
+		returnType = rt
 	} else {
-		v.StackPush(function.ReturnType)
+		returnType = function.ReturnType
 	}
+	v.StackPush(returnType)
 
-	return tc.n, nil
+	return &ast.CallTyped{
+		Call:       *tc.n,
+		ReturnType: returnType,
+	}, nil
 }
 
 // compatibleTypes implements the type matching and conversion rules for
@@ -618,10 +638,13 @@ func (v *TypeCheck) ImplicitConversion(
 		return nil
 	}
 
-	return &ast.Call{
-		Func: toFunc,
-		Args: []ast.Node{n},
-		Posx: n.Pos(),
+	return &ast.CallTyped{
+		Call: ast.Call{
+			Func: toFunc,
+			Args: []ast.Node{n},
+			Posx: n.Pos(),
+		},
+		ReturnType: expected,
 	}
 }
 
