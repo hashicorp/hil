@@ -39,7 +39,7 @@ func TestVariableAccessType_list(t *testing.T) {
 	c := &VariableAccess{Name: "baz"}
 	scope := &BasicScope{
 		VarMap: map[string]Variable{
-			"baz": Variable{Type: TypeList},
+			"baz": Variable{Type: TypeList{TypeString}},
 		},
 	}
 
@@ -47,7 +47,8 @@ func TestVariableAccessType_list(t *testing.T) {
 	if err != nil {
 		t.Fatalf("err: %s", err)
 	}
-	if actual != TypeList {
+	want := TypeList{TypeString}
+	if actual != want {
 		t.Fatalf("bad: %s", actual)
 	}
 }

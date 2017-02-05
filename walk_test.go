@@ -16,7 +16,7 @@ func TestInterpolationWalker_detect(t *testing.T) {
 				"foo": "$${var.foo}",
 			},
 			Result: []string{
-				"Literal(TypeString, ${var.foo})",
+				"Literal(type string, ${var.foo})",
 			},
 		},
 
@@ -52,7 +52,7 @@ func TestInterpolationWalker_detect(t *testing.T) {
 				"foo": `${file("test.txt")}`,
 			},
 			Result: []string{
-				"Call(file, Literal(TypeString, test.txt))",
+				"Call(file, Literal(type string, test.txt))",
 			},
 		},
 
@@ -61,7 +61,7 @@ func TestInterpolationWalker_detect(t *testing.T) {
 				"foo": `${file("foo/bar.txt")}`,
 			},
 			Result: []string{
-				"Call(file, Literal(TypeString, foo/bar.txt))",
+				"Call(file, Literal(type string, foo/bar.txt))",
 			},
 		},
 
@@ -70,7 +70,7 @@ func TestInterpolationWalker_detect(t *testing.T) {
 				"foo": `${join(",", foo.bar.*.id)}`,
 			},
 			Result: []string{
-				"Call(join, Literal(TypeString, ,), Variable(foo.bar.*.id))",
+				"Call(join, Literal(type string, ,), Variable(foo.bar.*.id))",
 			},
 		},
 
@@ -79,7 +79,7 @@ func TestInterpolationWalker_detect(t *testing.T) {
 				"foo": `${concat("localhost", ":8080")}`,
 			},
 			Result: []string{
-				"Call(concat, Literal(TypeString, localhost), Literal(TypeString, :8080))",
+				"Call(concat, Literal(type string, localhost), Literal(type string, :8080))",
 			},
 		},
 	}
@@ -97,7 +97,10 @@ func TestInterpolationWalker_detect(t *testing.T) {
 			}
 
 			if !reflect.DeepEqual(actual, tc.Result) {
-				t.Fatalf("%d: bad:\n\n%#v", i, actual)
+				t.Fatalf(
+					"%d: incorrect result\ngot:  %#v\nwant: %#v",
+					i, actual, tc.Result,
+				)
 			}
 		})
 	}

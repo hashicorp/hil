@@ -133,11 +133,103 @@ func TestTypeCheck(t *testing.T) {
 		},
 
 		{
+			`foo ${nothing("42")}`,
+			&ast.BasicScope{
+				FuncMap: map[string]ast.Function{
+					"nothing": ast.Function{
+						ArgTypes: []ast.Type{ast.TypeAny},
+						ReturnTypeFunc: func(argTypes []ast.Type) (ast.Type, error) {
+							return argTypes[0], nil
+						},
+						Callback: func(args []interface{}) (interface{}, error) {
+							return args[0], nil
+						},
+					},
+				},
+			},
+			false,
+		},
+
+		{
+			`foo ${firstelem(somelist)}`,
+			&ast.BasicScope{
+				FuncMap: map[string]ast.Function{
+					"firstelem": ast.Function{
+						ArgTypes: []ast.Type{ast.TypeList{ast.TypeAny}},
+						ReturnTypeFunc: func(argTypes []ast.Type) (ast.Type, error) {
+							return argTypes[0].(ast.TypeList).ElementType, nil
+						},
+						Callback: func(args []interface{}) (interface{}, error) {
+							return nil, nil
+						},
+					},
+				},
+				VarMap: map[string]ast.Variable{
+					"somelist": {
+						Type:  ast.TypeList{ast.TypeString},
+						Value: []ast.Variable{},
+					},
+				},
+			},
+			false,
+		},
+
+		{
+			`foo ${anyelem(somemap)}`,
+			&ast.BasicScope{
+				FuncMap: map[string]ast.Function{
+					"anyelem": ast.Function{
+						ArgTypes: []ast.Type{ast.TypeMap{ast.TypeAny}},
+						ReturnTypeFunc: func(argTypes []ast.Type) (ast.Type, error) {
+							return argTypes[0].(ast.TypeMap).ElementType, nil
+						},
+						Callback: func(args []interface{}) (interface{}, error) {
+							return nil, nil
+						},
+					},
+				},
+				VarMap: map[string]ast.Variable{
+					"somemap": {
+						Type:  ast.TypeMap{ast.TypeString},
+						Value: map[string]ast.Variable{},
+					},
+				},
+			},
+			false,
+		},
+
+		{
+			`foo ${concat(somelist, somelist)}`,
+			&ast.BasicScope{
+				FuncMap: map[string]ast.Function{
+					"concat": ast.Function{
+						ArgTypes:     nil,
+						Variadic:     true,
+						VariadicType: ast.TypeList{ast.TypeAny},
+						ReturnTypeFunc: func(argTypes []ast.Type) (ast.Type, error) {
+							return argTypes[0].(ast.TypeList).ElementType, nil
+						},
+						Callback: func(args []interface{}) (interface{}, error) {
+							return nil, nil
+						},
+					},
+				},
+				VarMap: map[string]ast.Variable{
+					"somelist": {
+						Type:  ast.TypeList{ast.TypeString},
+						Value: []ast.Variable{},
+					},
+				},
+			},
+			false,
+		},
+
+		{
 			"${foo[0]}",
 			&ast.BasicScope{
 				VarMap: map[string]ast.Variable{
 					"foo": ast.Variable{
-						Type: ast.TypeList,
+						Type: ast.TypeList{ast.TypeString},
 						Value: []ast.Variable{
 							ast.Variable{
 								Type:  ast.TypeString,
@@ -159,7 +251,7 @@ func TestTypeCheck(t *testing.T) {
 			&ast.BasicScope{
 				VarMap: map[string]ast.Variable{
 					"foo": ast.Variable{
-						Type: ast.TypeList,
+						Type: ast.TypeList{ast.TypeInt},
 						Value: []ast.Variable{
 							ast.Variable{
 								Type:  ast.TypeInt,
@@ -218,6 +310,80 @@ func TestTypeCheck(t *testing.T) {
 		},
 
 		{
+			`foo ${firstelem(somemap)}`,
+			&ast.BasicScope{
+				FuncMap: map[string]ast.Function{
+					"firstelem": ast.Function{
+						ArgTypes: []ast.Type{ast.TypeList{ast.TypeAny}},
+						ReturnTypeFunc: func(argTypes []ast.Type) (ast.Type, error) {
+							return argTypes[0].(ast.TypeList).ElementType, nil
+						},
+						Callback: func(args []interface{}) (interface{}, error) {
+							return nil, nil
+						},
+					},
+				},
+				VarMap: map[string]ast.Variable{
+					"somemap": {
+						Type:  ast.TypeMap{ast.TypeString},
+						Value: map[string]ast.Variable{},
+					},
+				},
+			},
+			true,
+		},
+
+		{
+			`foo ${anyelem(somelist)}`,
+			&ast.BasicScope{
+				FuncMap: map[string]ast.Function{
+					"anyelem": ast.Function{
+						ArgTypes: []ast.Type{ast.TypeMap{ast.TypeAny}},
+						ReturnTypeFunc: func(argTypes []ast.Type) (ast.Type, error) {
+							return argTypes[0].(ast.TypeMap).ElementType, nil
+						},
+						Callback: func(args []interface{}) (interface{}, error) {
+							return nil, nil
+						},
+					},
+				},
+				VarMap: map[string]ast.Variable{
+					"somelist": {
+						Type:  ast.TypeList{ast.TypeString},
+						Value: []ast.Variable{},
+					},
+				},
+			},
+			true,
+		},
+
+		{
+			`foo ${concat(5, 4, 3)}`,
+			&ast.BasicScope{
+				FuncMap: map[string]ast.Function{
+					"concat": ast.Function{
+						ArgTypes:     nil,
+						Variadic:     true,
+						VariadicType: ast.TypeList{ast.TypeAny},
+						ReturnTypeFunc: func(argTypes []ast.Type) (ast.Type, error) {
+							return argTypes[0].(ast.TypeList).ElementType, nil
+						},
+						Callback: func(args []interface{}) (interface{}, error) {
+							return nil, nil
+						},
+					},
+				},
+				VarMap: map[string]ast.Variable{
+					"somelist": {
+						Type:  ast.TypeList{ast.TypeString},
+						Value: []ast.Variable{},
+					},
+				},
+			},
+			true,
+		},
+
+		{
 			`foo ${true ? "foo" : "bar"}`,
 			&ast.BasicScope{},
 			false,
@@ -243,7 +409,7 @@ func TestTypeCheck(t *testing.T) {
 			&ast.BasicScope{
 				VarMap: map[string]ast.Variable{
 					"arr1": ast.Variable{
-						Type: ast.TypeList,
+						Type: ast.TypeList{ast.TypeInt},
 						Value: []ast.Variable{
 							ast.Variable{
 								Type:  ast.TypeInt,
@@ -252,7 +418,7 @@ func TestTypeCheck(t *testing.T) {
 						},
 					},
 					"arr2": ast.Variable{
-						Type: ast.TypeList,
+						Type: ast.TypeList{ast.TypeInt},
 						Value: []ast.Variable{
 							ast.Variable{
 								Type:  ast.TypeInt,
@@ -271,7 +437,7 @@ func TestTypeCheck(t *testing.T) {
 			&ast.BasicScope{
 				VarMap: map[string]ast.Variable{
 					"arr1": ast.Variable{
-						Type: ast.TypeList,
+						Type: ast.TypeList{ast.TypeInt},
 						Value: []ast.Variable{
 							ast.Variable{
 								Type:  ast.TypeInt,
@@ -280,7 +446,7 @@ func TestTypeCheck(t *testing.T) {
 						},
 					},
 					"arr2": ast.Variable{
-						Type: ast.TypeList,
+						Type: ast.TypeList{ast.TypeString},
 						Value: []ast.Variable{
 							ast.Variable{
 								Type:  ast.TypeString,
@@ -366,7 +532,7 @@ func TestTypeCheck_implicit(t *testing.T) {
 			&ast.BasicScope{
 				VarMap: map[string]ast.Variable{
 					"foo": ast.Variable{
-						Type: ast.TypeList,
+						Type: ast.TypeList{ast.TypeInt},
 						Value: []ast.Variable{
 							ast.Variable{
 								Type:  ast.TypeInt,
@@ -388,7 +554,7 @@ func TestTypeCheck_implicit(t *testing.T) {
 			&ast.BasicScope{
 				VarMap: map[string]ast.Variable{
 					"foo": ast.Variable{
-						Type: ast.TypeList,
+						Type: ast.TypeList{ast.TypeInt},
 						Value: []ast.Variable{
 							ast.Variable{
 								Type:  ast.TypeInt,
@@ -409,7 +575,7 @@ func TestTypeCheck_implicit(t *testing.T) {
 			&ast.BasicScope{
 				VarMap: map[string]ast.Variable{
 					"foo": ast.Variable{
-						Type: ast.TypeMap,
+						Type: ast.TypeMap{ast.TypeString},
 						Value: map[string]ast.Variable{
 							"foo": ast.Variable{
 								Type:  ast.TypeString,
@@ -422,7 +588,7 @@ func TestTypeCheck_implicit(t *testing.T) {
 						},
 					},
 					"bar": ast.Variable{
-						Type: ast.TypeList,
+						Type: ast.TypeList{ast.TypeString},
 						Value: []ast.Variable{
 							ast.Variable{
 								Type:  ast.TypeString,
@@ -437,6 +603,32 @@ func TestTypeCheck_implicit(t *testing.T) {
 					"var.keyint": ast.Variable{
 						Type:  ast.TypeInt,
 						Value: 1,
+					},
+				},
+			},
+			false,
+		},
+
+		{
+			"foo ${foo(42)[1]}",
+			&ast.BasicScope{
+				FuncMap: map[string]ast.Function{
+					"foo": ast.Function{
+						ArgTypes:   []ast.Type{ast.TypeString},
+						ReturnType: ast.TypeList{ast.TypeString},
+					},
+				},
+			},
+			false,
+		},
+
+		{
+			`foo ${foo(42)["foo"]}`,
+			&ast.BasicScope{
+				FuncMap: map[string]ast.Function{
+					"foo": ast.Function{
+						ArgTypes:   []ast.Type{ast.TypeString},
+						ReturnType: ast.TypeMap{ast.TypeString},
 					},
 				},
 			},
@@ -475,7 +667,7 @@ func TestTypeCheck_implicit(t *testing.T) {
 			visitor = &TypeCheck{Scope: tc.Scope}
 			err = visitor.Visit(node)
 			if err != nil {
-				t.Fatalf("Error: %s\n\nInput: %s", err, tc.Input)
+				t.Fatalf("Error on second pass: %s\n\nInput: %s", err, tc.Input)
 			}
 		})
 	}

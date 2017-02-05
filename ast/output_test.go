@@ -43,7 +43,7 @@ func TestOutput_type(t *testing.T) {
 			Scope: &BasicScope{
 				VarMap: map[string]Variable{
 					"testvar": Variable{
-						Type: TypeList,
+						Type: TypeList{TypeString},
 						Value: []Variable{
 							Variable{
 								Type:  TypeString,
@@ -57,7 +57,7 @@ func TestOutput_type(t *testing.T) {
 					},
 				},
 			},
-			ReturnType: TypeList,
+			ReturnType: TypeList{TypeString},
 		},
 		{
 			Name: "Single map expression",
@@ -71,7 +71,7 @@ func TestOutput_type(t *testing.T) {
 			Scope: &BasicScope{
 				VarMap: map[string]Variable{
 					"testvar": Variable{
-						Type: TypeMap,
+						Type: TypeMap{TypeString},
 						Value: map[string]Variable{
 							"key1": Variable{
 								Type:  TypeString,
@@ -85,7 +85,7 @@ func TestOutput_type(t *testing.T) {
 					},
 				},
 			},
-			ReturnType: TypeMap,
+			ReturnType: TypeMap{TypeString},
 		},
 		{
 			Name: "Multiple map expressions",
@@ -102,7 +102,7 @@ func TestOutput_type(t *testing.T) {
 			Scope: &BasicScope{
 				VarMap: map[string]Variable{
 					"testvar": Variable{
-						Type: TypeMap,
+						Type: TypeMap{TypeString},
 						Value: map[string]Variable{
 							"key1": Variable{
 								Type:  TypeString,
@@ -134,7 +134,7 @@ func TestOutput_type(t *testing.T) {
 			Scope: &BasicScope{
 				VarMap: map[string]Variable{
 					"testvar": Variable{
-						Type: TypeList,
+						Type: TypeList{TypeString},
 						Value: []Variable{
 							Variable{
 								Type:  TypeString,

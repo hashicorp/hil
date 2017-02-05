@@ -41,7 +41,7 @@ func TestEval(t *testing.T) {
 			&ast.BasicScope{
 				VarMap: map[string]ast.Variable{
 					"var.alist": ast.Variable{
-						Type: ast.TypeList,
+						Type: ast.TypeList{ast.TypeString},
 						Value: []ast.Variable{
 							ast.Variable{
 								Type:  ast.TypeString,
@@ -64,7 +64,7 @@ func TestEval(t *testing.T) {
 			&ast.BasicScope{
 				VarMap: map[string]ast.Variable{
 					"var.alist": ast.Variable{
-						Type: ast.TypeList,
+						Type: ast.TypeList{ast.TypeString},
 						Value: []ast.Variable{
 							ast.Variable{
 								Type:  ast.TypeString,
@@ -83,11 +83,65 @@ func TestEval(t *testing.T) {
 			TypeString,
 		},
 		{
+			"${var.alist[0][1]}",
+			&ast.BasicScope{
+				VarMap: map[string]ast.Variable{
+					"var.alist": ast.Variable{
+						Type: ast.TypeList{ast.TypeList{ast.TypeString}},
+						Value: []ast.Variable{
+							ast.Variable{
+								Type: ast.TypeList{ast.TypeString},
+								Value: []ast.Variable{
+									ast.Variable{
+										Type:  ast.TypeString,
+										Value: "Hello",
+									},
+									ast.Variable{
+										Type:  ast.TypeString,
+										Value: "World",
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+			false,
+			"World",
+			TypeString,
+		},
+		{
+			"${makealist()[1]}",
+			&ast.BasicScope{
+				FuncMap: map[string]ast.Function{
+					"makealist": ast.Function{
+						ArgTypes:   []ast.Type{},
+						ReturnType: ast.TypeList{ast.TypeString},
+						Callback: func(args []interface{}) (interface{}, error) {
+							return []ast.Variable{
+								ast.Variable{
+									Type:  ast.TypeString,
+									Value: "Hello",
+								},
+								ast.Variable{
+									Type:  ast.TypeString,
+									Value: "World",
+								},
+							}, nil
+						},
+					},
+				},
+			},
+			false,
+			"World",
+			TypeString,
+		},
+		{
 			`${var.alist["1"]}`,
 			&ast.BasicScope{
 				VarMap: map[string]ast.Variable{
 					"var.alist": ast.Variable{
-						Type: ast.TypeList,
+						Type: ast.TypeList{ast.TypeString},
 						Value: []ast.Variable{
 							ast.Variable{
 								Type:  ast.TypeString,
@@ -110,7 +164,7 @@ func TestEval(t *testing.T) {
 			&ast.BasicScope{
 				VarMap: map[string]ast.Variable{
 					"var.alist": ast.Variable{
-						Type: ast.TypeList,
+						Type: ast.TypeList{ast.TypeString},
 						Value: []ast.Variable{
 							ast.Variable{
 								Type:  ast.TypeString,
@@ -133,7 +187,7 @@ func TestEval(t *testing.T) {
 			&ast.BasicScope{
 				VarMap: map[string]ast.Variable{
 					"var.alist": ast.Variable{
-						Type: ast.TypeList,
+						Type: ast.TypeList{ast.TypeString},
 						Value: []ast.Variable{
 							ast.Variable{
 								Type:  ast.TypeString,
@@ -156,7 +210,7 @@ func TestEval(t *testing.T) {
 			&ast.BasicScope{
 				VarMap: map[string]ast.Variable{
 					"var.alist": ast.Variable{
-						Type: ast.TypeList,
+						Type: ast.TypeList{ast.TypeString},
 						Value: []ast.Variable{
 							ast.Variable{
 								Type:  ast.TypeString,
@@ -179,7 +233,7 @@ func TestEval(t *testing.T) {
 			&ast.BasicScope{
 				VarMap: map[string]ast.Variable{
 					"foo": ast.Variable{
-						Type: ast.TypeMap,
+						Type: ast.TypeMap{ast.TypeString},
 						Value: map[string]ast.Variable{
 							"foo": ast.Variable{
 								Type:  ast.TypeString,
@@ -205,7 +259,7 @@ func TestEval(t *testing.T) {
 			&ast.BasicScope{
 				VarMap: map[string]ast.Variable{
 					"foo": ast.Variable{
-						Type: ast.TypeMap,
+						Type: ast.TypeMap{ast.TypeString},
 						Value: map[string]ast.Variable{
 							"foo": ast.Variable{
 								Type:  ast.TypeString,
@@ -228,7 +282,7 @@ func TestEval(t *testing.T) {
 			&ast.BasicScope{
 				VarMap: map[string]ast.Variable{
 					"foo": ast.Variable{
-						Type: ast.TypeMap,
+						Type: ast.TypeMap{ast.TypeString},
 						Value: map[string]ast.Variable{
 							"foo": ast.Variable{
 								Type:  ast.TypeString,
@@ -250,7 +304,7 @@ func TestEval(t *testing.T) {
 			&ast.BasicScope{
 				VarMap: map[string]ast.Variable{
 					"foo": ast.Variable{
-						Type: ast.TypeMap,
+						Type: ast.TypeMap{ast.TypeString},
 						Value: map[string]ast.Variable{
 							"foo": ast.Variable{
 								Type:  ast.TypeString,
@@ -273,7 +327,7 @@ func TestEval(t *testing.T) {
 			&ast.BasicScope{
 				VarMap: map[string]ast.Variable{
 					"foo": ast.Variable{
-						Type: ast.TypeMap,
+						Type: ast.TypeMap{ast.TypeString},
 						Value: map[string]ast.Variable{
 							"3": ast.Variable{
 								Type:  ast.TypeString,
@@ -292,7 +346,7 @@ func TestEval(t *testing.T) {
 			&ast.BasicScope{
 				VarMap: map[string]ast.Variable{
 					"foo": ast.Variable{
-						Type: ast.TypeMap,
+						Type: ast.TypeMap{ast.TypeString},
 						Value: map[string]ast.Variable{
 							"foo": ast.Variable{
 								Type:  ast.TypeString,
@@ -315,7 +369,7 @@ func TestEval(t *testing.T) {
 			&ast.BasicScope{
 				VarMap: map[string]ast.Variable{
 					"foo": ast.Variable{
-						Type: ast.TypeMap,
+						Type: ast.TypeMap{ast.TypeString},
 						Value: map[string]ast.Variable{
 							"foo": ast.Variable{
 								Type:  ast.TypeString,
@@ -391,7 +445,7 @@ func TestEval(t *testing.T) {
 			&ast.BasicScope{
 				VarMap: map[string]ast.Variable{
 					"foo": ast.Variable{
-						Type: ast.TypeMap,
+						Type: ast.TypeMap{ast.TypeString},
 						Value: map[string]ast.Variable{
 							"foo": ast.Variable{
 								Type:  ast.TypeString,
@@ -417,7 +471,7 @@ func TestEval(t *testing.T) {
 			&ast.BasicScope{
 				VarMap: map[string]ast.Variable{
 					"var.alist": ast.Variable{
-						Type: ast.TypeList,
+						Type: ast.TypeList{ast.TypeString},
 						Value: []ast.Variable{
 							ast.Variable{
 								Type:  ast.TypeString,
@@ -452,7 +506,7 @@ func TestEval(t *testing.T) {
 				},
 				VarMap: map[string]ast.Variable{
 					"foo": ast.Variable{
-						Type: ast.TypeMap,
+						Type: ast.TypeMap{ast.TypeString},
 						Value: map[string]ast.Variable{
 							"KEY": ast.Variable{
 								Type:  ast.TypeString,
@@ -484,7 +538,7 @@ func TestEval(t *testing.T) {
 				},
 				VarMap: map[string]ast.Variable{
 					"foo": ast.Variable{
-						Type: ast.TypeMap,
+						Type: ast.TypeMap{ast.TypeString},
 						Value: map[string]ast.Variable{
 							"KEY": ast.Variable{
 								Type:  ast.TypeString,
@@ -506,7 +560,7 @@ func TestEval(t *testing.T) {
 			&ast.BasicScope{
 				FuncMap: map[string]ast.Function{
 					"upper": ast.Function{
-						ArgTypes:   []ast.Type{ast.TypeMap},
+						ArgTypes:   []ast.Type{ast.TypeMap{ast.TypeString}},
 						ReturnType: ast.TypeString,
 						Callback: func(args []interface{}) (interface{}, error) {
 							return "foo", nil
@@ -515,7 +569,7 @@ func TestEval(t *testing.T) {
 				},
 				VarMap: map[string]ast.Variable{
 					"foo": ast.Variable{
-						Type: ast.TypeMap,
+						Type: ast.TypeMap{ast.TypeUnknown},
 						Value: map[string]ast.Variable{
 							"KEY": ast.Variable{
 								Type: ast.TypeUnknown,
@@ -587,7 +641,7 @@ func TestEvalInternal(t *testing.T) {
 			&ast.BasicScope{
 				VarMap: map[string]ast.Variable{
 					"var.alist": ast.Variable{
-						Type: ast.TypeList,
+						Type: ast.TypeList{ast.TypeString},
 						Value: []ast.Variable{
 							ast.Variable{
 								Type:  ast.TypeString,
@@ -612,7 +666,7 @@ func TestEvalInternal(t *testing.T) {
 					Value: "World",
 				},
 			},
-			ast.TypeList,
+			ast.TypeList{ast.TypeString},
 		},
 
 		{
@@ -1091,7 +1145,7 @@ func TestEvalInternal(t *testing.T) {
 			&ast.BasicScope{
 				VarMap: map[string]ast.Variable{
 					"foo": ast.Variable{
-						Type: ast.TypeMap,
+						Type: ast.TypeMap{ast.TypeString},
 						Value: map[string]ast.Variable{
 							"foo": ast.Variable{
 								Type:  ast.TypeString,
@@ -1115,7 +1169,7 @@ func TestEvalInternal(t *testing.T) {
 			&ast.BasicScope{
 				VarMap: map[string]ast.Variable{
 					"foo": ast.Variable{
-						Type: ast.TypeMap,
+						Type: ast.TypeMap{ast.TypeString},
 						Value: map[string]ast.Variable{
 							"foo": ast.Variable{
 								Type:  ast.TypeString,
@@ -1143,7 +1197,7 @@ func TestEvalInternal(t *testing.T) {
 			&ast.BasicScope{
 				VarMap: map[string]ast.Variable{
 					"foo": ast.Variable{
-						Type: ast.TypeMap,
+						Type: ast.TypeMap{ast.TypeString},
 						Value: map[string]ast.Variable{
 							"foo": ast.Variable{
 								Type:  ast.TypeString,
@@ -1156,7 +1210,7 @@ func TestEvalInternal(t *testing.T) {
 						},
 					},
 					"bar": ast.Variable{
-						Type: ast.TypeList,
+						Type: ast.TypeList{ast.TypeString},
 						Value: []ast.Variable{
 							ast.Variable{
 								Type:  ast.TypeString,
@@ -1184,7 +1238,7 @@ func TestEvalInternal(t *testing.T) {
 			&ast.BasicScope{
 				VarMap: map[string]ast.Variable{
 					"foo": ast.Variable{
-						Type: ast.TypeMap,
+						Type: ast.TypeMap{ast.TypeString},
 						Value: map[string]ast.Variable{
 							"foo": ast.Variable{
 								Type:  ast.TypeString,
@@ -1197,7 +1251,7 @@ func TestEvalInternal(t *testing.T) {
 						},
 					},
 					"bar": ast.Variable{
-						Type: ast.TypeList,
+						Type: ast.TypeList{ast.TypeInt},
 						Value: []ast.Variable{
 							ast.Variable{
 								Type:  ast.TypeInt,
@@ -1221,7 +1275,7 @@ func TestEvalInternal(t *testing.T) {
 			&ast.BasicScope{
 				VarMap: map[string]ast.Variable{
 					"foo": ast.Variable{
-						Type: ast.TypeList,
+						Type: ast.TypeList{ast.TypeString},
 						Value: []ast.Variable{
 							ast.Variable{
 								Type:  ast.TypeString,
@@ -1245,7 +1299,7 @@ func TestEvalInternal(t *testing.T) {
 			&ast.BasicScope{
 				VarMap: map[string]ast.Variable{
 					"foo": ast.Variable{
-						Type: ast.TypeList,
+						Type: ast.TypeList{ast.TypeString},
 						Value: []ast.Variable{
 							ast.Variable{
 								Type:  ast.TypeString,
@@ -1273,7 +1327,7 @@ func TestEvalInternal(t *testing.T) {
 			&ast.BasicScope{
 				VarMap: map[string]ast.Variable{
 					"foo": ast.Variable{
-						Type: ast.TypeList,
+						Type: ast.TypeList{ast.TypeString},
 						Value: []ast.Variable{
 							ast.Variable{
 								Type:  ast.TypeString,
@@ -1286,7 +1340,7 @@ func TestEvalInternal(t *testing.T) {
 						},
 					},
 					"bar": ast.Variable{
-						Type: ast.TypeList,
+						Type: ast.TypeList{ast.TypeInt},
 						Value: []ast.Variable{
 							ast.Variable{
 								Type:  ast.TypeInt,
@@ -1325,7 +1379,7 @@ func TestEvalInternal(t *testing.T) {
 			&ast.BasicScope{
 				VarMap: map[string]ast.Variable{
 					"foo": ast.Variable{
-						Type: ast.TypeList,
+						Type: ast.TypeList{ast.TypeInt},
 						Value: []ast.Variable{
 							ast.Variable{
 								Type:  ast.TypeInt,
@@ -1349,7 +1403,7 @@ func TestEvalInternal(t *testing.T) {
 			&ast.BasicScope{
 				VarMap: map[string]ast.Variable{
 					"foo": ast.Variable{
-						Type: ast.TypeList,
+						Type: ast.TypeList{ast.TypeInt},
 						Value: []ast.Variable{
 							ast.Variable{
 								Type:  ast.TypeInt,
@@ -1373,7 +1427,7 @@ func TestEvalInternal(t *testing.T) {
 			&ast.BasicScope{
 				VarMap: map[string]ast.Variable{
 					"var.foo": ast.Variable{
-						Type: ast.TypeList,
+						Type: ast.TypeList{ast.TypeString},
 						Value: []ast.Variable{
 							ast.Variable{
 								Type:  ast.TypeString,
@@ -1397,7 +1451,7 @@ func TestEvalInternal(t *testing.T) {
 			&ast.BasicScope{
 				VarMap: map[string]ast.Variable{
 					"var.foo": ast.Variable{
-						Type: ast.TypeList,
+						Type: ast.TypeList{ast.TypeString},
 						Value: []ast.Variable{
 							ast.Variable{
 								Type:  ast.TypeString,
@@ -1421,7 +1475,7 @@ func TestEvalInternal(t *testing.T) {
 			&ast.BasicScope{
 				VarMap: map[string]ast.Variable{
 					"foo": ast.Variable{
-						Type: ast.TypeList,
+						Type: ast.TypeList{ast.TypeInt},
 						Value: []ast.Variable{
 							ast.Variable{
 								Type:  ast.TypeInt,
@@ -1445,7 +1499,7 @@ func TestEvalInternal(t *testing.T) {
 			&ast.BasicScope{
 				VarMap: map[string]ast.Variable{
 					"foo": ast.Variable{
-						Type: ast.TypeList,
+						Type: ast.TypeList{ast.TypeInt},
 						Value: []ast.Variable{
 							ast.Variable{
 								Type:  ast.TypeInt,
@@ -1469,7 +1523,7 @@ func TestEvalInternal(t *testing.T) {
 			&ast.BasicScope{
 				VarMap: map[string]ast.Variable{
 					"foo": ast.Variable{
-						Type: ast.TypeList,
+						Type: ast.TypeList{ast.TypeInt},
 						Value: []ast.Variable{
 							ast.Variable{
 								Type:  ast.TypeInt,
