@@ -152,6 +152,43 @@ func TestEval(t *testing.T) {
 			TypeString,
 		},
 		{
+			"${var.alist[1]}",
+			&ast.BasicScope{
+				VarMap: map[string]ast.Variable{
+					"var.alist": ast.Variable{
+						Type:  ast.TypeUnknown,
+						Value: UnknownValue,
+					},
+				},
+			},
+			false,
+			UnknownValue,
+			TypeUnknown,
+		},
+		{
+			"${var.alist[var.index]}",
+			&ast.BasicScope{
+				VarMap: map[string]ast.Variable{
+					"var.alist": ast.Variable{
+						Type: ast.TypeList,
+						Value: []ast.Variable{
+							ast.Variable{
+								Type:  ast.TypeString,
+								Value: "Hello",
+							},
+						},
+					},
+					"var.index": ast.Variable{
+						Type:  ast.TypeUnknown,
+						Value: UnknownValue,
+					},
+				},
+			},
+			false,
+			UnknownValue,
+			TypeUnknown,
+		},
+		{
 			"${var.alist} ${var.alist}",
 			&ast.BasicScope{
 				VarMap: map[string]ast.Variable{
@@ -173,6 +210,29 @@ func TestEval(t *testing.T) {
 			true,
 			nil,
 			TypeInvalid,
+		},
+		{
+			"${var.alist[1]}",
+			&ast.BasicScope{
+				VarMap: map[string]ast.Variable{
+					"var.alist": ast.Variable{
+						Type: ast.TypeList,
+						Value: []ast.Variable{
+							ast.Variable{
+								Type:  ast.TypeUnknown,
+								Value: UnknownValue,
+							},
+							ast.Variable{
+								Type:  ast.TypeString,
+								Value: "World",
+							},
+						},
+					},
+				},
+			},
+			false,
+			"World",
+			TypeString,
 		},
 		{
 			`${foo}`,
@@ -224,6 +284,28 @@ func TestEval(t *testing.T) {
 			TypeString,
 		},
 		{
+			`${foo["foo"]}`,
+			&ast.BasicScope{
+				VarMap: map[string]ast.Variable{
+					"foo": ast.Variable{
+						Type: ast.TypeMap,
+						Value: map[string]ast.Variable{
+							"foo": ast.Variable{
+								Type:  ast.TypeString,
+								Value: "hello",
+							},
+							"bar": ast.Variable{
+								Type: ast.TypeUnknown,
+							},
+						},
+					},
+				},
+			},
+			false,
+			"hello",
+			TypeString,
+		},
+		{
 			`${foo["bar"]}`,
 			&ast.BasicScope{
 				VarMap: map[string]ast.Variable{
@@ -244,6 +326,28 @@ func TestEval(t *testing.T) {
 			false,
 			UnknownValue,
 			TypeUnknown,
+		},
+		{
+			`${foo["foo"]} foo`,
+			&ast.BasicScope{
+				VarMap: map[string]ast.Variable{
+					"foo": ast.Variable{
+						Type: ast.TypeMap,
+						Value: map[string]ast.Variable{
+							"foo": ast.Variable{
+								Type:  ast.TypeString,
+								Value: "hello",
+							},
+							"bar": ast.Variable{
+								Type: ast.TypeUnknown,
+							},
+						},
+					},
+				},
+			},
+			false,
+			"hello foo",
+			TypeString,
 		},
 		{
 			`${foo["bar"]} foo`,
@@ -437,6 +541,93 @@ func TestEval(t *testing.T) {
 				"World",
 			},
 			TypeList,
+		},
+		{
+			"${var.alist[0] + var.alist[1]}",
+			&ast.BasicScope{
+				VarMap: map[string]ast.Variable{
+					"var.alist": ast.Variable{
+						Type: ast.TypeList,
+						Value: []ast.Variable{
+							ast.Variable{
+								Type:  ast.TypeUnknown,
+								Value: UnknownValue,
+							},
+							ast.Variable{
+								Type:  ast.TypeInt,
+								Value: 2,
+							},
+						},
+					},
+				},
+			},
+			false,
+			UnknownValue,
+			TypeUnknown,
+		},
+		{
+			"${join(var.alist)}",
+			&ast.BasicScope{
+				FuncMap: map[string]ast.Function{
+					"join": ast.Function{
+						ArgTypes:   []ast.Type{ast.TypeList},
+						ReturnType: ast.TypeString,
+						Callback: func(args []interface{}) (interface{}, error) {
+							return nil, fmt.Errorf("should never actually be called")
+						},
+					},
+				},
+				VarMap: map[string]ast.Variable{
+					"var.alist": ast.Variable{
+						Type: ast.TypeList,
+						Value: []ast.Variable{
+							ast.Variable{
+								Type:  ast.TypeUnknown,
+								Value: UnknownValue,
+							},
+							ast.Variable{
+								Type:  ast.TypeString,
+								Value: "World",
+							},
+						},
+					},
+				},
+			},
+			false,
+			UnknownValue,
+			TypeUnknown,
+		},
+		{
+			"${upper(var.alist[1])}",
+			&ast.BasicScope{
+				FuncMap: map[string]ast.Function{
+					"upper": ast.Function{
+						ArgTypes:   []ast.Type{ast.TypeString},
+						ReturnType: ast.TypeString,
+						Callback: func(args []interface{}) (interface{}, error) {
+							return strings.ToUpper(args[0].(string)), nil
+						},
+					},
+				},
+				VarMap: map[string]ast.Variable{
+					"var.alist": ast.Variable{
+						Type: ast.TypeList,
+						Value: []ast.Variable{
+							ast.Variable{
+								Type:  ast.TypeUnknown,
+								Value: UnknownValue,
+							},
+							ast.Variable{
+								Type:  ast.TypeString,
+								Value: "World",
+							},
+						},
+					},
+				},
+			},
+			false,
+			"WORLD",
+			TypeString,
 		},
 		{
 			`${foo[upper(bar)]}`,
@@ -964,6 +1155,21 @@ func TestEvalInternal(t *testing.T) {
 		},
 
 		{
+			"${var.do_it ? 5 : 7}",
+			&ast.BasicScope{
+				VarMap: map[string]ast.Variable{
+					"var.do_it": ast.Variable{
+						Value: UnknownValue,
+						Type:  ast.TypeUnknown,
+					},
+				},
+			},
+			false,
+			UnknownValue,
+			ast.TypeUnknown,
+		},
+
+		{
 			"foo ${-bar}",
 			&ast.BasicScope{
 				VarMap: map[string]ast.Variable{
@@ -1044,6 +1250,25 @@ func TestEvalInternal(t *testing.T) {
 			false,
 			"foo 0.003",
 			ast.TypeString,
+		},
+
+		{
+			"foo ${bar+baz}",
+			&ast.BasicScope{
+				VarMap: map[string]ast.Variable{
+					"bar": ast.Variable{
+						Value: UnknownValue,
+						Type:  ast.TypeUnknown,
+					},
+					"baz": ast.Variable{
+						Value: 1,
+						Type:  ast.TypeInt,
+					},
+				},
+			},
+			false,
+			UnknownValue,
+			ast.TypeUnknown,
 		},
 
 		{
