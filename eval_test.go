@@ -566,6 +566,34 @@ func TestEval(t *testing.T) {
 			TypeUnknown,
 		},
 		{
+			// Unknowns can short-circuit bits of our type checking
+			// AST transform, such as the promotion of arithmetic to
+			// functions. This test ensures that the evaluator and the
+			// type checker co-operate to ensure that this doesn't cause
+			// raw arithmetic nodes to be evaluated (which is not supported).
+			"${var.alist[0 + var.unknown]}",
+			&ast.BasicScope{
+				VarMap: map[string]ast.Variable{
+					"var.alist": ast.Variable{
+						Type: ast.TypeList,
+						Value: []ast.Variable{
+							ast.Variable{
+								Type:  ast.TypeInt,
+								Value: 2,
+							},
+						},
+					},
+					"var.unknown": ast.Variable{
+						Type:  ast.TypeUnknown,
+						Value: UnknownValue,
+					},
+				},
+			},
+			false,
+			UnknownValue,
+			TypeUnknown,
+		},
+		{
 			"${join(var.alist)}",
 			&ast.BasicScope{
 				FuncMap: map[string]ast.Function{
