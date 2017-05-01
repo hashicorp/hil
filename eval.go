@@ -405,8 +405,22 @@ func (v *evalOutput) Eval(s ast.Scope, stack *ast.Stack) (interface{}, ast.Type,
 	// The expressions should all be on the stack in reverse
 	// order. So pop them off, reverse their order, and concatenate.
 	nodes := make([]*ast.LiteralNode, 0, len(v.Exprs))
+	haveUnknown := false
 	for range v.Exprs {
-		nodes = append(nodes, stack.Pop().(*ast.LiteralNode))
+		n := stack.Pop().(*ast.LiteralNode)
+		nodes = append(nodes, n)
+
+		// If we have any unknowns then the whole result is unknown
+		// (we must deal with this first, because the type checker can
+		// skip type conversions in the presence of unknowns, and thus
+		// any of our other nodes may be incorrectly typed.)
+		if n.IsUnknown() {
+			haveUnknown = true
+		}
+	}
+
+	if haveUnknown {
+		return UnknownValue, ast.TypeUnknown, nil
 	}
 
 	// Special case the single list and map
@@ -424,8 +438,13 @@ func (v *evalOutput) Eval(s ast.Scope, stack *ast.Stack) (interface{}, ast.Type,
 	// Otherwise concatenate the strings
 	var buf bytes.Buffer
 	for i := len(nodes) - 1; i >= 0; i-- {
-		if nodes[i].IsUnknown() {
-			return UnknownValue, ast.TypeUnknown, nil
+		if nodes[i].Typex != ast.TypeString {
+			return nil, ast.TypeInvalid, fmt.Errorf(
+				"invalid output with %s value at index %d: %#v",
+				nodes[i].Typex,
+				i,
+				nodes[i].Value,
+			)
 		}
 		buf.WriteString(nodes[i].Value.(string))
 	}
