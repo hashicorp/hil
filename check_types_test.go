@@ -238,6 +238,70 @@ func TestTypeCheck(t *testing.T) {
 		},
 
 		{
+			// conditional with unknown value is permitted
+			`foo ${true ? known : unknown}`,
+			&ast.BasicScope{
+				VarMap: map[string]ast.Variable{
+					"known": ast.Variable{
+						Type:  ast.TypeString,
+						Value: "bar",
+					},
+					"unknown": ast.Variable{
+						Type:  ast.TypeUnknown,
+						Value: UnknownValue,
+					},
+				},
+			},
+			false,
+		},
+
+		{
+			// conditional with unknown value the other way permitted too
+			`foo ${true ? unknown : known}`,
+			&ast.BasicScope{
+				VarMap: map[string]ast.Variable{
+					"known": ast.Variable{
+						Type:  ast.TypeString,
+						Value: "bar",
+					},
+					"unknown": ast.Variable{
+						Type:  ast.TypeUnknown,
+						Value: UnknownValue,
+					},
+				},
+			},
+			false,
+		},
+
+		{
+			// conditional with two unknowns is allowed
+			`foo ${true ? unknown : unknown}`,
+			&ast.BasicScope{
+				VarMap: map[string]ast.Variable{
+					"unknown": ast.Variable{
+						Type:  ast.TypeUnknown,
+						Value: UnknownValue,
+					},
+				},
+			},
+			false,
+		},
+
+		{
+			// conditional with unknown condition is allowed
+			`foo ${unknown ? 1 : 2}`,
+			&ast.BasicScope{
+				VarMap: map[string]ast.Variable{
+					"unknown": ast.Variable{
+						Type:  ast.TypeUnknown,
+						Value: UnknownValue,
+					},
+				},
+			},
+			false,
+		},
+
+		{
 			// currently lists are not allowed at all
 			`foo ${true ? arr1 : arr2}`,
 			&ast.BasicScope{
