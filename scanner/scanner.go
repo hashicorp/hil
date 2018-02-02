@@ -1,6 +1,7 @@
 package scanner
 
 import (
+	"strings"
 	"unicode"
 	"unicode/utf8"
 
@@ -283,7 +284,8 @@ func scanInterpolationToken(s string, startPos ast.Pos) (*Token, int, ast.Pos) {
 				Pos:     pos,
 			}
 		} else if stringStartsWithIdentifier(s) {
-			ident, runeLen := scanIdentifier(s)
+			jumpLen := 0
+			ident, runeLen, replLen := scanIdentifier(s)
 			tokenType := IDENTIFIER
 			if ident == "true" || ident == "false" {
 				tokenType = BOOL
@@ -296,7 +298,8 @@ func scanInterpolationToken(s string, startPos ast.Pos) (*Token, int, ast.Pos) {
 			// Skip usual token handling because it doesn't
 			// know how to deal with UTF-8 sequences.
 			pos.Column = pos.Column + runeLen
-			return token, size + len(ident), pos
+			jumpLen = size + len(ident) + replLen
+			return token, jumpLen, pos
 		} else {
 			_, byteLen := utf8.DecodeRuneInString(s)
 			token = &Token{
@@ -327,7 +330,6 @@ func scanLiteral(s string, startPos ast.Pos, nested bool) (string, *Token) {
 	pos := startPos
 	var terminator *Token
 	for {
-
 		if litLen >= len(s) {
 			if nested {
 				// We've ended in the middle of a quoted string,
@@ -474,23 +476,29 @@ func scanNumber(s string) (string, TokenType) {
 // Identifiers may contain utf8-encoded non-Latin letters, which will
 // cause the returned "rune length" to be shorter than the byte length
 // of the returned string.
-func scanIdentifier(s string) (string, int) {
+func scanIdentifier(s string) (string, int, int) {
 	byteLen := 0
 	runeLen := 0
+	replLen := 0
 	for {
 		if byteLen >= len(s) {
 			break
 		}
 
 		nextRune, size := utf8.DecodeRuneInString(s[byteLen:])
-		if !(nextRune == '_' ||
+		if (!(nextRune == '_' ||
 			nextRune == '-' ||
 			nextRune == '.' ||
 			nextRune == '*' ||
 			unicode.IsNumber(nextRune) ||
 			unicode.IsLetter(nextRune) ||
-			unicode.IsMark(nextRune)) {
-			break
+			unicode.IsMark(nextRune)) && nextRune != '\\') {
+			if byteLen > 0 && s[byteLen-1] == '\\' {
+				// Escaped character, let the scanner know we skipped
+				replLen = replLen + 1
+			} else {
+				break
+			}
 		}
 
 		// If we reach a star, it must be between periods to be part
@@ -513,8 +521,8 @@ func scanIdentifier(s string) (string, int) {
 		byteLen = byteLen + size
 		runeLen = runeLen + 1
 	}
-
-	return s[:byteLen], runeLen
+	t := strings.Replace(s[:byteLen], "\\", "", -1)
+	return t, runeLen, replLen
 }
 
 // byteIsSpace implements a restrictive interpretation of spaces that includes

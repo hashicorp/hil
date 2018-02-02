@@ -73,6 +73,11 @@ func TestScanner(t *testing.T) {
 		},
 
 		{
+			"foo ${bar.foo\\[bar\\].baz}",
+			[]TokenType{LITERAL, BEGIN, IDENTIFIER, END, EOF},
+		},
+
+		{
 			"foo $${bar}",
 			[]TokenType{LITERAL, EOF},
 		},
