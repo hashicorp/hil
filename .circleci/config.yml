@@ -148,9 +148,6 @@ jobs:
             echo "mode: set" > coverage.out
             grep -h -v "mode: set" cov_*.part >> coverage.out
             go tool cover -html=coverage.out -o $TEST_RESULTS_DIR/hil/coverage.html
-      - run:
-          name: codecov upload
-          command: bash <(curl -s https://codecov.io/bash)
       - store_artifacts:
           path: *TEST_RESULTS_DIR
 
@@ -173,7 +170,7 @@ workflows:
             parameters:
               go-version: ["1.14"]
           context: hil
-          name: codecov-upload
+          name: coverage-merge
           requires: 
             - linux-tests
             - win-tests
