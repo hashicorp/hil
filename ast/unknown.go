@@ -1,3 +1,6 @@
+// Copyright (c) HashiCorp, Inc.
+// SPDX-License-Identifier: MPL-2.0
+
 package ast
 
 // IsUnknown reports whether a variable is unknown or contains any value
