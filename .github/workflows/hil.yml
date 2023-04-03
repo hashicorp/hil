@@ -2,7 +2,7 @@ name: hashicorp/hil/hil
 on:
   push:
     branches:
-    - master
+      - master
 jobs:
   linux-tests:
     runs-on: ubuntu-latest
@@ -17,26 +17,26 @@ jobs:
     strategy:
       matrix:
         go-version:
-        - '1.14'
+          - '1.14'
     steps:
-    - uses: actions/checkout@8f4b7f84864484a7bf31766abe9204da3cbe65b3 # v3.5.0
-    - uses: actions/download-artifact@9bc31d5ccc31df68ecc42ccf4149144866c47d8a # v3.0.2
-      with:
-        path: "."
-    - run: mkdir -p $TEST_RESULTS_DIR/hil
-    - uses: "./.github/actions/run-gotests"
-      with:
-        cmd: gotestsum
-        platform: linux
-    - uses: actions/upload-artifact@0b7f8abb1508181956e8e162db84b466c27e18ce # v3.1.2
-      with:
-        path: "./cov_linux_*.part"
-    - uses: actions/upload-artifact@0b7f8abb1508181956e8e162db84b466c27e18ce # v3.1.2
-      with:
-        path: "/tmp/test-results"
-    - uses: actions/upload-artifact@0b7f8abb1508181956e8e162db84b466c27e18ce # v3.1.2
-      with:
-        path: "/tmp/test-results"
+      - uses: actions/checkout@8f4b7f84864484a7bf31766abe9204da3cbe65b3 # v3.5.0
+      - uses: actions/download-artifact@9bc31d5ccc31df68ecc42ccf4149144866c47d8a # v3.0.2
+        with:
+          path: "."
+      - run: mkdir -p $TEST_RESULTS_DIR/hil
+      - uses: "./.github/actions/run-gotests"
+        with:
+          cmd: gotestsum
+          platform: linux
+      - uses: actions/upload-artifact@0b7f8abb1508181956e8e162db84b466c27e18ce # v3.1.2
+        with:
+          path: "./cov_linux_*.part"
+      - uses: actions/upload-artifact@0b7f8abb1508181956e8e162db84b466c27e18ce # v3.1.2
+        with:
+          path: "/tmp/test-results"
+      - uses: actions/upload-artifact@0b7f8abb1508181956e8e162db84b466c27e18ce # v3.1.2
+        with:
+          path: "/tmp/test-results"
   win-tests:
     defaults:
       run:
@@ -51,67 +51,67 @@ jobs:
     strategy:
       matrix:
         go-version:
-        - '1.14'
+          - '1.14'
         gotestsum-version:
-        - 0.4.1
+          - 0.4.1
     steps:
-    - run: git config --global core.autocrlf false
-    - uses: actions/checkout@8f4b7f84864484a7bf31766abe9204da3cbe65b3 # v3.5.0
-    - uses: actions/download-artifact@9bc31d5ccc31df68ecc42ccf4149144866c47d8a # v3.0.2
-      with:
-        path: "."
-    - name: Setup (remove pre-installed go v1.12)
-      run: |-
-        rm -rf "c:\Go"
-        mkdir -p $TEST_RESULTS_DIR/hil
-    - name: restore_cache
-      uses: actions/cache@88522ab9f39a2ea568f7027eddc7d8d8bc9d59c8 # v3.3.1
-      with:
-        key: win-golang-${{ matrix.go-version }}-cache-v1
-        restore-keys: |-
-          win-golang-${{ matrix.go-version }}-cache-v1
-          win-gomod-cache-{{ checksum "go.mod" }}-v1
-        path: "/go"
-    - name: Install go version ${{ matrix.go-version }}
-      run: |-
-        if [ ! -d "c:\go" ]; then
-          echo "Cache not found, installing new version of go"
-          curl --fail --location https://dl.google.com/go/go${{ matrix.go-version }}.windows-amd64.zip --output go.zip
-          unzip go.zip -d "/c"
-        fi
-    - name: Go mod download
-      run: |-
-        go mod verify
-        go mod download
-    - name: save_cache
-      uses: actions/cache@88522ab9f39a2ea568f7027eddc7d8d8bc9d59c8 # v3.3.1
-      with:
-        path: c:\Windows\system32\config\systemprofile\go\pkg\mod
-        key: win-gomod-cache-{{ checksum "go.mod" }}-v1
-    - name: Install gotestsum
-      run: |-
-        curl --fail --location https://github.com/gotestyourself/gotestsum/releases/download/v${{ matrix.gotestsum-version }}/gotestsum_${{ matrix.gotestsum-version }}_windows_amd64.tar.gz --output gotestsum.tar.gz
-        tar -xvzf gotestsum.tar.gz
-    - uses: "./.github/actions/run-gotests"
-      with:
-        cmd: "./gotestsum.exe"
-        platform: win
-    - uses: actions/upload-artifact@0b7f8abb1508181956e8e162db84b466c27e18ce # v3.1.2
-      with:
-        path: "./cov_win_*.part"
-    - uses: actions/upload-artifact@0b7f8abb1508181956e8e162db84b466c27e18ce # v3.1.2
-      with:
-        path: c:\Users\circleci\AppData\Local\Temp\test-results
-    - uses: actions/upload-artifact@0b7f8abb1508181956e8e162db84b466c27e18ce # v3.1.2
-      with:
-        path: c:\Users\circleci\AppData\Local\Temp\test-results
+      - run: git config --global core.autocrlf false
+      - uses: actions/checkout@8f4b7f84864484a7bf31766abe9204da3cbe65b3 # v3.5.0
+      - uses: actions/download-artifact@9bc31d5ccc31df68ecc42ccf4149144866c47d8a # v3.0.2
+        with:
+          path: "."
+      - name: Setup (remove pre-installed go v1.12)
+        run: |-
+          rm -rf "c:\Go"
+          mkdir -p $TEST_RESULTS_DIR/hil
+      - name: restore_cache
+        uses: actions/cache@88522ab9f39a2ea568f7027eddc7d8d8bc9d59c8 # v3.3.1
+        with:
+          key: win-golang-${{ matrix.go-version }}-cache-v1
+          restore-keys: |-
+            win-golang-${{ matrix.go-version }}-cache-v1
+            win-gomod-cache-{{ checksum "go.mod" }}-v1
+          path: "/go"
+      - name: Install go version ${{ matrix.go-version }}
+        run: |-
+          if [ ! -d "c:\go" ]; then
+            echo "Cache not found, installing new version of go"
+            curl --fail --location https://dl.google.com/go/go${{ matrix.go-version }}.windows-amd64.zip --output go.zip
+            unzip go.zip -d "/c"
+          fi
+      - name: Go mod download
+        run: |-
+          go mod verify
+          go mod download
+      - name: save_cache
+        uses: actions/cache@88522ab9f39a2ea568f7027eddc7d8d8bc9d59c8 # v3.3.1
+        with:
+          path: c:\Windows\system32\config\systemprofile\go\pkg\mod
+          key: win-gomod-cache-{{ checksum "go.mod" }}-v1
+      - name: Install gotestsum
+        run: |-
+          curl --fail --location https://github.com/gotestyourself/gotestsum/releases/download/v${{ matrix.gotestsum-version }}/gotestsum_${{ matrix.gotestsum-version }}_windows_amd64.tar.gz --output gotestsum.tar.gz
+          tar -xvzf gotestsum.tar.gz
+      - uses: "./.github/actions/run-gotests"
+        with:
+          cmd: "./gotestsum.exe"
+          platform: win
+      - uses: actions/upload-artifact@0b7f8abb1508181956e8e162db84b466c27e18ce # v3.1.2
+        with:
+          path: "./cov_win_*.part"
+      - uses: actions/upload-artifact@0b7f8abb1508181956e8e162db84b466c27e18ce # v3.1.2
+        with:
+          path: c:\Users\circleci\AppData\Local\Temp\test-results
+      - uses: actions/upload-artifact@0b7f8abb1508181956e8e162db84b466c27e18ce # v3.1.2
+        with:
+          path: c:\Users\circleci\AppData\Local\Temp\test-results
   coverage-merge:
     runs-on: ubuntu-latest
     container:
       image: docker.mirror.hashicorp.services/cimg/go:${{ matrix.go-version }}
     needs:
-    - linux-tests
-    - win-tests
+      - linux-tests
+      - win-tests
     env:
       GOMAXPROCS: 4
       GO111MODULE: 'on'
@@ -121,18 +121,20 @@ jobs:
     strategy:
       matrix:
         go-version:
-        - '1.14'
+          - '1.14'
     steps:
-    - uses: actions/checkout@8f4b7f84864484a7bf31766abe9204da3cbe65b3 # v3.5.0
-    - uses: actions/download-artifact@9bc31d5ccc31df68ecc42ccf4149144866c47d8a # v3.0.2
-      with:
-        path: "."
-    - run: mkdir -p $TEST_RESULTS_DIR/hil
-    - name: merge coverage reports
-      run: |-
-        echo "mode: set" > coverage.out
-        grep -h -v "mode: set" cov_*.part >> coverage.out
-        go tool cover -html=coverage.out -o $TEST_RESULTS_DIR/hil/coverage.html
-    - uses: actions/upload-artifact@0b7f8abb1508181956e8e162db84b466c27e18ce # v3.1.2
-      with:
-        path: "/tmp/test-results"
+      - uses: actions/checkout@8f4b7f84864484a7bf31766abe9204da3cbe65b3 # v3.5.0
+      - uses: actions/download-artifact@9bc31d5ccc31df68ecc42ccf4149144866c47d8a # v3.0.2
+        with:
+          path: "."
+      - run: mkdir -p $TEST_RESULTS_DIR/hil
+      - name: merge coverage reports
+        run: |-
+          echo "mode: set" > coverage.out
+          grep -h -v "mode: set" cov_*.part >> coverage.out
+          go tool cover -html=coverage.out -o $TEST_RESULTS_DIR/hil/coverage.html
+      - uses: actions/upload-artifact@0b7f8abb1508181956e8e162db84b466c27e18ce # v3.1.2
+        with:
+          path: "/tmp/test-results"
+permissions:
+  contents: read
