@@ -1,5 +1,4 @@
-# If the repository is public, be sure to change to GitHub hosted runners
-name: Lint GitHub Actions Workflows
+name: actionlint
 on:
   push:
   pull_request:
@@ -12,3 +11,5 @@ jobs:
       - uses: actions/checkout@ac593985615ec2ede58e132d2e21d2b1cbd6127c # v3.3.0
       - name: "Check workflow files"
         uses: docker://docker.mirror.hashicorp.services/rhysd/actionlint:latest
+        with:
+          args: -color
