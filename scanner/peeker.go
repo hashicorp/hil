@@ -1,3 +1,6 @@
+// Copyright (c) HashiCorp, Inc.
+// SPDX-License-Identifier: MPL-2.0
+
 package scanner
 
 // Peeker is a utility that wraps a token channel returned by Scan and
