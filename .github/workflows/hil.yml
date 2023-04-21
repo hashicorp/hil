@@ -28,7 +28,7 @@ jobs:
           go-version: ${{ matrix.go-version }}
 
       - name: Install gotestsum
-        uses: autero1/action-gotestsum@2e48af62f5248bd3b014f598cd1aa69a01dd36e3   # TSCCR: no entry for repository "autero1/action-gotestsum"
+        uses: autero1/action-gotestsum@7263b9d73912eec65f46337689e59fac865c425f   # TSCCR: no entry for repository "autero1/action-gotestsum"
         with:
           gotestsum_version: 1.9.0
 
@@ -65,7 +65,7 @@ jobs:
           go-version: ${{ matrix.go-version }}
 
       - name: Install gotestsum
-        uses: autero1/action-gotestsum@2e48af62f5248bd3b014f598cd1aa69a01dd36e3   # TSCCR: no entry for repository "autero1/action-gotestsum"
+        uses: autero1/action-gotestsum@7263b9d73912eec65f46337689e59fac865c425f   # TSCCR: no entry for repository "autero1/action-gotestsum"
         with:
           gotestsum_version: 1.9.0
 
