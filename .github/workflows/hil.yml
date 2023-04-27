@@ -17,7 +17,7 @@ jobs:
           - 'oldstable'
           - 'stable'
     steps:
-      - uses: actions/checkout@8e5e7e5ab8b370d6c329ec480221332ada57f0ab # v3.5.0
+      - uses: actions/checkout@8e5e7e5ab8b370d6c329ec480221332ada57f0ab # v3.5.2
 
       - name: Make Test Directory
         run: mkdir -p "$TEST_RESULTS_PATH"/hil
@@ -28,7 +28,7 @@ jobs:
           go-version: ${{ matrix.go-version }}
 
       - name: Install gotestsum
-        uses: autero1/action-gotestsum@2e48af62f5248bd3b014f598cd1aa69a01dd36e3   # TSCCR: no entry for repository "autero1/action-gotestsum"
+        uses: autero1/action-gotestsum@2e48af62f5248bd3b014f598cd1aa69a01dd36e3    # TSCCR: no entry for repository "autero1/action-gotestsum"
         with:
           gotestsum_version: 1.9.0
 
@@ -57,7 +57,7 @@ jobs:
           - 'stable'
     steps:
       - run: git config --global core.autocrlf false
-      - uses: actions/checkout@8e5e7e5ab8b370d6c329ec480221332ada57f0ab # v3.5.0
+      - uses: actions/checkout@8e5e7e5ab8b370d6c329ec480221332ada57f0ab # v3.5.2
 
       - name: Setup Go
         uses: actions/setup-go@4d34df0c2316fe8122ab82dc22947d607c0c91f9 # v4.0.0
@@ -65,7 +65,7 @@ jobs:
           go-version: ${{ matrix.go-version }}
 
       - name: Install gotestsum
-        uses: autero1/action-gotestsum@2e48af62f5248bd3b014f598cd1aa69a01dd36e3   # TSCCR: no entry for repository "autero1/action-gotestsum"
+        uses: autero1/action-gotestsum@2e48af62f5248bd3b014f598cd1aa69a01dd36e3    # TSCCR: no entry for repository "autero1/action-gotestsum"
         with:
           gotestsum_version: 1.9.0
 
