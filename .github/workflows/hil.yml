@@ -17,13 +17,13 @@ jobs:
           - 'oldstable'
           - 'stable'
     steps:
-      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
       - name: Make Test Directory
         run: mkdir -p "$TEST_RESULTS_PATH"/hil
       
       - name: Setup Go
-        uses: actions/setup-go@93397bea11091df50f3d7e59dc26a7711a8bcfbe # v4.1.0
+        uses: actions/setup-go@f111f3307d8850f501ac008e886eec1fd1932a34 # v5.3.0
         with:
           go-version: ${{ matrix.go-version }}
 
@@ -40,7 +40,7 @@ jobs:
           gotestsum --format=short-verbose --junitfile ${{ env.REPORT_FILE }} -- -p 2 ./...
 
       - name: Upload Test Results
-        uses: actions/upload-artifact@0b7f8abb1508181956e8e162db84b466c27e18ce # v3.1.2
+        uses: actions/upload-artifact@65c4c4a1ddee5b72f698fdd19549f0f0fb45cf08 # v4.6.0
         with:
           path: ${{ env.TEST_RESULTS_PATH }}
           name: tests-linux
@@ -57,10 +57,10 @@ jobs:
           - 'stable'
     steps:
       - run: git config --global core.autocrlf false
-      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
       - name: Setup Go
-        uses: actions/setup-go@93397bea11091df50f3d7e59dc26a7711a8bcfbe # v4.1.0
+        uses: actions/setup-go@f111f3307d8850f501ac008e886eec1fd1932a34 # v5.3.0
         with:
           go-version: ${{ matrix.go-version }}
 
@@ -77,6 +77,6 @@ jobs:
           gotestsum.exe --format=short-verbose --junitfile ${{ env.REPORT_FILE }} -- -p 2 ./...
 
       - name: Upload Test Results
-        uses: actions/upload-artifact@0b7f8abb1508181956e8e162db84b466c27e18ce # v3.1.2
+        uses: actions/upload-artifact@65c4c4a1ddee5b72f698fdd19549f0f0fb45cf08 # v4.6.0
         with:
           path: ${{ env.TEST_RESULTS_PATH }}
