@@ -17,7 +17,8 @@ jobs:
           - 'oldstable'
           - 'stable'
     steps:
-      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+      - name: Checkout code
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
 
       - name: Make Test Directory
         run: mkdir -p "$TEST_RESULTS_PATH"/hil
@@ -37,13 +38,22 @@ jobs:
           PLATFORM: linux
           REPORT_FILE: ${{ env.TEST_RESULTS_PATH }}/hil/gotestsum-report.xml
         run: |-
-          gotestsum --format=short-verbose --junitfile ${{ env.REPORT_FILE }} -- -p 2 ./...
+          gotestsum --format=short-verbose --junitfile ${{ env.REPORT_FILE }} -- -p 2 -cover -coverprofile=coverage-linux.out ./...
 
       - name: Upload Test Results
         uses: actions/upload-artifact@0b7f8abb1508181956e8e162db84b466c27e18ce # v3.1.2
         with:
           path: ${{ env.TEST_RESULTS_PATH }}
-          name: tests-linux
+          name: tests-linux-${{matrix.go-version}}
+
+      - name: Upload coverage report
+        uses: actions/upload-artifact@0b7f8abb1508181956e8e162db84b466c27e18ce
+        with:
+          path: coverage-linux.out
+          name: Coverage-report-linux-${{matrix.go-version}}
+
+      - name: Display coverage report
+        run: go tool cover -func=coverage-linux.out
   
   windows-tests:
     runs-on: windows-latest
@@ -57,7 +67,9 @@ jobs:
           - 'stable'
     steps:
       - run: git config --global core.autocrlf false
-      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+
+      - name: Checkout code
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
 
       - name: Setup Go
         uses: actions/setup-go@93397bea11091df50f3d7e59dc26a7711a8bcfbe # v4.1.0
@@ -74,9 +86,21 @@ jobs:
           PLATFORM: windows
           REPORT_FILE: ${{ env.TEST_RESULTS_PATH }}/hil/gotestsum-report.xml
         run: |-
-          gotestsum.exe --format=short-verbose --junitfile ${{ env.REPORT_FILE }} -- -p 2 ./...
+          gotestsum.exe --format=short-verbose --junitfile ${{ env.REPORT_FILE }} -- -p 2 -cover -coverprofile="coverage-win.out" ./...
 
       - name: Upload Test Results
         uses: actions/upload-artifact@0b7f8abb1508181956e8e162db84b466c27e18ce # v3.1.2
         with:
           path: ${{ env.TEST_RESULTS_PATH }}
+          name: tests-windows-${{matrix.go-version}}
+
+      - name: Upload coverage report
+        uses: actions/upload-artifact@0b7f8abb1508181956e8e162db84b466c27e18ce
+        with:
+          path: coverage-win.out
+          name: Coverage-report-windows-${{matrix.go-version}}
+
+      - name: Display coverage report
+        run: go tool cover -func=coverage-win.out
+        shell: cmd
+        
