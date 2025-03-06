@@ -41,13 +41,13 @@ jobs:
           gotestsum --format=short-verbose --junitfile ${{ env.REPORT_FILE }} -- -p 2 -cover -coverprofile=coverage-linux.out ./...
 
       - name: Upload Test Results
-        uses: actions/upload-artifact@0b7f8abb1508181956e8e162db84b466c27e18ce # v3.1.2
+        uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808 # v4.3.3
         with:
           path: ${{ env.TEST_RESULTS_PATH }}
           name: tests-linux-${{matrix.go-version}}
 
       - name: Upload coverage report
-        uses: actions/upload-artifact@0b7f8abb1508181956e8e162db84b466c27e18ce
+        uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808 # v4.3.3
         with:
           path: coverage-linux.out
           name: Coverage-report-linux-${{matrix.go-version}}
@@ -89,13 +89,13 @@ jobs:
           gotestsum.exe --format=short-verbose --junitfile ${{ env.REPORT_FILE }} -- -p 2 -cover -coverprofile="coverage-win.out" ./...
 
       - name: Upload Test Results
-        uses: actions/upload-artifact@0b7f8abb1508181956e8e162db84b466c27e18ce # v3.1.2
+        uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808  # v4.3.3
         with:
           path: ${{ env.TEST_RESULTS_PATH }}
           name: tests-windows-${{matrix.go-version}}
 
       - name: Upload coverage report
-        uses: actions/upload-artifact@0b7f8abb1508181956e8e162db84b466c27e18ce
+        uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808  # v4.3.3
         with:
           path: coverage-win.out
           name: Coverage-report-windows-${{matrix.go-version}}
@@ -103,4 +103,4 @@ jobs:
       - name: Display coverage report
         run: go tool cover -func=coverage-win.out
         shell: cmd
-        
+
