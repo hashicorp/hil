@@ -46,7 +46,7 @@ func (p *Peeker) Read() *Token {
 // It's not necessary to call this if the caller reads the token stream
 // to EOF, since that implicitly closes the scanner.
 func (p *Peeker) Close() {
-	for _ = range p.ch {
+	for range p.ch {
 		// discard
 	}
 	// Install a synthetic EOF token in 'peeked' in case someone
