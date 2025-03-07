@@ -48,7 +48,7 @@ of the syntax and grammar is listed here.
 Code begins within `${` and `}`. Outside of this, text is treated
 literally. For example, `foo` is a valid HIL program that is just the
 string "foo", but `foo ${bar}` is an HIL program that is the string "foo "
-concatened with the value of `bar`. For the remainder of the syntax
+concatenated with the value of `bar`. For the remainder of the syntax
 docs, we'll assume you're within `${}`.
 
   * Identifiers are any text in the format of `[a-zA-Z0-9-.]`. Example
