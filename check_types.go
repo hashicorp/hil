@@ -111,7 +111,7 @@ type typeCheckArithmetic struct {
 func (tc *typeCheckArithmetic) TypeCheck(v *TypeCheck) (ast.Node, error) {
 	// The arguments are on the stack in reverse order, so pop them off.
 	exprs := make([]ast.Type, len(tc.n.Exprs))
-	for i, _ := range tc.n.Exprs {
+	for i := range tc.n.Exprs {
 		exprs[len(tc.n.Exprs)-1-i] = v.StackPop()
 	}
 
@@ -330,7 +330,7 @@ func (tc *typeCheckCall) TypeCheck(v *TypeCheck) (ast.Node, error) {
 
 	// The arguments are on the stack in reverse order, so pop them off.
 	args := make([]ast.Type, len(tc.n.Args))
-	for i, _ := range tc.n.Args {
+	for i := range tc.n.Args {
 		args[len(tc.n.Args)-1-i] = v.StackPop()
 	}
 
@@ -481,7 +481,7 @@ type typeCheckOutput struct {
 func (tc *typeCheckOutput) TypeCheck(v *TypeCheck) (ast.Node, error) {
 	n := tc.n
 	types := make([]ast.Type, len(n.Exprs))
-	for i, _ := range n.Exprs {
+	for i := range n.Exprs {
 		types[len(n.Exprs)-1-i] = v.StackPop()
 	}
 

@@ -87,9 +87,9 @@ func (t *Token) String() string {
 	case LITERAL:
 		return fmt.Sprintf("literal %q", t.Content)
 	case OQUOTE:
-		return fmt.Sprintf("opening quote")
+		return "opening quote"
 	case CQUOTE:
-		return fmt.Sprintf("closing quote")
+		return "closing quote"
 	case AND:
 		return "&&"
 	case OR:
