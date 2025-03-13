@@ -1,6 +1,6 @@
 module github.com/hashicorp/hil
 
-go 1.24.0
+go 1.23
 
 require (
 	github.com/mitchellh/mapstructure v1.5.0
