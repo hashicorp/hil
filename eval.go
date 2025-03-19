@@ -32,11 +32,12 @@ type SemanticChecker func(ast.Node) error
 // "natural" Go structure rather than in terms of the HIL AST.  For the types
 // currently implemented, this means that the Value field can be interpreted as
 // the following Go types:
-//     TypeInvalid: undefined
-//     TypeString:  string
-//     TypeList:    []interface{}
-//     TypeMap:     map[string]interface{}
-//     TypBool:     bool
+//
+//	TypeInvalid: undefined
+//	TypeString:  string
+//	TypeList:    []interface{}
+//	TypeMap:     map[string]interface{}
+//	TypBool:     bool
 type EvaluationResult struct {
 	Type  EvalType
 	Value interface{}
@@ -273,7 +274,7 @@ func (v *evalCall) Eval(s ast.Scope, stack *ast.Stack) (interface{}, ast.Type, e
 
 	// The arguments are on the stack in reverse order, so pop them off.
 	args := make([]interface{}, len(v.Args))
-	for i, _ := range v.Args {
+	for i := range v.Args {
 		node := stack.Pop().(*ast.LiteralNode)
 		if node.IsUnknown() {
 			// If any arguments are unknown then the result is automatically unknown
