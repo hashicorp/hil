@@ -9,7 +9,6 @@ updates:
       - dependencies
       - automated
       - github_actions
-    # only update HashiCorp actions, external actions managed by TSCCR
     groups:
       github-actions-breaking:
         update-types:
