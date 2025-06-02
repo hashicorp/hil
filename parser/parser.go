@@ -453,11 +453,7 @@ func (p *parser) ParseScopeInteraction() (ast.Node, error) {
 		p.peeker.Read() // eat paren
 		var args []ast.Node
 
-		for {
-			if p.peeker.Peek().Type == scanner.CPAREN {
-				break
-			}
-
+		for p.peeker.Peek().Type != scanner.CPAREN {
 			arg, err := p.ParseExpression()
 			if err != nil {
 				return nil, err

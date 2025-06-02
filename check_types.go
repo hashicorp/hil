@@ -97,7 +97,7 @@ func (v *TypeCheck) visit(raw ast.Node) ast.Node {
 
 	if err != nil {
 		pos := raw.Pos()
-		v.err = fmt.Errorf("At column %d, line %d: %s",
+		v.err = fmt.Errorf("at column %d, line %d: %s",
 			pos.Column, pos.Line, err)
 	}
 

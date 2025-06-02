@@ -7,7 +7,7 @@ import "fmt"
 
 func VariableListElementTypesAreHomogenous(variableName string, list []Variable) (Type, error) {
 	if len(list) == 0 {
-		return TypeInvalid, fmt.Errorf("list %q does not have any elements so cannot determine type.", variableName)
+		return TypeInvalid, fmt.Errorf("list %q does not have any elements so cannot determine type", variableName)
 	}
 
 	elemType := TypeUnknown
@@ -37,7 +37,7 @@ func VariableListElementTypesAreHomogenous(variableName string, list []Variable)
 
 func VariableMapValueTypesAreHomogenous(variableName string, vmap map[string]Variable) (Type, error) {
 	if len(vmap) == 0 {
-		return TypeInvalid, fmt.Errorf("map %q does not have any elements so cannot determine type.", variableName)
+		return TypeInvalid, fmt.Errorf("map %q does not have any elements so cannot determine type", variableName)
 	}
 
 	elemType := TypeUnknown

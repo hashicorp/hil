@@ -29,7 +29,7 @@ func NewVariable(v interface{}) (result Variable, err error) {
 	case reflect.String:
 		result.Type = TypeString
 	default:
-		err = fmt.Errorf("Unknown type: %s", v.Kind())
+		err = fmt.Errorf("unknown type: %s", v.Kind())
 	}
 
 	result.Value = v

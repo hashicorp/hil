@@ -32,7 +32,7 @@ func hilMapstructureWeakDecode(m interface{}, rawVal interface{}) error {
 			mapType := reflect.TypeOf(hilMapstructureDecodeHookMap)
 
 			if (source == sliceType || source == stringSliceType) && target == mapType {
-				return nil, fmt.Errorf("Cannot convert %s into a %s", source, target)
+				return nil, fmt.Errorf("cannot convert %s into a %s", source, target)
 			}
 
 			return val, nil

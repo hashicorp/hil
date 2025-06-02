@@ -5,7 +5,6 @@ package ast
 
 import (
 	"fmt"
-	"strings"
 )
 
 // Index represents an indexing operation into another data structure
@@ -62,16 +61,6 @@ func (n *Index) typeMap(variable Variable, variableName string) (Type, error) {
 	vmap := variable.Value.(map[string]Variable)
 
 	return VariableMapValueTypesAreHomogenous(variableName, vmap)
-}
-
-func reportTypes(typesFound map[Type]struct{}) string {
-	stringTypes := make([]string, len(typesFound))
-	i := 0
-	for k := range typesFound {
-		stringTypes[0] = k.String()
-		i++
-	}
-	return strings.Join(stringTypes, ", ")
 }
 
 func (n *Index) GoString() string {
