@@ -7,7 +7,6 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
-	"sync"
 
 	"github.com/hashicorp/hil/ast"
 )
@@ -170,8 +169,7 @@ type evalVisitor struct {
 	Scope ast.Scope
 	Stack ast.Stack
 
-	err  error
-	lock sync.Mutex
+	err error
 }
 
 func (v *evalVisitor) Visit(root ast.Node) (interface{}, ast.Type, error) {

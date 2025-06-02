@@ -1,7 +1,4 @@
+version: "2"
 linters:
- enable:
-   - errcheck
-   - gosimple
- disable:
-  - unused
-output_format: colored-line-number
+  exclusions:
+    generated: lax

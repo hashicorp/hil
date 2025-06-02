@@ -437,11 +437,7 @@ func scanNumber(s string) (string, TokenType) {
 	period := -1
 	byteLen := 0
 	numType := INTEGER
-	for {
-		if byteLen >= len(s) {
-			break
-		}
-
+	for byteLen < len(s) {
 		next := s[byteLen]
 		if next != '.' && (next < '0' || next > '9') {
 			// If our last value was a period, then we're not a float,
@@ -480,19 +476,16 @@ func scanNumber(s string) (string, TokenType) {
 func scanIdentifier(s string) (string, int) {
 	byteLen := 0
 	runeLen := 0
-	for {
-		if byteLen >= len(s) {
-			break
-		}
+	for byteLen < len(s) {
 
 		nextRune, size := utf8.DecodeRuneInString(s[byteLen:])
-		if !(nextRune == '_' ||
-			nextRune == '-' ||
-			nextRune == '.' ||
-			nextRune == '*' ||
-			unicode.IsNumber(nextRune) ||
-			unicode.IsLetter(nextRune) ||
-			unicode.IsMark(nextRune)) {
+		if nextRune != '_' &&
+			nextRune != '-' &&
+			nextRune != '.' &&
+			nextRune != '*' &&
+			!unicode.IsNumber(nextRune) &&
+			!unicode.IsLetter(nextRune) &&
+			!unicode.IsMark(nextRune) {
 			break
 		}
 
