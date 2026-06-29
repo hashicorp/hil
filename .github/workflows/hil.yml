@@ -9,6 +9,11 @@ permissions:
 jobs:
   lint:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        go-version:
+          - "oldstable"
+          - "stable"
     steps:
       - name: Checkout code
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
@@ -16,7 +21,7 @@ jobs:
       - name: Setup Go
         uses: actions/setup-go@7a3fe6cf4cb3a834922a1244abfce67bcef6a0c5 # v6.2.0
         with:
-          go-version: '1.23'
+          go-version: ${{ matrix.go-version }}
 
       - name: Run golangci-lint
         uses: golangci/golangci-lint-action@1e7e51e771db61008b38414a730f564565cf7c20 # v9.2.0
@@ -28,8 +33,8 @@ jobs:
     strategy:
       matrix:
         go-version:
-          - 'oldstable'
-          - 'stable'
+          - "oldstable"
+          - "stable"
     steps:
       - name: Checkout code
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
@@ -52,7 +57,7 @@ jobs:
           PLATFORM: linux
           REPORT_FILE: ${{ env.TEST_RESULTS_PATH }}/hil/gotestsum-report.xml
         run: |-
-          gotestsum --format=short-verbose --junitfile ${{ env.REPORT_FILE }} -- -p 2 -cover -coverprofile=coverage-linux.out ./...
+          gotestsum --format=short-verbose --junitfile ${{ env.REPORT_FILE }} -- -race -p 2 -cover -coverprofile=coverage-linux.out ./...
 
       - name: Upload Test Results
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
@@ -76,8 +81,8 @@ jobs:
     strategy:
       matrix:
         go-version:
-          - 'oldstable'
-          - 'stable'
+          - "oldstable"
+          - "stable"
     steps:
       - run: git config --global core.autocrlf false
 

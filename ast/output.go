@@ -1,4 +1,4 @@
-// Copyright IBM Corp. 2015, 2025
+// Copyright IBM Corp. 2015, 2026
 // SPDX-License-Identifier: MPL-2.0
 
 package ast
@@ -37,7 +37,7 @@ func (n *Output) GoString() string {
 func (n *Output) String() string {
 	var b bytes.Buffer
 	for _, expr := range n.Exprs {
-		b.WriteString(fmt.Sprintf("%s", expr))
+		fmt.Fprintf(&b, "%s", expr)
 	}
 
 	return b.String()
